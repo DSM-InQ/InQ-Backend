@@ -1,0 +1,28 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:mysql://{DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:test}?useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true&tinyInt1isBit=false&rewriteBatchedStatements=true
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:Cjve94uWhd7UWUt}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: ${FORMAT_SQL:true}
+        show_sql: ${SHOW_SQL:false}
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    open-in-view: false
+
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+secret:
+  secret-key: ${SECRET_KEY:asdfghgfds}
+  access-exp: ${ACCESS_EXP:1800000}

@@ -28,18 +28,7 @@ class SecurityConfig(
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         http
             .authorizeRequests()
-            .antMatchers(HttpMethod.POST, "/auth/tokens").permitAll()
-            .antMatchers(HttpMethod.GET, "/suggestion").authenticated()
-            .antMatchers(HttpMethod.GET, "/suggestion/{suggestion-id}").authenticated()
-            .antMatchers(HttpMethod.POST, "/suggestion/register/{suggestion-id}").authenticated()
-            .antMatchers(HttpMethod.POST, "/suggestion/solve/{suggestion-id}").authenticated()
-            .antMatchers(HttpMethod.DELETE, "/suggestion/{suggestion-id}").authenticated()
-            .antMatchers(HttpMethod.POST, "/suggestion").permitAll()
-            .antMatchers(HttpMethod.POST, "/image").permitAll()
-            .antMatchers(HttpMethod.PATCH, "/institution").authenticated()
-            .antMatchers(HttpMethod.GET, "/institution").authenticated()
-            .antMatchers(HttpMethod.GET, "/statistic").authenticated()
-            .anyRequest().denyAll()
+            .anyRequest().authenticated()
 
         http
             .apply(FilterConfig(jwtParser, objectMapper))

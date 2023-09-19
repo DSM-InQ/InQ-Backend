@@ -11,7 +11,13 @@ enum class DomainErrorCode(
 
     PASSWORD_MISMATCH(ErrorStatus.FORBIDDEN, "Password mismatched", 1),
 
-    USER_NOT_FOUND(ErrorStatus.BAD_REQUEST, "User Not Found", 1),
+    USER_NOT_FOUND(ErrorStatus.NOT_FOUND, "User Not Found", 1),
+    QUESTION_NOT_FOUND(ErrorStatus.NOT_FOUND, "Question Not Found", 2),
+    ANSWER_NOT_FOUND(ErrorStatus.NOT_FOUND, "Answer Not Found", 3),
+    TAG_NOT_FOUND(ErrorStatus.NOT_FOUND, "Tag Not Found", 4),
+
+    ALREADY_LIKED_POST(ErrorStatus.CONFLICT, "Already liked post", 1),
+    ALREADY_DISLIKED_POST(ErrorStatus.CONFLICT, "Already disliked post", 2),
     ;
 
     override fun status(): Int = status
@@ -25,12 +31,12 @@ enum class SecurityErrorCode(
     private val sequence: Int
 ) : ErrorProperty {
 
-    INVALID_TOKEN(ErrorStatus.UNAUTHORIZED, "Invalid Token", 1),
-    EXPIRED_TOKEN(ErrorStatus.UNAUTHORIZED, "Expired Token", 2),
-    UNEXPECTED_TOKEN(ErrorStatus.UNAUTHORIZED, "Unexpected Token", 3),
-    INVALID_ROLE(ErrorStatus.UNAUTHORIZED, "Invalid Role", 4),
+    INVALID_TOKEN(ErrorStatus.UNAUTHORIZED, "Invalid token", 1),
+    EXPIRED_TOKEN(ErrorStatus.UNAUTHORIZED, "Expired token", 2),
+    UNEXPECTED_TOKEN(ErrorStatus.UNAUTHORIZED, "Unexpected token", 3),
+    INVALID_ROLE(ErrorStatus.UNAUTHORIZED, "Invalid role", 4),
 
-    FORBIDDEN(ErrorStatus.FORBIDDEN, "Can Not Access", 1);
+    FORBIDDEN(ErrorStatus.FORBIDDEN, "Can not access", 1);
 
     override fun status(): Int = status
     override fun message(): String = message

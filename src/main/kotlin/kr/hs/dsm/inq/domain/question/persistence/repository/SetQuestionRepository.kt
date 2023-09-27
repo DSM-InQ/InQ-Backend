@@ -5,5 +5,5 @@ import kr.hs.dsm.inq.domain.question.persistence.SetQuestionID
 import org.springframework.data.repository.CrudRepository
 
 interface SetQuestionRepository : CrudRepository<SetQuestion, SetQuestionID> {
-    
+
 }

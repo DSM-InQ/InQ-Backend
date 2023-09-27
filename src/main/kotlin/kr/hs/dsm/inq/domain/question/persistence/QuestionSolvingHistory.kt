@@ -7,12 +7,11 @@ import java.util.Date
 import javax.persistence.*
 
 @Table(name = "tbl_question_solving_history")
-@Entity()
+@Entity
 class QuestionSolvingHistory (
-    @EmbeddedId
-    var id: questionSolvingHistory,
+    @Id
+    var id: Long,
 
-    @MapsId("userId")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", columnDefinition = "BIGINT", nullable = false)
     var userId: User,
@@ -31,9 +30,3 @@ class QuestionSolvingHistory (
     @Column(columnDefinition = "DATETIME(6)", nullable = false)
     var solvedAt: LocalDateTime = LocalDateTime.now(),
 )
-
-@Embeddable
-data class questionSolvingHistory (
-    @Column
-    val userId: Long,
-) : Serializable

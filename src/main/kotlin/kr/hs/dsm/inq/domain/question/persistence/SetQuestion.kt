@@ -14,13 +14,12 @@ class SetQuestion (
     @JoinColumn(name = "set_id", columnDefinition = "BIGINT", nullable = false)
     var setId: QuestionSets,
 
-    @MapsId("questionId")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id", columnDefinition = "BIGINT", nullable = false)
     var questionId: Questions,
 
     @Column(columnDefinition = "INT", nullable = false)
-    var index: Int = 0,
+    var index: Int,
 )
 
 @Embeddable

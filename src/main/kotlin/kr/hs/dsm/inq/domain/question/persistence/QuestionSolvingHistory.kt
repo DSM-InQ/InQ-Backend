@@ -25,6 +25,7 @@ class QuestionSolvingHistory (
     var questionSetID: QuestionSets,
 
     @Column(columnDefinition = "VARCHAR(30)")
+    @Enumerated(EnumType.STRING)
     var type: String,
 
     @Column(columnDefinition = "DATETIME(6)", nullable = false)

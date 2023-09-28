@@ -11,3 +11,7 @@ object UserNotFound : CustomException(
 object PasswordMismatchException : CustomException(
     DomainErrorCode.PASSWORD_MISMATCH
 )
+
+object UserAlreadyExist : CustomException(
+    DomainErrorCode.ALREADY_USER_EXIST
+)

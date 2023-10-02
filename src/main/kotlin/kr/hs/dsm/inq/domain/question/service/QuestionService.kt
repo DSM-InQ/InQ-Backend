@@ -15,6 +15,7 @@ import kr.hs.dsm.inq.domain.question.persistence.Questions
 import kr.hs.dsm.inq.domain.question.persistence.Tags
 import kr.hs.dsm.inq.domain.question.persistence.repository.AnswersRepository
 import kr.hs.dsm.inq.domain.question.persistence.repository.LikeRepository
+import kr.hs.dsm.inq.domain.question.persistence.repository.PostRepository
 import kr.hs.dsm.inq.domain.question.persistence.repository.QuestionTagsRepository
 import kr.hs.dsm.inq.domain.question.persistence.repository.QuestionsRepository
 import kr.hs.dsm.inq.domain.question.persistence.repository.TagsRepository
@@ -41,7 +42,8 @@ class QuestionService(
     private val answersRepository: AnswersRepository,
     private val tagsRepository: TagsRepository,
     private val questionTagsRepository: QuestionTagsRepository,
-    private val likeRepository: LikeRepository
+    private val likeRepository: LikeRepository,
+    private val postRepository: PostRepository
 ) {
 
     fun createQuestion(request: CreateQuestionRequest): CreateQuestionResponses {
@@ -211,6 +213,9 @@ class QuestionService(
         val like = likeRepository.findByIdOrNull(likeId)
 
         if (like == null) {
+            postRepository.save(
+                answer.post.apply { addLikeCount() }
+            )
             likeRepository.save(
                 Like(
                     id = likeId,
@@ -223,6 +228,9 @@ class QuestionService(
         } else if (!like.isLiked) {
             throw AlreadyDislikedPostException
         } else {
+            postRepository.save(
+                answer.post.apply { reduceLikeCount() }
+            )
             likeRepository.deleteById(likeId)
             return LikeResponse(isLiked = false)
         }
@@ -237,6 +245,9 @@ class QuestionService(
         val like = likeRepository.findByIdOrNull(likeId)
 
         if (like == null) {
+            postRepository.save(
+                answer.post.apply { addDislikeCount() }
+            )
             likeRepository.save(
                 Like(
                     id = likeId,
@@ -249,6 +260,9 @@ class QuestionService(
         } else if (like.isLiked) {
             throw AlreadyLikedPostException
         } else {
+            postRepository.save(
+                answer.post.apply { reduceDislikeCount() }
+            )
             likeRepository.deleteById(likeId)
             return DislikeResponse(isDisliked = false)
         }

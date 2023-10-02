@@ -14,5 +14,27 @@ class Post(
     @Id
     @Column(columnDefinition = "BIGINT", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = 0L
-)
+    var id: Long = 0L,
+
+    @Column(columnDefinition = "INT", nullable = false)
+    var likeCount: Int,
+
+    @Column(columnDefinition = "INT", nullable = false)
+    var dislikeCount: Int
+) {
+    fun addLikeCount() {
+        likeCount += 1
+    }
+
+    fun addDislikeCount() {
+        dislikeCount += 1
+    }
+
+    fun reduceLikeCount() {
+        likeCount -= 1
+    }
+
+    fun reduceDislikeCount() {
+        dislikeCount -= 1
+    }
+}

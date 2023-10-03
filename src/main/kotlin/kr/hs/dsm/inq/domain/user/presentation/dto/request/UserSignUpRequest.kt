@@ -11,5 +11,11 @@ class UserSignUpRequest (
     val userName: String,
 
     @field:NotBlank
-    val password: String
+    val password: String,
+
+    @field:NotBlank
+    val job: String,
+
+    @field:NotBlank
+    val jobDuration: Int
 )

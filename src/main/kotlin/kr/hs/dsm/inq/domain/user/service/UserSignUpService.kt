@@ -22,6 +22,8 @@ class UserSignUpService(
         userRepository.save(
             User(
                 username = request.userName,
+                job = request.job,
+                jobDuration = request.jobDuration,
                 accountId = request.accountId,
                 password = passwordEncoder.encode(request.password)
             )

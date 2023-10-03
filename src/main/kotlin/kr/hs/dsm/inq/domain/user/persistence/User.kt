@@ -15,9 +15,9 @@ data class User(
 
     val username: String,
 
-    val job: String? = null,
+    val job: String,
 
-    val jobDuration: Int? = null,
+    val jobDuration: Int,
 
     val accountId: String,
 

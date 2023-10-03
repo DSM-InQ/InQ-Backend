@@ -18,6 +18,7 @@ enum class DomainErrorCode(
 
     ALREADY_LIKED_POST(ErrorStatus.CONFLICT, "Already liked post", 1),
     ALREADY_DISLIKED_POST(ErrorStatus.CONFLICT, "Already disliked post", 2),
+    ALREADY_USER_EXIST(ErrorStatus.CONFLICT, "Already User Exist", 3)
     ;
 
     override fun status(): Int = status

@@ -40,7 +40,7 @@ data class Questions(
     var category: Category,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id", columnDefinition = "VARCHAR(1000)", nullable = false)
+    @JoinColumn(name = "author_id", columnDefinition = "BIGINT", nullable = false)
     var author: User,
 
     @Column(nullable = false, updatable = false, columnDefinition = "DATETIME(6)")

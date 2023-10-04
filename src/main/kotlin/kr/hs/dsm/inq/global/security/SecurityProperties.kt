@@ -3,6 +3,7 @@ package kr.hs.dsm.inq.global.security
 import org.springframework.boot.context.properties.ConfigurationProperties
 import java.util.Base64
 import org.springframework.boot.context.properties.ConstructorBinding
+import org.springframework.stereotype.Component
 
 @ConstructorBinding
 @ConfigurationProperties(prefix = "secret")

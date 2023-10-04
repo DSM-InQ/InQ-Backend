@@ -86,10 +86,6 @@ data class QuestionDetailResponse(
     val question: String,
     val category: Category,
     val tags: List<String>,
-    val likeCount: Int,
-    val dislikeCount: Int,
-    val isLiked: Boolean,
-    val isDisLiked: Boolean,
     val isFavorite: Boolean,
     val exemplaryAnswer: AnswerResponse
 ) {
@@ -104,10 +100,6 @@ data class QuestionDetailResponse(
                 question = question,
                 category = category,
                 tags = tagList.map { it.tag },
-                likeCount = likeCount,
-                dislikeCount = dislikeCount,
-                isLiked = isLiked,
-                isDisLiked = isDisLiked,
                 isFavorite = isFavorite,
                 exemplaryAnswer = AnswerResponse.of(answer)
             )
@@ -120,6 +112,10 @@ data class AnswerResponse(
     val job: String,
     val jobDuration: Int,
     val answer: String,
+    val likeCount: Int,
+    val isLiked: Boolean,
+    val dislikeCount: Int,
+    val isDisliked: Boolean,
     val comments: List<CommentResponse>
 ) {
     companion object {
@@ -129,6 +125,10 @@ data class AnswerResponse(
                 job = job,
                 jobDuration = jobDuration,
                 answer = answer,
+                likeCount = likeCount,
+                isLiked = isLiked,
+                dislikeCount = dislikeCount,
+                isDisliked = isDisliked,
                 comments = commentList.map { CommentResponse.of(it) }
             )
         }

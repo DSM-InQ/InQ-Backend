@@ -10,7 +10,7 @@ import kr.hs.dsm.inq.domain.question.persistence.Category
 import kr.hs.dsm.inq.domain.question.persistence.QAnswers.answers
 import kr.hs.dsm.inq.domain.question.persistence.QFavorite.favorite
 import kr.hs.dsm.inq.domain.question.persistence.QLike
-import kr.hs.dsm.inq.domain.question.persistence.QQuestionTag.questionTag
+import kr.hs.dsm.inq.domain.question.persistence.QQuestionTags.questionTags
 import kr.hs.dsm.inq.domain.question.persistence.QQuestions.questions
 import kr.hs.dsm.inq.domain.question.persistence.QTags.tags
 import kr.hs.dsm.inq.domain.question.persistence.Questions
@@ -88,8 +88,8 @@ class CustomQuestionRepositoryImpl(
     }
 
     private fun <T> JPAQuery<T>.getQuestionDto(user: User) =
-        innerJoin(questionTag).on(questionTag.questions.eq(questions))
-            .innerJoin(tags).on(tags.id.eq(questionTag.id.tagId))
+        innerJoin(questionTags).on(questionTags.questions.eq(questions))
+            .innerJoin(tags).on(tags.id.eq(questionTags.id.tagId))
             .rightJoin(favorite).on(favorite.questions.id.eq(questions.id))
             .rightJoin(answers).on(answers.writer.eq(user).and(answers.questions.eq(questions)))
             .transform(
@@ -120,16 +120,12 @@ class CustomQuestionRepositoryImpl(
     private fun <T> JPAQuery<T>.getQuestionDetailDto(user: User) = run {
 
         val author = QUser("writer")
-        val like = QLike("like")
-        val dislike = QLike("dislike")
 
-        return@run innerJoin(questionTag).on(questionTag.questions.eq(questions))
-            .innerJoin(tags).on(tags.id.eq(questionTag.id.tagId))
+        return@run innerJoin(questionTags).on(questionTags.questions.eq(questions))
+            .innerJoin(tags).on(tags.id.eq(questionTags.id.tagId))
             .rightJoin(favorite).on(favorite.questions.id.eq(questions.id))
             .rightJoin(answers).on(answers.writer.eq(user).and(answers.questions.eq(questions)))
             .rightJoin(author).on(author.eq(questions.author))
-            .rightJoin(like).on(like.user.eq(user).and(like.isLiked.isTrue))
-            .rightJoin(dislike).on(dislike.user.eq(user).and(like.isLiked.isFalse))
             .transform(
                 GroupBy.groupBy(questions)
                     .list(
@@ -142,10 +138,6 @@ class CustomQuestionRepositoryImpl(
                             /* question = */ questions.question,
                             /* category = */ questions.category,
                             /* tagList = */ GroupBy.list(tags),
-                            /* likeCount = */ questions.likeCount,
-                            /* dislikeCount = */ questions.dislikeCount,
-                            /* isLiked = */ like.isNotNull,
-                            /* isDisLiked = */ dislike.isNotNull,
                             /* isFavorite = */ favorite.isNotNull
                         )
                     )

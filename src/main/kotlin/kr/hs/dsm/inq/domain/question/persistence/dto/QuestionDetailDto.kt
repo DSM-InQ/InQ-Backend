@@ -13,9 +13,5 @@ class QuestionDetailDto @QueryProjection constructor(
     val question: String,
     val category: Category,
     val tagList: List<Tags>,
-    val likeCount: Int,
-    val dislikeCount: Int,
-    val isLiked: Boolean,
-    val isDisLiked: Boolean,
     val isFavorite: Boolean
 )

@@ -10,6 +10,8 @@ import kr.hs.dsm.inq.domain.question.persistence.Answers
 import kr.hs.dsm.inq.domain.question.persistence.Category
 import kr.hs.dsm.inq.domain.question.persistence.Like
 import kr.hs.dsm.inq.domain.question.persistence.LikeId
+import kr.hs.dsm.inq.domain.question.persistence.Problem
+import kr.hs.dsm.inq.domain.question.persistence.ProblemType
 import kr.hs.dsm.inq.domain.question.persistence.QuestionTagsId
 import kr.hs.dsm.inq.domain.question.persistence.QuestionTags
 import kr.hs.dsm.inq.domain.question.persistence.Questions
@@ -55,7 +57,8 @@ class QuestionService(
             Questions(
                 question = request.question,
                 category = request.category,
-                author = user
+                author = user,
+                problem = Problem(type = ProblemType.QUESTION)
             )
         )
 

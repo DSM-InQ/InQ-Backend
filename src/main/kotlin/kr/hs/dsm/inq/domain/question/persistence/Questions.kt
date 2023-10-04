@@ -43,6 +43,10 @@ data class Questions(
     @JoinColumn(name = "author_id", columnDefinition = "BIGINT", nullable = false)
     var author: User,
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "problem_id", columnDefinition = "BIGINT", nullable = false)
+    var problem: Problem,
+
     @Column(nullable = false, updatable = false, columnDefinition = "DATETIME(6)")
     val createdAt: LocalDateTime = LocalDateTime.now()
 

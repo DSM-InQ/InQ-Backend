@@ -26,7 +26,7 @@ class QuestionSolvingHistory (
 
     @Column(columnDefinition = "VARCHAR(30)")
     @Enumerated(EnumType.STRING)
-    var type: String,
+    var type: ProblemType,
 
     @Column(columnDefinition = "DATETIME(6)", nullable = false)
     var solvedAt: LocalDateTime = LocalDateTime.now(),

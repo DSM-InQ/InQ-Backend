@@ -2,10 +2,12 @@ package kr.hs.dsm.inq.domain.question.persistence.repository
 
 import kr.hs.dsm.inq.domain.question.persistence.Category
 import kr.hs.dsm.inq.domain.question.persistence.Tags
+import org.springframework.data.domain.Pageable
+import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.repository.CrudRepository
 
-interface TagsRepository : CrudRepository<Tags, Long> {
+interface TagsRepository : JpaRepository<Tags, Long> {
     fun findByCategoryAndTagIn(category: Category, tagList: List<String>): List<Tags>
-    fun findTop15ByCategory(category: Category): List<Tags>
-    fun findTop15(): List<Tags>
+    fun findByCategory(category: Category, pageable: Pageable): List<Tags>
+    fun findAllBy(pageable: Pageable): List<Tags>
 }

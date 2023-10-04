@@ -3,6 +3,10 @@ package kr.hs.dsm.inq.common.util
 import com.querydsl.jpa.impl.JPAQuery
 import kr.hs.dsm.inq.common.util.PageUtil.getLimit
 import kr.hs.dsm.inq.common.util.PageUtil.getOffset
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
+
+val defaultPage: Pageable = PageRequest.of(0, 15)
 
 object PageUtil {
     const val pageSize = 5L

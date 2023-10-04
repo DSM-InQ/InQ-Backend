@@ -1,6 +1,7 @@
 package kr.hs.dsm.inq.domain.question.service
 
 import kr.hs.dsm.inq.common.util.SecurityUtil
+import kr.hs.dsm.inq.common.util.defaultPage
 import kr.hs.dsm.inq.domain.question.exception.AlreadyDislikedPostException
 import kr.hs.dsm.inq.domain.question.exception.AlreadyLikedPostException
 import kr.hs.dsm.inq.domain.question.exception.AnswerNotFoundException
@@ -176,8 +177,8 @@ class QuestionService(
     fun getTagList(category: Category?): TagListResponse {
 
         val tagList = category?.let {
-            tagsRepository.findTop15ByCategory(it)
-        } ?: tagsRepository.findTop15()
+            tagsRepository.findByCategory(it, defaultPage)
+        } ?: tagsRepository.findAllBy(defaultPage)
 
         return TagListResponse(
             tagList = tagList.map { it.tag }

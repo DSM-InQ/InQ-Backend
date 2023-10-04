@@ -20,7 +20,14 @@ class QuestionSets (
     @Column(columnDefinition = "DATETIME(6)", nullable = false, updatable = false)
     var createdAt: LocalDateTime = LocalDateTime.now(),
 
+    @Column(columnDefinition = "INT", nullable = false)
+    var answerCount: Int,
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", columnDefinition = "BIGINT",nullable = false)
     var postId: Post,
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "problem_id", columnDefinition = "BITINT", nullable = false)
+    var problemId: Problem,
 )

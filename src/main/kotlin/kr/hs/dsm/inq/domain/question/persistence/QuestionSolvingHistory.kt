@@ -16,18 +16,10 @@ class QuestionSolvingHistory (
     @JoinColumn(name = "user_id", columnDefinition = "BIGINT", nullable = false)
     var userId: User,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "question_id", columnDefinition = "BIGINT")
-    var questionId: Questions,
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "question_set_id", columnDefinition = "BIGINT",)
-    var questionSetID: QuestionSets,
-
-    @Column(columnDefinition = "VARCHAR(30)")
-    @Enumerated(EnumType.STRING)
-    var type: ProblemType,
-
     @Column(columnDefinition = "DATETIME(6)", nullable = false)
     var solvedAt: LocalDateTime = LocalDateTime.now(),
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "problem", columnDefinition = "BIGINT", nullable = false)
+    var problem: Problem
 )

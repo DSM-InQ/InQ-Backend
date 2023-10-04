@@ -40,8 +40,12 @@ data class Questions(
     var category: Category,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id", columnDefinition = "VARCHAR(1000)", nullable = false)
+    @JoinColumn(name = "author_id", columnDefinition = "BIGINT", nullable = false)
     var author: User,
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "problem_id", columnDefinition = "BIGINT", nullable = false)
+    var problem: Problem,
 
     @Column(nullable = false, updatable = false, columnDefinition = "DATETIME(6)")
     val createdAt: LocalDateTime = LocalDateTime.now()

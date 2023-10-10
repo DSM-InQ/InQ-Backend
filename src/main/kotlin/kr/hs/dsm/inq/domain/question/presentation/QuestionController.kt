@@ -1,6 +1,7 @@
 package kr.hs.dsm.inq.domain.question.presentation
 
 import javax.websocket.server.PathParam
+import kr.hs.dsm.inq.domain.question.persistence.Category
 import kr.hs.dsm.inq.domain.question.presentation.dto.AnswerRequest
 import kr.hs.dsm.inq.domain.question.presentation.dto.CreateQuestionRequest
 import kr.hs.dsm.inq.domain.question.presentation.dto.CreateQuestionResponses
@@ -12,6 +13,7 @@ import kr.hs.dsm.inq.domain.question.presentation.dto.LikeResponse
 import kr.hs.dsm.inq.domain.question.presentation.dto.QuestionDetailResponse
 import kr.hs.dsm.inq.domain.question.presentation.dto.QuestionListResponse
 import kr.hs.dsm.inq.domain.question.presentation.dto.QuestionResponse
+import kr.hs.dsm.inq.domain.question.presentation.dto.TagListResponse
 import kr.hs.dsm.inq.domain.question.service.QuestionService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
@@ -66,6 +69,11 @@ class QuestionController(
         @RequestBody request: AnswerRequest
     ) {
         return questionService.answerQuestion(questionId, request)
+    }
+
+    @GetMapping("/tag")
+    fun getTags(@RequestParam category: Category?): TagListResponse {
+        return questionService.getTagList(category)
     }
 
     @PostMapping("/answer/{answer-id}/like")

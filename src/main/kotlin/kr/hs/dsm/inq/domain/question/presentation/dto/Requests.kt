@@ -28,7 +28,7 @@ data class AnswerRequest(
 data class GetQuestionListRequest(
     val category: Category?,
     val keyword: String?,
-    val tags: List<String>,
+    val tags: List<String>?,
     val page: Long
 )
 

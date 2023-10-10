@@ -8,17 +8,22 @@ import kr.hs.dsm.inq.domain.question.exception.AnswerNotFoundException
 import kr.hs.dsm.inq.domain.question.exception.QuestionNotFoundException
 import kr.hs.dsm.inq.domain.question.persistence.Answers
 import kr.hs.dsm.inq.domain.question.persistence.Category
+import kr.hs.dsm.inq.domain.question.persistence.Comments
 import kr.hs.dsm.inq.domain.question.persistence.Like
 import kr.hs.dsm.inq.domain.question.persistence.LikeId
+import kr.hs.dsm.inq.domain.question.persistence.Post
 import kr.hs.dsm.inq.domain.question.persistence.Problem
 import kr.hs.dsm.inq.domain.question.persistence.ProblemType
 import kr.hs.dsm.inq.domain.question.persistence.QuestionTagsId
 import kr.hs.dsm.inq.domain.question.persistence.QuestionTags
 import kr.hs.dsm.inq.domain.question.persistence.Questions
 import kr.hs.dsm.inq.domain.question.persistence.Tags
+import kr.hs.dsm.inq.domain.question.persistence.dto.AnswersDto
 import kr.hs.dsm.inq.domain.question.persistence.repository.AnswersRepository
+import kr.hs.dsm.inq.domain.question.persistence.repository.CommentsRepository
 import kr.hs.dsm.inq.domain.question.persistence.repository.LikeRepository
 import kr.hs.dsm.inq.domain.question.persistence.repository.PostRepository
+import kr.hs.dsm.inq.domain.question.persistence.repository.ProblemRepository
 import kr.hs.dsm.inq.domain.question.persistence.repository.QuestionTagsRepository
 import kr.hs.dsm.inq.domain.question.persistence.repository.QuestionsRepository
 import kr.hs.dsm.inq.domain.question.persistence.repository.TagsRepository
@@ -45,6 +50,8 @@ class QuestionService(
     private val answersRepository: AnswersRepository,
     private val tagsRepository: TagsRepository,
     private val questionTagsRepository: QuestionTagsRepository,
+    private val commentRepository: CommentsRepository,
+    private val problemRepository: ProblemRepository,
     private val likeRepository: LikeRepository,
     private val postRepository: PostRepository
 ) {
@@ -53,12 +60,16 @@ class QuestionService(
 
         val user = SecurityUtil.getCurrentUser()
 
+        val problem = problemRepository.save(
+            Problem(type = ProblemType.QUESTION)
+        )
+
         val questions = questionsRepository.save(
             Questions(
                 question = request.question,
                 category = request.category,
                 author = user,
-                problem = Problem(type = ProblemType.QUESTION)
+                problem = problem
             )
         )
 
@@ -67,12 +78,15 @@ class QuestionService(
             questions = questions
         )
 
+        val post = postRepository.save(Post())
+
         answersRepository.save(
             Answers(
                 isExamplary = true,
                 answer = request.answer,
                 questions = questions,
-                writer = user
+                writer = user,
+                post = post
             )
         )
 
@@ -120,7 +134,7 @@ class QuestionService(
                 page = page,
                 category = category,
                 keyword = keyword,
-                tagList = tags
+                tagList = tags ?: listOf()
             )
         }
 
@@ -166,14 +180,25 @@ class QuestionService(
             questionId = questionId
         ) ?: throw QuestionNotFoundException
 
-        val exemplaryAnswer = answersRepository.queryExemplaryAnswerDto(
-            questionId = questionId,
-            authorId = question.authorId
-        ) ?: throw AnswerNotFoundException
+        val exemplaryAnswer = answersRepository.findByQuestionsIdAndIsExamplaryIsTrue(questionId)
+        val post = exemplaryAnswer.post
+        val like = likeRepository.findByPostIdAndUserId(post.id, user.id)
+        val comments = commentRepository.findByPostId(post.id)
 
         return QuestionDetailResponse.of(
             questionDetail = question,
-            answer = exemplaryAnswer
+            answer = AnswersDto(
+                writerId = question.authorId,
+                username = question.username,
+                job = question.job,
+                jobDuration = question.jobDuration,
+                answer = exemplaryAnswer.answer,
+                likeCount = post.likeCount,
+                isLiked = like?.isLiked == true,
+                dislikeCount = post.dislikeCount,
+                isDisliked = like?.isLiked == false,
+                commentList = comments
+            )
         )
     }
 
@@ -193,13 +218,16 @@ class QuestionService(
         val user = SecurityUtil.getCurrentUser()
 
         val questions = questionsRepository.findByIdOrNull(questionId) ?: throw QuestionNotFoundException
+        
+        val post = postRepository.save(Post())
 
         answersRepository.save(
             Answers(
                 isExamplary = true,
                 answer = request.answer,
                 questions = questions,
-                writer = user
+                writer = user,
+                post = post
             )
         )
 

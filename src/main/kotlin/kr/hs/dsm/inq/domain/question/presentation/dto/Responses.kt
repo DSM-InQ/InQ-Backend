@@ -57,30 +57,30 @@ data class QuestionResponse(
     companion object {
         fun of(dto: QuestionDto) = dto.run {
             QuestionResponse(
-                questionId = questionId,
-                question = question,
-                category = category,
-                username = username,
-                job = job,
-                jobDuration = jobDuration,
+                questionId = questionId ?: 0L,
+                question = question ?: "",
+                category = category ?: Category.CAREER,
+                username = username ?: "",
+                job = job  ?: "",
+                jobDuration = jobDuration ?: 1,
                 tags = tagList.map { it.tag },
-                isAnswered = isAnswered,
-                isFavorite = isFavorite
+                isAnswered = isAnswered ?: true,
+                isFavorite = isFavorite ?: true
             )
         }
 
         fun of(dto: QuestionDto, rank: Long) = dto.run {
             QuestionResponse(
-                questionId = questionId,
+                questionId = questionId ?: 0L,
                 rank = rank,
-                question = question,
-                category = category,
-                username = username,
-                job = job,
-                jobDuration = jobDuration,
+                question = question ?: "",
+                category = category ?: Category.CAREER,
+                username = username ?: "",
+                job = job  ?: "",
+                jobDuration = jobDuration ?: 1,
                 tags = tagList.map { it.tag },
-                isAnswered = isAnswered,
-                isFavorite = isFavorite
+                isAnswered = isAnswered ?: true,
+                isFavorite = isFavorite ?: true
             )
         }
     }

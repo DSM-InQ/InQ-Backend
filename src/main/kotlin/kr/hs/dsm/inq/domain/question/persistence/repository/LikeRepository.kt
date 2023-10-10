@@ -6,4 +6,5 @@ import kr.hs.dsm.inq.domain.question.persistence.LikeId
 import org.springframework.data.repository.CrudRepository
 
 interface LikeRepository: CrudRepository<Like, LikeId> {
+    fun findByPostIdAndUserId(postId: Long, userId: Long): Like?
 }

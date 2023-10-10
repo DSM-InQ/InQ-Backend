@@ -28,9 +28,7 @@ class SecurityConfig(
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         http
             .authorizeRequests()
-            .antMatchers(HttpMethod.POST, "/user").permitAll()
-            .antMatchers(HttpMethod.POST, "/user/auth").permitAll()
-            .anyRequest().authenticated()
+            .anyRequest().permitAll()
 
         http
             .apply(FilterConfig(jwtParser, objectMapper))

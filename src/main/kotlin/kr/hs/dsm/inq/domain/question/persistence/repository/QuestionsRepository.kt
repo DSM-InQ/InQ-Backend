@@ -7,9 +7,6 @@ import kr.hs.dsm.inq.common.util.PageResponse
 import kr.hs.dsm.inq.common.util.PageUtil
 import kr.hs.dsm.inq.common.util.offsetAndLimit
 import kr.hs.dsm.inq.domain.question.persistence.Category
-import kr.hs.dsm.inq.domain.question.persistence.QAnswers.answers
-import kr.hs.dsm.inq.domain.question.persistence.QFavorite.favorite
-import kr.hs.dsm.inq.domain.question.persistence.QLike
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionTags.questionTags
 import kr.hs.dsm.inq.domain.question.persistence.QQuestions.questions
 import kr.hs.dsm.inq.domain.question.persistence.QTags.tags
@@ -19,7 +16,6 @@ import kr.hs.dsm.inq.domain.question.persistence.dto.QQuestionDto
 import kr.hs.dsm.inq.domain.question.persistence.dto.QuestionDetailDto
 import kr.hs.dsm.inq.domain.question.persistence.dto.QuestionDto
 import kr.hs.dsm.inq.domain.user.persistence.QUser
-import kr.hs.dsm.inq.domain.user.persistence.QUser.user
 import kr.hs.dsm.inq.domain.user.persistence.User
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
@@ -56,15 +52,15 @@ class CustomQuestionRepositoryImpl(
         val questionList = queryFactory
             .selectFrom(questions)
             .where(
-                category?.let { questions.category.eq(it) },
-                (keyword ?: "").let { questions.question.contains(keyword) }
+                category?.let { questions.category.eq(it)
+                    .and((keyword ?: "").let { questions.question.contains(keyword) }) }
             )
             .orderBy(questions.likeCount.asc())
             .offsetAndLimit(page)
             .getQuestionDto(user)
         return PageResponse(
             hasNext = PageUtil.hasNext(questionList),
-            list = questionList
+            list = questionList.filter { it.tagList.map { it.tag }.containsAll(tagList) }
         )
     }
 
@@ -93,8 +89,8 @@ class CustomQuestionRepositoryImpl(
         return innerJoin(questionTags).on(questionTags.questions.eq(questions))
             .innerJoin(tags).on(tags.id.eq(questionTags.id.tagId))
             .innerJoin(writer).on(writer.id.eq(questions.author.id))
-            .rightJoin(favorite).on(favorite.questions.id.eq(questions.id))
-            .rightJoin(answers).on(answers.writer.eq(user).and(answers.questions.eq(questions)))
+//            .rightJoin(favorite).on(favorite.questions.id.eq(questions.id))
+//            .rightJoin(answers).on(answers.writer.eq(user).and(answers.questions.eq(questions)))
             .transform(
                 GroupBy.groupBy(questions)
                     .list(
@@ -106,8 +102,8 @@ class CustomQuestionRepositoryImpl(
                             /* job = */ writer.job,
                             /* jobDuration = */ writer.jobDuration,
                             /* tagList = */ GroupBy.list(tags),
-                            /* isAnswered = */ answers.isNotNull,
-                            /* isFavorite = */ favorite.isNotNull
+                            /* isAnswered = */ questions.isNull, // answers.isNotNull,
+                            /* isFavorite = */ questions.isNull // favorite.isNotNull
                         )
                     )
             )
@@ -130,8 +126,8 @@ class CustomQuestionRepositoryImpl(
 
         return@run innerJoin(questionTags).on(questionTags.questions.eq(questions))
             .innerJoin(tags).on(tags.id.eq(questionTags.id.tagId))
-            .rightJoin(favorite).on(favorite.questions.id.eq(questions.id))
-            .rightJoin(answers).on(answers.writer.eq(user).and(answers.questions.eq(questions)))
+//            .rightJoin(favorite).on(favorite.questions.id.eq(questions.id))
+//            .rightJoin(answers).on(answers.writer.eq(user).and(answers.questions.eq(questions)))
             .rightJoin(author).on(author.eq(questions.author))
             .transform(
                 GroupBy.groupBy(questions)
@@ -145,7 +141,7 @@ class CustomQuestionRepositoryImpl(
                             /* question = */ questions.question,
                             /* category = */ questions.category,
                             /* tagList = */ GroupBy.list(tags),
-                            /* isFavorite = */ favorite.isNotNull
+                            /* isFavorite = */ questions.isNull
                         )
                     )
             )

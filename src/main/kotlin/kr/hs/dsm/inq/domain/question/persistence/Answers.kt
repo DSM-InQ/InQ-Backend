@@ -36,7 +36,7 @@ class Answers(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", columnDefinition = "BIGINT", nullable = false)
-    var post: Post = Post(),
+    var post: Post,
 
     @Column(nullable = false, updatable = false, columnDefinition = "DATETIME(6)")
     val createdAt: LocalDateTime = LocalDateTime.now(),

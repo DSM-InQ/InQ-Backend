@@ -5,6 +5,7 @@ import com.querydsl.core.group.GroupBy.list
 import com.querydsl.jpa.impl.JPAQuery
 import com.querydsl.jpa.impl.JPAQueryFactory
 import kr.hs.dsm.inq.domain.question.persistence.Answers
+import kr.hs.dsm.inq.domain.question.persistence.QAnswers
 import kr.hs.dsm.inq.domain.question.persistence.QAnswers.answers
 import kr.hs.dsm.inq.domain.question.persistence.QComments.comments
 import kr.hs.dsm.inq.domain.question.persistence.QLike
@@ -17,6 +18,7 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 
 interface AnswersRepository: CrudRepository<Answers, Long>, CustomAnswerRepository {
+    fun findByQuestionsIdAndIsExamplaryIsTrue(questionId: Long): Answers
 }
 
 interface CustomAnswerRepository {
@@ -33,42 +35,39 @@ class CustomAnswerRepositoryImpl(
         return queryFactory
             .selectFrom(answers)
             .where(answers.questions.id.eq(questionId))
+            .innerJoin(questions).on(questions.id.eq(questionId))
             .getAnswerDetailDto()
     }
 
     override fun queryExemplaryAnswerDto(questionId: Long, authorId: Long): AnswersDto? {
-        val answers = queryFactory
+        val answerResult = queryFactory
             .selectFrom(answers)
-            .where(
-                answers.questions.id.eq(questionId)
-                    .and(answers.writer.id.eq(questionId))
-                    .and(answers.isExamplary.isTrue)
-            )
+            .innerJoin(questions).on(questions.id.eq(questionId))
             .getAnswerDetailDto()
-        return if (answers.isEmpty()) null else answers[0]
+        return if (answerResult.isEmpty()) null else answerResult[0]
     }
 
     private fun <T> JPAQuery<T>.getAnswerDetailDto(): MutableList<AnswersDto> {
-        val like = QLike("like")
-        val dislike = QLike("dislike")
-        return innerJoin(user).on(user.eq(answers.writer))
-            .innerJoin(post).on(post.eq(answers.post))
-            .rightJoin(like).on(like.post.eq(post).and(like.isLiked.isTrue))
-            .rightJoin(dislike).on(like.post.eq(post).and(like.isLiked.isFalse))
-            .rightJoin(comments).on(comments.post.eq(answers.post)).fetchJoin()
+        val like = QLike("likes")
+        val dislike = QLike("dislikes")
+        return rightJoin(user).on(user.id.eq(answers.writer.id))
+            .rightJoin(post).on(post.id.eq(answers.post.id))
+            .rightJoin(like).on(like.post.id.eq(post.id).and(like.isLiked.isTrue))
+            .rightJoin(dislike).on(dislike.post.id.eq(post.id).and(dislike.isLiked.isFalse))
+            .rightJoin(comments).on(comments.post.eq(answers.post))
             .transform(
-                GroupBy.groupBy(questions)
+                GroupBy.groupBy(answers.id)
                     .list(
                         QAnswersDto(
-                            /* writerId = */ user.id,
-                            /* username = */ user.username,
-                            /* job = */ user.job,
-                            /* jobDuration = */ user.jobDuration,
+                            /* writerId = */ answers.id,
+                            /* username = */ answers.answer,
+                            /* job = */ answers.answer,
+                            /* jobDuration = */ post.likeCount,
                             /* answer = */ answers.answer,
                             /* likeCount = */ post.likeCount,
-                            /* isLiked = */ like.isNotNull,
+                            /* isLiked = */ post.isNotNull,
                             /* dislikeCount = */ post.dislikeCount,
-                            /* isDisliked = */ dislike.isNotNull,
+                            /* isDisliked = */ post.isNotNull,
                             /* commentList = */ list(comments)
                        )
                     )

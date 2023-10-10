@@ -19,6 +19,7 @@ import kr.hs.dsm.inq.domain.question.persistence.dto.QQuestionDto
 import kr.hs.dsm.inq.domain.question.persistence.dto.QuestionDetailDto
 import kr.hs.dsm.inq.domain.question.persistence.dto.QuestionDto
 import kr.hs.dsm.inq.domain.user.persistence.QUser
+import kr.hs.dsm.inq.domain.user.persistence.QUser.user
 import kr.hs.dsm.inq.domain.user.persistence.User
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
@@ -87,9 +88,11 @@ class CustomQuestionRepositoryImpl(
         return if (questions.isEmpty()) null else questions[0]
     }
 
-    private fun <T> JPAQuery<T>.getQuestionDto(user: User) =
-        innerJoin(questionTags).on(questionTags.questions.eq(questions))
+    private fun <T> JPAQuery<T>.getQuestionDto(user: User): MutableList<QuestionDto> {
+        val writer = QUser("writer")
+        return innerJoin(questionTags).on(questionTags.questions.eq(questions))
             .innerJoin(tags).on(tags.id.eq(questionTags.id.tagId))
+            .innerJoin(writer).on(writer.id.eq(questions.author.id))
             .rightJoin(favorite).on(favorite.questions.id.eq(questions.id))
             .rightJoin(answers).on(answers.writer.eq(user).and(answers.questions.eq(questions)))
             .transform(
@@ -99,12 +102,16 @@ class CustomQuestionRepositoryImpl(
                             /* questionId = */ questions.id,
                             /* question = */ questions.question,
                             /* category = */ questions.category,
+                            /* username = */ writer.username,
+                            /* job = */ writer.job,
+                            /* jobDuration = */ writer.jobDuration,
                             /* tagList = */ GroupBy.list(tags),
                             /* isAnswered = */ answers.isNotNull,
                             /* isFavorite = */ favorite.isNotNull
                         )
                     )
             )
+    }
 
     override fun queryQuestionDetailDtoById(
         user: User,

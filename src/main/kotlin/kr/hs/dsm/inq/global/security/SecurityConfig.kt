@@ -28,6 +28,8 @@ class SecurityConfig(
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         http
             .authorizeRequests()
+            .antMatchers(HttpMethod.POST, "/user").permitAll()
+            .antMatchers(HttpMethod.POST, "/user/auth").permitAll()
             .anyRequest().authenticated()
 
         http

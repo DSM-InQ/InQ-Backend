@@ -45,6 +45,9 @@ data class QuestionRankResponse(
 data class QuestionResponse(
     val questionId: Long,
     val rank: Long? = null,
+    val username: String,
+    val job: String,
+    val jobDuration: Int,
     val question: String,
     val category: Category,
     val tags: List<String>,
@@ -57,6 +60,9 @@ data class QuestionResponse(
                 questionId = questionId,
                 question = question,
                 category = category,
+                username = username,
+                job = job,
+                jobDuration = jobDuration,
                 tags = tagList.map { it.tag },
                 isAnswered = isAnswered,
                 isFavorite = isFavorite
@@ -69,6 +75,9 @@ data class QuestionResponse(
                 rank = rank,
                 question = question,
                 category = category,
+                username = username,
+                job = job,
+                jobDuration = jobDuration,
                 tags = tagList.map { it.tag },
                 isAnswered = isAnswered,
                 isFavorite = isFavorite

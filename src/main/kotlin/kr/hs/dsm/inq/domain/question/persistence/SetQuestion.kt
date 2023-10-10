@@ -13,7 +13,7 @@ class SetQuestion (
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "set_id", columnDefinition = "BIGINT", nullable = false)
     var setId: QuestionSets,
-    
+
     @MapsId("questionId")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id", columnDefinition = "BIGINT", nullable = false)

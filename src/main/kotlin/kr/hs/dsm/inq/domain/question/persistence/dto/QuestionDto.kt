@@ -8,6 +8,9 @@ class QuestionDto @QueryProjection constructor(
     val questionId: Long,
     val question: String,
     val category: Category,
+    val username: String,
+    val job: String,
+    val jobDuration: Int,
     val tagList: List<Tags>,
     val isAnswered: Boolean,
     val isFavorite: Boolean

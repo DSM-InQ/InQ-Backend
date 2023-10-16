@@ -1,5 +1,6 @@
 package kr.hs.dsm.inq.domain.question.presentation
 
+import javax.validation.Valid
 import javax.websocket.server.PathParam
 import kr.hs.dsm.inq.domain.question.persistence.Category
 import kr.hs.dsm.inq.domain.question.presentation.dto.AnswerRequest
@@ -33,17 +34,17 @@ class QuestionController(
 ) {
 
     @PostMapping
-    fun createQuestion(@RequestBody request: CreateQuestionRequest): CreateQuestionResponses {
+    fun createQuestion(@Valid @RequestBody request: CreateQuestionRequest): CreateQuestionResponses {
         return questionService.createQuestion(request)
     }
 
     @GetMapping
-    fun getQuestionList(@ModelAttribute request: GetQuestionListRequest): QuestionListResponse {
+    fun getQuestionList(@Valid @ModelAttribute request: GetQuestionListRequest): QuestionListResponse {
         return questionService.getQuestionList(request)
     }
 
     @GetMapping("/rank")
-    fun getQuestionRank(@ModelAttribute request: GetQuestionRankRequest): QuestionListResponse {
+    fun getQuestionRank(@Valid @ModelAttribute request: GetQuestionRankRequest): QuestionListResponse {
         return questionService.getQuestionRank(request)
     }
 

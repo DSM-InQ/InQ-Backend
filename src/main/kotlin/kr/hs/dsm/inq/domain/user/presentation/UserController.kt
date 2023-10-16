@@ -1,5 +1,6 @@
 package kr.hs.dsm.inq.domain.user.presentation
 
+import javax.validation.Valid
 import kr.hs.dsm.inq.common.dto.TokenResponse
 import kr.hs.dsm.inq.domain.user.presentation.dto.request.UserSignInRequest
 import kr.hs.dsm.inq.domain.user.presentation.dto.request.UserSignUpRequest
@@ -19,11 +20,11 @@ class UserController(
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    fun userSignUp(@RequestBody request: UserSignUpRequest) {
+    fun userSignUp(@Valid @RequestBody request: UserSignUpRequest) {
         userService.signUp(request)
     }
 
     @PostMapping("/auth")
-    fun userSignIn(@RequestBody request: UserSignInRequest): TokenResponse =
+    fun userSignIn(@Valid @RequestBody request: UserSignInRequest): TokenResponse =
         userService.signIn(request)
 }

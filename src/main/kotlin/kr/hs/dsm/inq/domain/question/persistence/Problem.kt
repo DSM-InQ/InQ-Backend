@@ -7,6 +7,7 @@ import javax.persistence.*
 data class Problem (
     @Id
     @Column(columnDefinition = "BIGINT", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L,
 
     @Column(columnDefinition = "VARCHAR(30)", nullable = false)

@@ -14,6 +14,7 @@ import kr.hs.dsm.inq.global.security.token.JwtGenerator
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.time.LocalDate
+import javax.transaction.Transactional
 
 @Service
 class UserService(
@@ -79,10 +80,11 @@ class UserService(
         )
     }
 
+    @Transactional
     fun updateUserInfo(request: UpdateUserInfoRequest) {
 
         val user = SecurityUtil.getCurrentUser()
 
-        userRepository.save(user.updateInfo(request))
+        user.updateInfo(request)
     }
 }

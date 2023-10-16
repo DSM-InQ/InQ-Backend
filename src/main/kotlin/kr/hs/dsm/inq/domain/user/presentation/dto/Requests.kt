@@ -30,7 +30,13 @@ data class UserSignUpRequest(
 )
 
 data class UpdateUserInfoRequest(
+
+    @field:NotBlank
     val username: String,
+
+    @field:NotBlank
     val job: String,
+
+    @field:NotBlank
     val jobDuration: Int
 )

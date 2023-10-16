@@ -11,8 +11,7 @@ import javax.persistence.Table
 
 @Table(name = "tbl_user")
 @Entity
-data class
-User(
+data class User(
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,16 +39,9 @@ User(
     var coin: Int = 0
 ) {
 
-    fun updateInfo(request: UpdateUserInfoRequest): User {
-        return User(
-            id = id,
-            username = request.username,
-            job = request.job,
-            jobDuration = request.jobDuration,
-            accountId = accountId,
-            password = password,
-            joinDate = joinDate,
-            coin = coin
-        )
+    fun updateInfo(request: UpdateUserInfoRequest) {
+        this.username = request.username
+        this.job = request.job
+        this.jobDuration = request.jobDuration
     }
 }

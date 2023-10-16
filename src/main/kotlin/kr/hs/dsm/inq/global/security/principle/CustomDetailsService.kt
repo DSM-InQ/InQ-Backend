@@ -1,6 +1,6 @@
 package kr.hs.dsm.inq.global.security.principle
 
-import kr.hs.dsm.inq.domain.user.persistence.UserRepository
+import kr.hs.dsm.inq.domain.user.persistence.repository.UserRepository
 import kr.hs.dsm.inq.global.security.exception.InvalidTokenException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.userdetails.UserDetails

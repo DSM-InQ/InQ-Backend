@@ -15,3 +15,7 @@ object PasswordMismatchException : CustomException(
 object UserAlreadyExist : CustomException(
     DomainErrorCode.ALREADY_USER_EXIST
 )
+
+object AttendanceNotFound : CustomException(
+    DomainErrorCode.ATTENDANCE_NOT_FOUND
+)

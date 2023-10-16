@@ -1,22 +1,26 @@
 package kr.hs.dsm.inq.domain.user.service
 
 import kr.hs.dsm.inq.common.dto.TokenResponse
+import kr.hs.dsm.inq.common.util.SecurityUtil
+import kr.hs.dsm.inq.domain.user.exception.AttendanceNotFound
 import kr.hs.dsm.inq.domain.user.exception.PasswordMismatchException
 import kr.hs.dsm.inq.domain.user.exception.UserAlreadyExist
 import kr.hs.dsm.inq.domain.user.exception.UserNotFound
 import kr.hs.dsm.inq.domain.user.persistence.User
-import kr.hs.dsm.inq.domain.user.persistence.UserRepository
-import kr.hs.dsm.inq.domain.user.presentation.dto.request.UserSignInRequest
-import kr.hs.dsm.inq.domain.user.presentation.dto.request.UserSignUpRequest
+import kr.hs.dsm.inq.domain.user.persistence.repository.AttendanceRepository
+import kr.hs.dsm.inq.domain.user.persistence.repository.UserRepository
+import kr.hs.dsm.inq.domain.user.presentation.dto.*
 import kr.hs.dsm.inq.global.security.token.JwtGenerator
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 
 @Service
 class UserService(
     private val userRepository: UserRepository,
     private val passwordEncoder: PasswordEncoder,
-    private val jwtGenerator: JwtGenerator
+    private val jwtGenerator: JwtGenerator,
+    private val attendanceRepository: AttendanceRepository
 ) {
 
     fun signIn(request: UserSignInRequest): TokenResponse {
@@ -38,12 +42,47 @@ class UserService(
 
         userRepository.save(
             User(
-                username = request.userName,
+                username = request.username,
                 job = request.job,
                 jobDuration = request.jobDuration,
                 accountId = request.accountId,
-                password = passwordEncoder.encode(request.password)
+                password = passwordEncoder.encode(request.password),
+                joinDate = LocalDate.now()
             )
         )
+    }
+
+    fun queryUserInfo(): UserInfoResponse {
+
+        val user = SecurityUtil.getCurrentUser()
+
+        val attendanceCheckList = attendanceRepository.findAllByUserId(user.id)
+            ?: throw AttendanceNotFound
+
+        return UserInfoResponse(
+            username = user.username,
+            joinDate = user.joinDate,
+            coin = user.coin,
+            job = user.job,
+            jobDuration = user.jobDuration,
+            attendanceCheckList = attendanceCheckList.map {
+                AttendanceCheck(
+                    monday = it.monday,
+                    tuesday = it.tuesday,
+                    wednesday = it.wednesday,
+                    thursday = it.thursday,
+                    friday = it.friday,
+                    saturday = it.saturday,
+                    sunday = it.sunday
+                )
+            }
+        )
+    }
+
+    fun updateUserInfo(request: UpdateUserInfoRequest) {
+
+        val user = SecurityUtil.getCurrentUser()
+
+        userRepository.save(user.updateInfo(request))
     }
 }

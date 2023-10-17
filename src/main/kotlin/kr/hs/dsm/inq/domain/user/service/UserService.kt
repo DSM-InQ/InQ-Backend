@@ -57,26 +57,12 @@ class UserService(
 
         val user = SecurityUtil.getCurrentUser()
 
-        val attendanceCheckList = attendanceRepository.findAllByUserId(user.id)
-            ?: throw AttendanceNotFound
-
         return UserInfoResponse(
             username = user.username,
             joinDate = user.joinDate,
             coin = user.coin,
             job = user.job,
-            jobDuration = user.jobDuration,
-            attendanceCheckList = attendanceCheckList.map {
-                AttendanceCheck(
-                    monday = it.monday,
-                    tuesday = it.tuesday,
-                    wednesday = it.wednesday,
-                    thursday = it.thursday,
-                    friday = it.friday,
-                    saturday = it.saturday,
-                    sunday = it.sunday
-                )
-            }
+            jobDuration = user.jobDuration
         )
     }
 

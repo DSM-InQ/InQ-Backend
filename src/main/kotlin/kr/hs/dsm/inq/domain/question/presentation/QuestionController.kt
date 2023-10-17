@@ -3,18 +3,7 @@ package kr.hs.dsm.inq.domain.question.presentation
 import javax.validation.Valid
 import javax.websocket.server.PathParam
 import kr.hs.dsm.inq.domain.question.persistence.Category
-import kr.hs.dsm.inq.domain.question.presentation.dto.AnswerRequest
-import kr.hs.dsm.inq.domain.question.presentation.dto.CreateQuestionRequest
-import kr.hs.dsm.inq.domain.question.presentation.dto.CreateQuestionResponses
-import kr.hs.dsm.inq.domain.question.presentation.dto.DislikeResponse
-import kr.hs.dsm.inq.domain.question.presentation.dto.GetPopularQuestionRequest
-import kr.hs.dsm.inq.domain.question.presentation.dto.GetQuestionListRequest
-import kr.hs.dsm.inq.domain.question.presentation.dto.GetQuestionRankRequest
-import kr.hs.dsm.inq.domain.question.presentation.dto.LikeResponse
-import kr.hs.dsm.inq.domain.question.presentation.dto.QuestionDetailResponse
-import kr.hs.dsm.inq.domain.question.presentation.dto.QuestionListResponse
-import kr.hs.dsm.inq.domain.question.presentation.dto.QuestionResponse
-import kr.hs.dsm.inq.domain.question.presentation.dto.TagListResponse
+import kr.hs.dsm.inq.domain.question.presentation.dto.*
 import kr.hs.dsm.inq.domain.question.service.QuestionService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
@@ -85,6 +74,11 @@ class QuestionController(
     @PostMapping("/answer/{answer-id}/dislike")
     fun dislikeAnswer(@PathVariable("answer-id") answerId: Long): DislikeResponse {
         return questionService.dislikeAnswer(answerId)
+    }
+
+    @PostMapping("/set")
+    fun registerQuestionSets(@RequestBody request: QuestionSetsRequest): QuestionSetsResponse{
+        return questionService.registerQuestionSet(request)
     }
 
 }

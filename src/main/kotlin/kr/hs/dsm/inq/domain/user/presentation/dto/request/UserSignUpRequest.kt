@@ -16,6 +16,5 @@ class UserSignUpRequest (
     @field:NotBlank
     val job: String,
 
-    @field:NotBlank
     val jobDuration: Int
 )

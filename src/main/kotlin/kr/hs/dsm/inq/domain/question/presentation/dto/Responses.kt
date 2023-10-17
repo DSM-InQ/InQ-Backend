@@ -173,3 +173,18 @@ data class LikeResponse(
 data class DislikeResponse(
     val isDisliked: Boolean
 )
+
+data class QuestionSetsResponse(
+    val questionSetsName: String,
+    val categories: List<categories>,
+    val likeCount: Int,
+    val dislikeCount: Int,
+    val isLiked: Boolean,
+    val isDisliked: Boolean,
+    val isFavorite: Boolean
+)
+
+class categories (
+    val category: Category,
+    val count: Int
+)

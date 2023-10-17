@@ -14,9 +14,6 @@ class QuestionSets (
     @Column(columnDefinition = "VARCHAR(30)", nullable = false)
     var name: String,
 
-    @Column(columnDefinition = "VARCHAR(1000)", nullable = false)
-    var description: String,
-
     @Column(columnDefinition = "DATETIME(6)", nullable = false, updatable = false)
     var createdAt: LocalDateTime = LocalDateTime.now(),
 

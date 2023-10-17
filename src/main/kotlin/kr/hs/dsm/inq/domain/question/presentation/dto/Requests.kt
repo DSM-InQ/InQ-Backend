@@ -3,6 +3,7 @@ package kr.hs.dsm.inq.domain.question.presentation.dto
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
 import kr.hs.dsm.inq.domain.question.persistence.Category
+import kr.hs.dsm.inq.domain.question.persistence.Tags
 
 data class CreateQuestionRequest(
 
@@ -38,4 +39,11 @@ data class GetQuestionRankRequest(
 
 data class GetPopularQuestionRequest(
     val page: Long
+)
+
+data class QuestionSetsRequest(
+    val questionSetName: String,
+    val category: Category,
+    val questionId: List<Long>,
+    val tag: List<String>,
 )

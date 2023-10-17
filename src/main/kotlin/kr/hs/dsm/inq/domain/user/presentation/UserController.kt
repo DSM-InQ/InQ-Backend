@@ -37,7 +37,7 @@ class UserController(
         userService.queryUserInfo()
 
     @PutMapping("/profile")
-    fun updateUserInfo(@RequestBody @Valid request: UpdateUserInfoRequest) {
+    fun updateUserInfo(@Valid @RequestBody request: UpdateUserInfoRequest) {
         userService.updateUserInfo(request)
     }
 

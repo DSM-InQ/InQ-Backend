@@ -104,7 +104,6 @@ class QuestionController(
         @PathVariable("question-id") questionId: Long,
         @RequestBody answerRequest: AnswerRequest
     ) {
-        println(questionId)
         return questionService.answerQuestionInQuestionSet(questionId, answerRequest)
     }
 }

@@ -404,8 +404,6 @@ class QuestionService(
 
         val questionSet = questionSetsRepository.findByIdOrNull(questionSetID)?: throw QuestionNotFoundException
 
-        postRepository.save(Post())
-
         questionSolvingHistoryRepository.save(
             QuestionSolvingHistory(
                 userId = user,

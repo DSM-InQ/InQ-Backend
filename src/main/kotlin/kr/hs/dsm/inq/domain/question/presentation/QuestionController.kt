@@ -83,7 +83,12 @@ class QuestionController(
     }
 
     @GetMapping("/set")
-    fun getQuestionSets(@Valid @ModelAttribute request: ReadQuestionSetsRequest): ReadQuestionSetResponse{
+    fun getQuestionSets(@Valid @ModelAttribute request: GetQuestionSetsRequest): GetQuestionSetResponse{
         return questionService.getQuestionSet(request)
+    }
+
+    @GetMapping("/set/{question-set-id}")
+    fun getQuestionSetDetail(@PathVariable("question-set-id") questionSetID: Long): GetQuestionSetDetailResponse {
+        return questionService.getQuestionSetDetail(questionSetID)
     }
 }

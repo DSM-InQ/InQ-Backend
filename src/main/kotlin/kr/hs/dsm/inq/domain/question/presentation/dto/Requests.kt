@@ -50,7 +50,7 @@ data class QuestionSetsRequest(
     val tag: List<String>,
 )
 
-data class ReadQuestionSetsRequest(
+data class GetQuestionSetsRequest(
     val page: Long,
 
     @field:Nullable

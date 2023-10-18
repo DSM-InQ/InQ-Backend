@@ -186,13 +186,13 @@ data class RegisterQuestionSetsResponse(
     val isFavorite: Boolean
 )
 
-data class ReadQuestionSetResponse(
+data class GetQuestionSetResponse(
     val hasNext: Boolean,
     val questionSetsList: List<QuestionSet>,
 ) {
     companion object{
         fun of(pageResponse: PageResponse<QuestionSetDto>) = pageResponse.run{
-            ReadQuestionSetResponse(
+            GetQuestionSetResponse(
                 hasNext = hasNext,
                 questionSetsList = list.map { QuestionSet.of(it) }
             )
@@ -231,3 +231,46 @@ data class QuestionSet (
         }
     }
 }
+
+data class GetQuestionSetDetailResponse(
+    val questionSetId: Long,
+    val name: String,
+    val createdAt: LocalDateTime,
+    val username: String,
+    val job: String,
+    val jobDuration: Int,
+    val category: Category,
+    val likeCount: Int,
+    val viewCount: Int,
+    val isLiked: Boolean,
+    val isDisliked: Boolean,
+    val isFavorite: Boolean,
+    val tags: List<String>,
+) {
+    companion object {
+        fun of(questionSetDetail: QuestionSetDetailDto) = questionSetDetail.run {
+            GetQuestionSetDetailResponse(
+                questionSetId = questionSetId,
+                name = name,
+                createdAt = createdAt,
+                username = username,
+                job = job,
+                jobDuration = jobDuration,
+                category = category,
+                likeCount = likeCount,
+                viewCount = viewCount,
+                isLiked = isLiked,
+                isDisliked = isDisliked,
+                isFavorite = isFavorite,
+                tags = tagList.map { it.tag }
+            )
+        }
+    }
+}
+
+/**
+ *     val isLiked: Boolean,
+ *     val isDisliked: Boolean,
+ *     val isFavorite: Boolean,
+ *     tagList: List<String>,
+ */

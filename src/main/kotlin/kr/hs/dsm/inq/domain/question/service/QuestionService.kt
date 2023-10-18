@@ -350,19 +350,32 @@ class QuestionService(
         )
     }
 
-    fun getQuestionSet(request: ReadQuestionSetsRequest): ReadQuestionSetResponse {
+    fun getQuestionSet(request: GetQuestionSetsRequest): GetQuestionSetResponse {
         val user = SecurityUtil.getCurrentUser()
 
         val questionSetList = request.run{
             questionSetsRepository.queryQuestionSetDto(
                 user = user,
-                category = request.category,
-                keyword = request.keyword,
-                tags = request.tags ?: listOf(),
-                page = request.page,
+                category = category,
+                keyword = keyword,
+                tags = tags ?: listOf(),
+                page = page,
             )
         }
 
-        return ReadQuestionSetResponse.of(questionSetList)
+        return GetQuestionSetResponse.of(questionSetList)
+    }
+
+    fun getQuestionSetDetail(questionSetID: Long): GetQuestionSetDetailResponse {
+
+        val user = SecurityUtil.getCurrentUser()
+        questionSetsRepository
+
+        val questionSetDetail = questionSetID.run {
+            questionSetsRepository.queryQuestionSetDtoById(user, questionSetID)
+                ?: throw QuestionNotFoundException
+        }
+
+        return GetQuestionSetDetailResponse.of(questionSetDetail)
     }
 }

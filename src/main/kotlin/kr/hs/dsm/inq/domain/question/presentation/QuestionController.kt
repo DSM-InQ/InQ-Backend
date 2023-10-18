@@ -91,4 +91,10 @@ class QuestionController(
     fun getQuestionSetDetail(@PathVariable("question-set-id") questionSetID: Long): GetQuestionSetDetailResponse {
         return questionService.getQuestionSetDetail(questionSetID)
     }
+
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PostMapping("/set/{question-set-id}")
+    fun answerQuestionSet(@PathVariable("question-set-id") questionSetID: Long) {
+        return questionService.answerQuestionSet(questionSetID)
+    }
 }

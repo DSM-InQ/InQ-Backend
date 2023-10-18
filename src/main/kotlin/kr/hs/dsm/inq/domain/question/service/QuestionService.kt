@@ -1,6 +1,5 @@
 package kr.hs.dsm.inq.domain.question.service
 
-import kr.hs.dsm.inq.common.util.PageResponse
 import kr.hs.dsm.inq.common.util.SecurityUtil
 import kr.hs.dsm.inq.common.util.defaultPage
 import kr.hs.dsm.inq.domain.question.exception.AlreadyDislikedPostException
@@ -10,17 +9,7 @@ import kr.hs.dsm.inq.domain.question.exception.QuestionNotFoundException
 import kr.hs.dsm.inq.domain.question.persistence.*
 import kr.hs.dsm.inq.domain.question.persistence.dto.AnswersDto
 import kr.hs.dsm.inq.domain.question.persistence.dto.CategoriesDto
-import kr.hs.dsm.inq.domain.question.persistence.dto.QuestionSetDto
-import kr.hs.dsm.inq.domain.question.persistence.repository.AnswersRepository
-import kr.hs.dsm.inq.domain.question.persistence.repository.CommentsRepository
-import kr.hs.dsm.inq.domain.question.persistence.repository.LikeRepository
-import kr.hs.dsm.inq.domain.question.persistence.repository.PostRepository
-import kr.hs.dsm.inq.domain.question.persistence.repository.ProblemRepository
-import kr.hs.dsm.inq.domain.question.persistence.repository.QuestionTagsRepository
-import kr.hs.dsm.inq.domain.question.persistence.repository.QuestionsRepository
-import kr.hs.dsm.inq.domain.question.persistence.repository.QuestionSetsRepository
-import kr.hs.dsm.inq.domain.question.persistence.repository.SetQuestionRepository
-import kr.hs.dsm.inq.domain.question.persistence.repository.TagsRepository
+import kr.hs.dsm.inq.domain.question.persistence.repository.*
 import kr.hs.dsm.inq.domain.question.presentation.dto.*
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -39,6 +28,7 @@ class QuestionService(
     private val postRepository: PostRepository,
     private val questionSetsRepository: QuestionSetsRepository,
     private val setQuestionRepository: SetQuestionRepository,
+    private val questionSolvingHistoryRepository: QuestionSolvingHistoryRepository,
 ) {
 
     fun createQuestion(request: CreateQuestionRequest): CreateQuestionResponses {
@@ -219,6 +209,13 @@ class QuestionService(
         questionsRepository.save(
             questions.apply { answerCount += 1 }
         )
+
+        questionSolvingHistoryRepository.save(
+            QuestionSolvingHistory(
+                userId = user,
+                problem = questions.problem
+            )
+        )
     }
 
     fun likeAnswer(answerId: Long): LikeResponse {
@@ -377,5 +374,22 @@ class QuestionService(
         }
 
         return GetQuestionSetDetailResponse.of(questionSetDetail)
+    }
+
+    fun answerQuestionSet(questionSetID: Long){
+        val user = SecurityUtil.getCurrentUser()
+
+        val questionSet = questionSetsRepository.findByIdOrNull(questionSetID)?: throw QuestionNotFoundException
+
+        postRepository.save(Post())
+        
+        questionSolvingHistoryRepository.save(
+            QuestionSolvingHistory(
+                userId = user,
+                problem = questionSet.problemId
+            )
+        )
+
+        println("Success")
     }
 }

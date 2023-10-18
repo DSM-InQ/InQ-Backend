@@ -382,14 +382,37 @@ class QuestionService(
         val questionSet = questionSetsRepository.findByIdOrNull(questionSetID)?: throw QuestionNotFoundException
 
         postRepository.save(Post())
-        
+
         questionSolvingHistoryRepository.save(
             QuestionSolvingHistory(
                 userId = user,
                 problem = questionSet.problemId
             )
         )
+    }
 
-        println("Success")
+    fun answerQuestionInQuestionSet(
+        questionId: Long,
+        request: AnswerRequest
+    ){
+        val user = SecurityUtil.getCurrentUser()
+
+        val question = questionsRepository.findByIdOrNull(questionId)?: throw QuestionNotFoundException
+
+        val post = postRepository.save(Post())
+
+        answersRepository.save(
+            Answers(
+                isExamplary = false,
+                answer = request.answer,
+                questions = question,
+                writer = user,
+                post = post,
+            )
+        )
+
+        questionsRepository.save(
+            question.apply { answerCount += 1 }
+        )
     }
 }

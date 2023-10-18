@@ -335,12 +335,10 @@ class QuestionService(
         )
 
         val categories: MutableList<CategoriesDto> = mutableListOf()
-        request.questionId.mapIndexed {
-            index, questionId -> {
-                println("question")
+        request.questionId.forEachIndexed {
+            index, questionId -> run {
                 val question = questionsRepository.findByIdOrNull(questionId) ?: throw QuestionNotFoundException
 
-                println("questionRepositorySave")
                 setQuestionRepository.save(
                     SetQuestion(
                         id = SetQuestionID(
@@ -353,15 +351,19 @@ class QuestionService(
                     )
                 )
 
-                println("category beforeAdd")
                 categories.add(CategoriesDto(count = 1, category = question.category))
-                println("category afterAdd")
             }
+        }
+
+        val count = categories.groupingBy { it.category }.eachCount()
+        val category: MutableList<CategoriesDto> = mutableListOf()
+        count.map {
+            category.add(CategoriesDto(it.key, it.value))
         }
 
         return RegisterQuestionSetsResponse(
             questionSetsName = request.questionSetName,
-            categories = categories,
+            categories = category,
             likeCount = 0,
             dislikeCount = 0,
             isLiked = false,

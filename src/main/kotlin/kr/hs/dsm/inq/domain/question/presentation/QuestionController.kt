@@ -88,14 +88,14 @@ class QuestionController(
     }
 
     @GetMapping("/set/{question-set-id}")
-    fun getQuestionSetDetail(@PathVariable("question-set-id") questionSetID: Long): GetQuestionSetDetailResponse {
-        return questionService.getQuestionSetDetail(questionSetID)
+    fun getQuestionSetDetail(@PathVariable("question-set-id") questionSetId: Long): GetQuestionSetDetailResponse {
+        return questionService.getQuestionSetDetail(questionSetId)
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PostMapping("/set/{question-set-id}")
-    fun answerQuestionSet(@PathVariable("question-set-id") questionSetID: Long) {
-        return questionService.answerQuestionSet(questionSetID)
+    fun answerQuestionSet(@PathVariable("question-set-id") questionSetId: Long) {
+        return questionService.answerQuestionSet(questionSetId)
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)

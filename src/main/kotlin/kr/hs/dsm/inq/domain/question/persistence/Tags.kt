@@ -22,7 +22,7 @@ data class Tags(
     @Column(columnDefinition = "VARCHAR(30)", nullable = false)
     var tag: String,
 
-    @Column(columnDefinition = "VARCHAR(30)", nullable = true)
+    @Column(columnDefinition = "VARCHAR(30)", nullable = false)
     @Enumerated(EnumType.STRING)
     var category: Category?
 )

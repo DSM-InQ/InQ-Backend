@@ -20,7 +20,7 @@ class SetQuestion (
     var questionId: Questions,
 
     @Column(columnDefinition = "INT", nullable = false)
-    var question_index: Int,
+    var questionIndex: Int,
 )
 
 @Embeddable

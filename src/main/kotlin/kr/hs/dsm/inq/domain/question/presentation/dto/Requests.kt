@@ -4,6 +4,8 @@ import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
 import kr.hs.dsm.inq.domain.question.persistence.Category
 import kr.hs.dsm.inq.domain.question.persistence.Tags
+import org.springframework.lang.Nullable
+import javax.validation.constraints.Null
 
 data class CreateQuestionRequest(
 
@@ -46,4 +48,17 @@ data class QuestionSetsRequest(
     val category: Category,
     val questionId: List<Long>,
     val tag: List<String>,
+)
+
+data class ReadQuestionSetsRequest(
+    val page: Long,
+
+    @field:Nullable
+    val category: Category?,
+
+    @field:Nullable
+    val keyword: String?,
+
+    @field:Nullable
+    val tags: List<String>?
 )

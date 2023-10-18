@@ -6,6 +6,7 @@ import kr.hs.dsm.inq.domain.question.persistence.Category
 import kr.hs.dsm.inq.domain.question.presentation.dto.*
 import kr.hs.dsm.inq.domain.question.service.QuestionService
 import org.springframework.http.HttpStatus
+import org.springframework.lang.Nullable
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
@@ -77,8 +78,12 @@ class QuestionController(
     }
 
     @PostMapping("/set")
-    fun registerQuestionSets(@RequestBody request: QuestionSetsRequest): QuestionSetsResponse{
+    fun registerQuestionSets(@RequestBody request: QuestionSetsRequest): RegisterQuestionSetsResponse{
         return questionService.registerQuestionSet(request)
     }
 
+    @GetMapping("/set")
+    fun getQuestionSets(@Valid @ModelAttribute request: ReadQuestionSetsRequest): ReadQuestionSetResponse{
+        return questionService.getQuestionSet(request)
+    }
 }

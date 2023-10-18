@@ -1,10 +1,11 @@
 package kr.hs.dsm.inq.domain.question.persistence
 
+import kr.hs.dsm.inq.domain.user.persistence.User
 import java.time.LocalDateTime
 import javax.persistence.*
 
 @Table(name = "tbl_question_set")
-@Entity()
+@Entity
 class QuestionSets (
     @Id
     @Column(columnDefinition = "BIGINT", nullable = false)
@@ -20,11 +21,24 @@ class QuestionSets (
     @Column(columnDefinition = "INT", nullable = false)
     var answerCount: Int,
 
+    @Column(columnDefinition = "VARCHAR(30)", nullable = false)
+    var category: Category,
+
+    @Column(columnDefinition = "INT", nullable = false)
+    var likeCount: Int,
+
+    @Column(columnDefinition = "INT", nullable = false)
+    var viewCount: Int,
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", columnDefinition = "BIGINT",nullable = false)
     var postId: Post,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "problem_id", columnDefinition = "BITINT", nullable = false)
+    @JoinColumn(name = "problem_id", columnDefinition = "BIGINT", nullable = false)
     var problemId: Problem,
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "author_id", columnDefinition = "BIGINT", nullable = false)
+    val authorId: User,
 )

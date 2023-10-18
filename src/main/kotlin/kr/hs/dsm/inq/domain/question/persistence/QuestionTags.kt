@@ -19,10 +19,10 @@ class QuestionTags(
     @EmbeddedId
     val id: QuestionTagsId,
 
-    @MapsId("questionId")
+    @MapsId("problemId")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "question_id", columnDefinition = "BIGINT", nullable = false)
-    val questions: Questions,
+    @JoinColumn(name = "problem_id", columnDefinition = "BIGINT", nullable = false)
+    val problems: Problem,
 
     @MapsId("tagId")
     @ManyToOne(fetch = FetchType.LAZY)
@@ -35,7 +35,7 @@ class QuestionTags(
 data class QuestionTagsId(
 
     @Column
-    val questionId: Long,
+    val problemId: Long,
 
     @Column
     val tagId: Long

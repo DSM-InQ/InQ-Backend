@@ -1,5 +1,6 @@
 package kr.hs.dsm.inq.domain.question.service
 
+import kr.hs.dsm.inq.common.util.PageResponse
 import kr.hs.dsm.inq.common.util.SecurityUtil
 import kr.hs.dsm.inq.common.util.defaultPage
 import kr.hs.dsm.inq.domain.question.exception.AlreadyDislikedPostException
@@ -8,6 +9,8 @@ import kr.hs.dsm.inq.domain.question.exception.AnswerNotFoundException
 import kr.hs.dsm.inq.domain.question.exception.QuestionNotFoundException
 import kr.hs.dsm.inq.domain.question.persistence.*
 import kr.hs.dsm.inq.domain.question.persistence.dto.AnswersDto
+import kr.hs.dsm.inq.domain.question.persistence.dto.CategoriesDto
+import kr.hs.dsm.inq.domain.question.persistence.dto.QuestionSetDto
 import kr.hs.dsm.inq.domain.question.persistence.repository.AnswersRepository
 import kr.hs.dsm.inq.domain.question.persistence.repository.CommentsRepository
 import kr.hs.dsm.inq.domain.question.persistence.repository.LikeRepository
@@ -57,7 +60,7 @@ class QuestionService(
 
         saveTag(
             request = request,
-            questions = questions
+            problems = problem,
         )
 
         val post = postRepository.save(Post())
@@ -79,7 +82,7 @@ class QuestionService(
 
     private fun saveTag(
         request: CreateQuestionRequest,
-        questions: Questions
+        problems: Problem,
     ) {
         val existsTagList = tagsRepository.findByCategoryAndTagIn(request.category, request.tags)
         val existsTagMap = existsTagList.associateBy { it.tag }
@@ -98,8 +101,8 @@ class QuestionService(
         questionTagsRepository.saveAll(
             tagList.map {
                 QuestionTags(
-                    id = QuestionTagsId(questionId = questions.id, tagId = it.id),
-                    questions = questions,
+                    id = QuestionTagsId(problemId = problems.id, tagId = it.id),
+                    problems = problems,
                     tags = it
                 )
             }
@@ -282,7 +285,9 @@ class QuestionService(
         }
     }
 
-    fun registerQuestionSet(request: QuestionSetsRequest): QuestionSetsResponse{
+    fun registerQuestionSet(request: QuestionSetsRequest): RegisterQuestionSetsResponse{
+        val user = SecurityUtil.getCurrentUser()
+
         val postId = postRepository.save(Post())
         val problemId = problemRepository.save(Problem(type = ProblemType.SET))
 
@@ -290,8 +295,12 @@ class QuestionService(
             QuestionSets(
                 name = request.questionSetName,
                 answerCount = 0,
+                category = request.category,
+                likeCount = 0,
+                viewCount = 0,
                 postId = postId,
                 problemId = problemId,
+                authorId = user,
             )
         )
 
@@ -305,7 +314,7 @@ class QuestionService(
         }
 
         val len = request.questionId.size - 1
-        val categories: MutableList<categories> = mutableListOf()
+        val categories: MutableList<CategoriesDto> = mutableListOf()
         for(i: Int in 0..len) {
             val questionId = request.questionId[i]
 
@@ -319,18 +328,18 @@ class QuestionService(
                     ),
                     setId = sets,
                     questionId = question,
-                    question_index = i + 1,
+                    questionIndex = i + 1,
                 )
             )
 
-            categories.add(categories(count = 1, category = question.category))
+            categories.add(CategoriesDto(count = 1, category = question.category))
 
         }
 
         val count = categories.groupingBy { it }.eachCount()
         print(count)
 
-        return QuestionSetsResponse(
+        return RegisterQuestionSetsResponse(
             questionSetsName = request.questionSetName,
             categories = categories,
             likeCount = 0,
@@ -339,5 +348,21 @@ class QuestionService(
             isDisliked = false,
             isFavorite = false
         )
+    }
+
+    fun getQuestionSet(request: ReadQuestionSetsRequest): ReadQuestionSetResponse {
+        val user = SecurityUtil.getCurrentUser()
+
+        val questionSetList = request.run{
+            questionSetsRepository.queryQuestionSetDto(
+                user = user,
+                category = request.category,
+                keyword = request.keyword,
+                tags = request.tags ?: listOf(),
+                page = request.page,
+            )
+        }
+
+        return ReadQuestionSetResponse.of(questionSetList)
     }
 }

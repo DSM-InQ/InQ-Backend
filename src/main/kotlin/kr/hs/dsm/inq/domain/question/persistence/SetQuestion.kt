@@ -7,7 +7,7 @@ import javax.persistence.*
 @Entity
 class SetQuestion (
     @EmbeddedId
-    val id: SetQuestionID,
+    val id: SetQuestionId,
 
     @MapsId("setId")
     @ManyToOne(fetch = FetchType.LAZY)
@@ -24,7 +24,7 @@ class SetQuestion (
 )
 
 @Embeddable
-data class SetQuestionID (
+data class SetQuestionId (
     @Column
     val setId: Long,
 

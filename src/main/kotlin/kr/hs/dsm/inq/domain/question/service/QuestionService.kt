@@ -341,7 +341,7 @@ class QuestionService(
 
                 setQuestionRepository.save(
                     SetQuestion(
-                        id = SetQuestionID(
+                        id = SetQuestionId(
                             setId = sets.id,
                             questionId = questionId,
                         ),
@@ -388,23 +388,23 @@ class QuestionService(
         return GetQuestionSetResponse.of(questionSetList)
     }
 
-    fun getQuestionSetDetail(questionSetID: Long): GetQuestionSetDetailResponse {
+    fun getQuestionSetDetail(questionSetId: Long): GetQuestionSetDetailResponse {
 
         val user = SecurityUtil.getCurrentUser()
         questionSetsRepository
 
-        val questionSetDetail = questionSetID.run {
-            questionSetsRepository.queryQuestionSetDtoById(user, questionSetID)
+        val questionSetDetail = questionSetId.run {
+            questionSetsRepository.queryQuestionSetDtoById(user, questionSetId)
                 ?: throw QuestionNotFoundException
         }
 
         return GetQuestionSetDetailResponse.of(questionSetDetail)
     }
 
-    fun answerQuestionSet(questionSetID: Long){
+    fun answerQuestionSet(questionSetId: Long){
         val user = SecurityUtil.getCurrentUser()
 
-        val questionSet = questionSetsRepository.findByIdOrNull(questionSetID)?: throw QuestionNotFoundException
+        val questionSet = questionSetsRepository.findByIdOrNull(questionSetId)?: throw QuestionNotFoundException
 
         questionSolvingHistoryRepository.save(
             QuestionSolvingHistory(

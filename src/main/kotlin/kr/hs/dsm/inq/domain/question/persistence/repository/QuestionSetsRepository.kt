@@ -8,6 +8,7 @@ import kr.hs.dsm.inq.common.util.PageUtil
 import kr.hs.dsm.inq.common.util.offsetAndLimit
 import kr.hs.dsm.inq.domain.question.persistence.*
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionSets.questionSets
+import kr.hs.dsm.inq.domain.question.persistence.QQuestionSolvingHistory.questionSolvingHistory
 import kr.hs.dsm.inq.domain.question.persistence.dto.QQuestionSetDetailDto
 import kr.hs.dsm.inq.domain.question.persistence.dto.QQuestionSetDto
 import kr.hs.dsm.inq.domain.question.persistence.dto.QuestionSetDetailDto
@@ -85,6 +86,8 @@ class CustomQuestionSetsRepositoryImpl(
         val author = QUser("writer")
         return leftJoin(QQuestionTags.questionTags).on(QQuestionTags.questionTags.problems.eq(questionSets.problemId))
             .leftJoin(QTags.tags).on(QTags.tags.id.eq(QQuestionTags.questionTags.id.tagId))
+            .leftJoin(questionSolvingHistory)
+                .on(questionSolvingHistory.userId.id.eq(user.id)).on(questionSolvingHistory.problem.eq(questionSets.problemId))
             .innerJoin(author).on(author.id.eq(questionSets.authorId.id))
 //            .rightJoin(favorite).on(favorite.questions.id.eq(questions.id))
 //            .rightJoin(answers).on(answers.writer.eq(user).and(answers.questions.eq(questions)))
@@ -100,7 +103,7 @@ class CustomQuestionSetsRepositoryImpl(
                             /* job = */ author.job,
                             /* jobDuration = */ author.jobDuration,
                             /* tagList = */ GroupBy.list(QTags.tags),
-                            /* isAnswered = */ questionSets.isNull(),
+                            /* isAnswered = */ questionSolvingHistory.isNotNull,
                             /* likeCount = */ questionSets.likeCount,
                             /* viewCount = */ questionSets.viewCount,
                         )

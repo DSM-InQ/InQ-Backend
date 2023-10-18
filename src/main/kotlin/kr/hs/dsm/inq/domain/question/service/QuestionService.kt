@@ -334,30 +334,30 @@ class QuestionService(
             problems = sets.problemId
         )
 
-        val len = request.questionId.size - 1
         val categories: MutableList<CategoriesDto> = mutableListOf()
-        for(i: Int in 0..len) {
-            val questionId = request.questionId[i]
+        request.questionId.mapIndexed {
+            index, questionId -> {
+                println("question")
+                val question = questionsRepository.findByIdOrNull(questionId) ?: throw QuestionNotFoundException
 
-            val question = questionsRepository.findByIdOrNull(questionId) ?: throw QuestionNotFoundException
-
-            setQuestionRepository.save(
-                SetQuestion(
-                    id = SetQuestionID(
-                        setId = sets.id,
-                        questionId = questionId,
-                    ),
-                    setId = sets,
-                    questionId = question,
-                    questionIndex = i + 1,
+                println("questionRepositorySave")
+                setQuestionRepository.save(
+                    SetQuestion(
+                        id = SetQuestionID(
+                            setId = sets.id,
+                            questionId = questionId,
+                        ),
+                        setId = sets,
+                        questionId = question,
+                        questionIndex = index,
+                    )
                 )
-            )
 
-            categories.add(CategoriesDto(count = 1, category = question.category))
-
+                println("category beforeAdd")
+                categories.add(CategoriesDto(count = 1, category = question.category))
+                println("category afterAdd")
+            }
         }
-
-        val count = categories.groupingBy { it }.eachCount()
 
         return RegisterQuestionSetsResponse(
             questionSetsName = request.questionSetName,

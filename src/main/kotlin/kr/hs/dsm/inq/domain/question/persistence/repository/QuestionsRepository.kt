@@ -21,6 +21,7 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 
 interface QuestionsRepository: CrudRepository<Questions, Long>, CustomQuestionRepository {
+    fun findByIdIn(idList: List<Long>): List<Questions>
 }
 
 interface CustomQuestionRepository {
@@ -86,7 +87,7 @@ class CustomQuestionRepositoryImpl(
 
     private fun <T> JPAQuery<T>.getQuestionDto(user: User): MutableList<QuestionDto> {
         val writer = QUser("writer")
-        return innerJoin(questionTags).on(questionTags.questions.eq(questions))
+        return innerJoin(questionTags).on(questionTags.problems.eq(questions.problem))
             .innerJoin(tags).on(tags.id.eq(questionTags.id.tagId))
             .innerJoin(writer).on(writer.id.eq(questions.author.id))
 //            .rightJoin(favorite).on(favorite.questions.id.eq(questions.id))
@@ -124,7 +125,7 @@ class CustomQuestionRepositoryImpl(
 
         val author = QUser("writer")
 
-        return@run innerJoin(questionTags).on(questionTags.questions.eq(questions))
+        return@run innerJoin(questionTags).on(questionTags.problems.eq(questions.problem))
             .innerJoin(tags).on(tags.id.eq(questionTags.id.tagId))
 //            .rightJoin(favorite).on(favorite.questions.id.eq(questions.id))
 //            .rightJoin(answers).on(answers.writer.eq(user).and(answers.questions.eq(questions)))

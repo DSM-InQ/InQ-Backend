@@ -7,24 +7,24 @@ import javax.persistence.*
 @Entity
 class SetQuestion (
     @EmbeddedId
-    val id: SetQuestionID,
+    val id: SetQuestionId,
 
     @MapsId("setId")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "set_id", columnDefinition = "BIGINT", nullable = false)
-    var setId: QuestionSets,
+    var set: QuestionSets,
 
     @MapsId("questionId")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id", columnDefinition = "BIGINT", nullable = false)
-    var questionId: Questions,
+    var question: Questions,
 
     @Column(columnDefinition = "INT", nullable = false)
-    var index: Int,
+    var questionIndex: Int,
 )
 
 @Embeddable
-data class SetQuestionID (
+data class SetQuestionId (
     @Column
     val setId: Long,
 

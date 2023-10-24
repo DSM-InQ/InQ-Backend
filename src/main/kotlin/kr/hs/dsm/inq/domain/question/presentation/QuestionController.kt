@@ -3,20 +3,10 @@ package kr.hs.dsm.inq.domain.question.presentation
 import javax.validation.Valid
 import javax.websocket.server.PathParam
 import kr.hs.dsm.inq.domain.question.persistence.Category
-import kr.hs.dsm.inq.domain.question.presentation.dto.AnswerRequest
-import kr.hs.dsm.inq.domain.question.presentation.dto.CreateQuestionRequest
-import kr.hs.dsm.inq.domain.question.presentation.dto.CreateQuestionResponses
-import kr.hs.dsm.inq.domain.question.presentation.dto.DislikeResponse
-import kr.hs.dsm.inq.domain.question.presentation.dto.GetPopularQuestionRequest
-import kr.hs.dsm.inq.domain.question.presentation.dto.GetQuestionListRequest
-import kr.hs.dsm.inq.domain.question.presentation.dto.GetQuestionRankRequest
-import kr.hs.dsm.inq.domain.question.presentation.dto.LikeResponse
-import kr.hs.dsm.inq.domain.question.presentation.dto.QuestionDetailResponse
-import kr.hs.dsm.inq.domain.question.presentation.dto.QuestionListResponse
-import kr.hs.dsm.inq.domain.question.presentation.dto.QuestionResponse
-import kr.hs.dsm.inq.domain.question.presentation.dto.TagListResponse
+import kr.hs.dsm.inq.domain.question.presentation.dto.*
 import kr.hs.dsm.inq.domain.question.service.QuestionService
 import org.springframework.http.HttpStatus
+import org.springframework.lang.Nullable
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
@@ -87,4 +77,33 @@ class QuestionController(
         return questionService.dislikeAnswer(answerId)
     }
 
+    @PostMapping("/set")
+    fun registerQuestionSets(@RequestBody request: QuestionSetsRequest): RegisterQuestionSetsResponse{
+        return questionService.registerQuestionSet(request)
+    }
+
+    @GetMapping("/set")
+    fun getQuestionSets(@Valid @ModelAttribute request: GetQuestionSetsRequest): GetQuestionSetResponse{
+        return questionService.getQuestionSet(request)
+    }
+
+    @GetMapping("/set/{question-set-id}")
+    fun getQuestionSetDetail(@PathVariable("question-set-id") questionSetId: Long): GetQuestionSetDetailResponse {
+        return questionService.getQuestionSetDetail(questionSetId)
+    }
+
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PostMapping("/set/{question-set-id}")
+    fun answerQuestionSet(@PathVariable("question-set-id") questionSetId: Long) {
+        return questionService.answerQuestionSet(questionSetId)
+    }
+
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PostMapping("/{question-id}/set")
+    fun answerQuestionInQuestionSet(
+        @PathVariable("question-id") questionId: Long,
+        @RequestBody answerRequest: AnswerRequest
+    ) {
+        return questionService.answerQuestionInQuestionSet(questionId, answerRequest)
+    }
 }

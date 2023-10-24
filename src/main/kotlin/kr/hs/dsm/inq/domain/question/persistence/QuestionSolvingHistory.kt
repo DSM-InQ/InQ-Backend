@@ -1,16 +1,16 @@
 package kr.hs.dsm.inq.domain.question.persistence
 
 import kr.hs.dsm.inq.domain.user.persistence.User
-import java.io.Serializable
 import java.time.LocalDateTime
-import java.util.Date
 import javax.persistence.*
 
 @Table(name = "tbl_question_solving_history")
 @Entity
-class QuestionSolvingHistory (
+class QuestionSolvingHistory(
     @Id
-    var id: Long,
+    @Column(columnDefinition = "BIGINT", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long = 0L,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", columnDefinition = "BIGINT", nullable = false)

@@ -20,10 +20,10 @@ class Favorite(
     @EmbeddedId
     val id: FavoriteId,
 
-    @MapsId("questionId")
+    @MapsId("problemId")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "question_id", columnDefinition = "BIGINT", nullable = false)
-    val questions: Questions,
+    @JoinColumn(name = "problem_id", columnDefinition = "BIGINT", nullable = false)
+    val problemId: Problem,
 
     @MapsId("userId")
     @ManyToOne(fetch = FetchType.LAZY)
@@ -35,7 +35,7 @@ class Favorite(
 data class FavoriteId(
 
     @Column
-    val questionId: Long,
+    val problemId: Long,
 
     @Column
     val userId: Long

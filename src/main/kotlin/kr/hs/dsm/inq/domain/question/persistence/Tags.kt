@@ -24,5 +24,5 @@ data class Tags(
 
     @Column(columnDefinition = "VARCHAR(30)", nullable = false)
     @Enumerated(EnumType.STRING)
-    var category: Category
+    var category: Category?
 )

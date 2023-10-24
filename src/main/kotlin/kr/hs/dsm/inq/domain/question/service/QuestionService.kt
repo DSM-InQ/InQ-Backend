@@ -6,39 +6,11 @@ import kr.hs.dsm.inq.domain.question.exception.AlreadyDislikedPostException
 import kr.hs.dsm.inq.domain.question.exception.AlreadyLikedPostException
 import kr.hs.dsm.inq.domain.question.exception.AnswerNotFoundException
 import kr.hs.dsm.inq.domain.question.exception.QuestionNotFoundException
-import kr.hs.dsm.inq.domain.question.persistence.Answers
-import kr.hs.dsm.inq.domain.question.persistence.Category
-import kr.hs.dsm.inq.domain.question.persistence.Comments
-import kr.hs.dsm.inq.domain.question.persistence.Like
-import kr.hs.dsm.inq.domain.question.persistence.LikeId
-import kr.hs.dsm.inq.domain.question.persistence.Post
-import kr.hs.dsm.inq.domain.question.persistence.Problem
-import kr.hs.dsm.inq.domain.question.persistence.ProblemType
-import kr.hs.dsm.inq.domain.question.persistence.QuestionTagsId
-import kr.hs.dsm.inq.domain.question.persistence.QuestionTags
-import kr.hs.dsm.inq.domain.question.persistence.Questions
-import kr.hs.dsm.inq.domain.question.persistence.Tags
+import kr.hs.dsm.inq.domain.question.persistence.*
 import kr.hs.dsm.inq.domain.question.persistence.dto.AnswersDto
-import kr.hs.dsm.inq.domain.question.persistence.repository.AnswersRepository
-import kr.hs.dsm.inq.domain.question.persistence.repository.CommentsRepository
-import kr.hs.dsm.inq.domain.question.persistence.repository.LikeRepository
-import kr.hs.dsm.inq.domain.question.persistence.repository.PostRepository
-import kr.hs.dsm.inq.domain.question.persistence.repository.ProblemRepository
-import kr.hs.dsm.inq.domain.question.persistence.repository.QuestionTagsRepository
-import kr.hs.dsm.inq.domain.question.persistence.repository.QuestionsRepository
-import kr.hs.dsm.inq.domain.question.persistence.repository.TagsRepository
-import kr.hs.dsm.inq.domain.question.presentation.dto.AnswerRequest
-import kr.hs.dsm.inq.domain.question.presentation.dto.CreateQuestionRequest
-import kr.hs.dsm.inq.domain.question.presentation.dto.CreateQuestionResponses
-import kr.hs.dsm.inq.domain.question.presentation.dto.DislikeResponse
-import kr.hs.dsm.inq.domain.question.presentation.dto.GetQuestionListRequest
-import kr.hs.dsm.inq.domain.question.presentation.dto.GetQuestionRankRequest
-import kr.hs.dsm.inq.domain.question.presentation.dto.LikeResponse
-import kr.hs.dsm.inq.domain.question.presentation.dto.QuestionDetailResponse
-import kr.hs.dsm.inq.domain.question.presentation.dto.QuestionListResponse
-import kr.hs.dsm.inq.domain.question.presentation.dto.QuestionRankResponse
-import kr.hs.dsm.inq.domain.question.presentation.dto.QuestionResponse
-import kr.hs.dsm.inq.domain.question.presentation.dto.TagListResponse
+import kr.hs.dsm.inq.domain.question.persistence.dto.CategoriesDto
+import kr.hs.dsm.inq.domain.question.persistence.repository.*
+import kr.hs.dsm.inq.domain.question.presentation.dto.*
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -53,7 +25,10 @@ class QuestionService(
     private val commentRepository: CommentsRepository,
     private val problemRepository: ProblemRepository,
     private val likeRepository: LikeRepository,
-    private val postRepository: PostRepository
+    private val postRepository: PostRepository,
+    private val questionSetsRepository: QuestionSetsRepository,
+    private val setQuestionRepository: SetQuestionRepository,
+    private val questionSolvingHistoryRepository: QuestionSolvingHistoryRepository,
 ) {
 
     fun createQuestion(request: CreateQuestionRequest): CreateQuestionResponses {
@@ -74,8 +49,9 @@ class QuestionService(
         )
 
         saveTag(
-            request = request,
-            questions = questions
+            category = request.category,
+            tags = request.tags,
+            problems = problem,
         )
 
         val post = postRepository.save(Post())
@@ -96,19 +72,20 @@ class QuestionService(
     }
 
     private fun saveTag(
-        request: CreateQuestionRequest,
-        questions: Questions
+        category: Category,
+        tags: List<String>,
+        problems: Problem,
     ) {
-        val existsTagList = tagsRepository.findByCategoryAndTagIn(request.category, request.tags)
+        val existsTagList = tagsRepository.findByCategoryAndTagIn(category, tags)
         val existsTagMap = existsTagList.associateBy { it.tag }
-        val tagListToSave = request.tags
+        val tagListToSave = tags
             .mapNotNull { if (existsTagMap[it] != null) null else it }
 
         val tagList = tagsRepository.saveAll(
             tagListToSave.map {
                 Tags(
                     tag = it,
-                    category = request.category
+                    category = category
                 )
             }
         ).union(existsTagList)
@@ -116,8 +93,8 @@ class QuestionService(
         questionTagsRepository.saveAll(
             tagList.map {
                 QuestionTags(
-                    id = QuestionTagsId(questionId = questions.id, tagId = it.id),
-                    questions = questions,
+                    id = QuestionTagsId(problemId = problems.id, tagId = it.id),
+                    problems = problems,
                     tags = it
                 )
             }
@@ -234,6 +211,13 @@ class QuestionService(
         questionsRepository.save(
             questions.apply { answerCount += 1 }
         )
+
+        questionSolvingHistoryRepository.save(
+            QuestionSolvingHistory(
+                userId = user,
+                problem = questions.problem
+            )
+        )
     }
 
     fun likeAnswer(answerId: Long): LikeResponse {
@@ -298,5 +282,137 @@ class QuestionService(
             likeRepository.deleteById(likeId)
             return DislikeResponse(isDisliked = false)
         }
+    }
+
+    fun registerQuestionSet(request: QuestionSetsRequest): RegisterQuestionSetsResponse{
+        val user = SecurityUtil.getCurrentUser()
+
+        val postId = postRepository.save(Post())
+        val problemId = problemRepository.save(Problem(type = ProblemType.SET))
+
+        val sets = questionSetsRepository.save(
+            QuestionSets(
+                name = request.questionSetName,
+                answerCount = 0,
+                category = request.category,
+                likeCount = 0,
+                viewCount = 0,
+                postId = postId,
+                problemId = problemId,
+                authorId = user,
+            )
+        )
+
+        saveTag(
+            category = request.category,
+            tags = request.tag,
+            problems = sets.problemId
+        )
+
+        val questions = questionsRepository.findByIdIn(request.questionId)
+
+        questions.forEachIndexed {
+            index, question -> run {
+                setQuestionRepository.save(
+                    SetQuestion(
+                        id = SetQuestionId(
+                            setId = sets.id,
+                            questionId = question.id,
+                        ),
+                        set = sets,
+                        question = question,
+                        questionIndex = index,
+                    )
+                )
+
+            }
+        }
+
+        val categoryCount = questions
+            .groupingBy { it.category }
+            .eachCount()
+            .map {
+                CategoriesDto(
+                    category = it.key,
+                    count = it.value
+                )
+            }
+
+        return RegisterQuestionSetsResponse(
+            questionSetsName = request.questionSetName,
+            categories = categoryCount,
+            likeCount = 0,
+            dislikeCount = 0,
+            isLiked = false,
+            isDisliked = false,
+            isFavorite = false
+        )
+    }
+
+    fun getQuestionSet(request: GetQuestionSetsRequest): GetQuestionSetResponse {
+        val user = SecurityUtil.getCurrentUser()
+
+        val questionSetList = request.run{
+            questionSetsRepository.queryQuestionSetDto(
+                user = user,
+                category = category,
+                keyword = keyword,
+                tags = tags ?: listOf(),
+                page = page,
+            )
+        }
+
+        return GetQuestionSetResponse.of(questionSetList)
+    }
+
+    fun getQuestionSetDetail(questionSetId: Long): GetQuestionSetDetailResponse {
+
+        val user = SecurityUtil.getCurrentUser()
+        questionSetsRepository
+
+        val questionSetDetail = questionSetId.run {
+            questionSetsRepository.queryQuestionSetDtoById(user, questionSetId)
+                ?: throw QuestionNotFoundException
+        }
+
+        return GetQuestionSetDetailResponse.of(questionSetDetail)
+    }
+
+    fun answerQuestionSet(questionSetId: Long){
+        val user = SecurityUtil.getCurrentUser()
+
+        val questionSet = questionSetsRepository.findByIdOrNull(questionSetId)?: throw QuestionNotFoundException
+
+        questionSolvingHistoryRepository.save(
+            QuestionSolvingHistory(
+                userId = user,
+                problem = questionSet.problemId
+            )
+        )
+    }
+
+    fun answerQuestionInQuestionSet(
+        questionId: Long,
+        request: AnswerRequest
+    ){
+        val user = SecurityUtil.getCurrentUser()
+
+        val question = questionsRepository.findByIdOrNull(questionId)?: throw QuestionNotFoundException
+
+        val post = postRepository.save(Post())
+
+        answersRepository.save(
+            Answers(
+                isExamplary = false,
+                answer = request.answer,
+                questions = question,
+                writer = user,
+                post = post,
+            )
+        )
+
+        questionsRepository.save(
+            question.apply { answerCount += 1 }
+        )
     }
 }

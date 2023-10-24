@@ -4,9 +4,11 @@ import kr.hs.dsm.inq.common.util.PageResponse
 import kr.hs.dsm.inq.common.util.PageUtil
 import kr.hs.dsm.inq.domain.question.persistence.Category
 import kr.hs.dsm.inq.domain.question.persistence.Comments
-import kr.hs.dsm.inq.domain.question.persistence.dto.AnswersDto
-import kr.hs.dsm.inq.domain.question.persistence.dto.QuestionDetailDto
-import kr.hs.dsm.inq.domain.question.persistence.dto.QuestionDto
+import kr.hs.dsm.inq.domain.question.persistence.QuestionSets
+import kr.hs.dsm.inq.domain.question.persistence.Tags
+import kr.hs.dsm.inq.domain.question.persistence.dto.*
+import java.time.LocalDateTime
+import java.util.Date
 
 data class CreateQuestionResponses(
     val questionId: Long
@@ -173,3 +175,102 @@ data class LikeResponse(
 data class DislikeResponse(
     val isDisliked: Boolean
 )
+
+data class RegisterQuestionSetsResponse(
+    val questionSetsName: String,
+    val categories: List<CategoriesDto>,
+    val likeCount: Int,
+    val dislikeCount: Int,
+    val isLiked: Boolean,
+    val isDisliked: Boolean,
+    val isFavorite: Boolean
+)
+
+data class GetQuestionSetResponse(
+    val hasNext: Boolean,
+    val questionSetsList: List<QuestionSet>,
+) {
+    companion object{
+        fun of(pageResponse: PageResponse<QuestionSetDto>) = pageResponse.run{
+            GetQuestionSetResponse(
+                hasNext = hasNext,
+                questionSetsList = list.map { QuestionSet.of(it) }
+            )
+        }
+    }
+}
+
+data class QuestionSet (
+    val questionSetId : Long?,
+    val questionSetName : String?,
+    val createdAt: LocalDateTime,
+    val category: Category?,
+    val username : String?,
+    val job : String?,
+    val jobDuration : Int?,
+    val tags : List<String>?,
+    val isAnswered : Boolean?,
+    val likeCount : Int?,
+    val viewCount : Int?,
+) {
+    companion object {
+        fun of (dto: QuestionSetDto) = dto.run {
+            QuestionSet(
+                questionSetId = questionSetId ?: 0L,
+                questionSetName = questionSetName ?: "",
+                createdAt = createdAt,
+                category = category ?: Category.CAREER,
+                username = username ?: "",
+                job = job ?: "",
+                jobDuration = jobDuration ?: 1,
+                tags = tagList.map { it.tag },
+                isAnswered = isAnswered ?: true,
+                likeCount = likeCount ?: 0,
+                viewCount = viewCount ?: 0,
+            )
+        }
+    }
+}
+
+data class GetQuestionSetDetailResponse(
+    val questionSetId: Long,
+    val name: String,
+    val createdAt: LocalDateTime,
+    val username: String,
+    val job: String,
+    val jobDuration: Int,
+    val category: Category,
+    val likeCount: Int,
+    val viewCount: Int,
+    val isLiked: Boolean,
+    val isDisliked: Boolean,
+    val isFavorite: Boolean,
+    val tags: List<String>,
+) {
+    companion object {
+        fun of(questionSetDetail: QuestionSetDetailDto) = questionSetDetail.run {
+            GetQuestionSetDetailResponse(
+                questionSetId = questionSetId,
+                name = name,
+                createdAt = createdAt,
+                username = username,
+                job = job,
+                jobDuration = jobDuration,
+                category = category,
+                likeCount = likeCount,
+                viewCount = viewCount,
+                isLiked = isLiked,
+                isDisliked = isDisliked,
+                isFavorite = isFavorite,
+                tags = tagList.map { it.tag }
+            )
+        }
+    }
+}
+
+/**
+ *     val isLiked: Boolean,
+ *     val isDisliked: Boolean,
+ *     val isFavorite: Boolean,
+ *     tagList: List<String>,
+ */

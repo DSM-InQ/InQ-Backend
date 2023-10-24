@@ -21,6 +21,7 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 
 interface QuestionsRepository: CrudRepository<Questions, Long>, CustomQuestionRepository {
+    fun findByIdIn(idList: List<Long>): List<Questions>
 }
 
 interface CustomQuestionRepository {

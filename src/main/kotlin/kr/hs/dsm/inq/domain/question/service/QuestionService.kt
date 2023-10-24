@@ -49,7 +49,8 @@ class QuestionService(
         )
 
         saveTag(
-            request = request,
+            category = request.category,
+            tags = request.tags,
             problems = problem,
         )
 
@@ -71,47 +72,20 @@ class QuestionService(
     }
 
     private fun saveTag(
-        request: CreateQuestionRequest,
+        category: Category,
+        tags: List<String>,
         problems: Problem,
     ) {
-        val existsTagList = tagsRepository.findByCategoryAndTagIn(request.category, request.tags)
+        val existsTagList = tagsRepository.findByCategoryAndTagIn(category, tags)
         val existsTagMap = existsTagList.associateBy { it.tag }
-        val tagListToSave = request.tags
+        val tagListToSave = tags
             .mapNotNull { if (existsTagMap[it] != null) null else it }
 
         val tagList = tagsRepository.saveAll(
             tagListToSave.map {
                 Tags(
                     tag = it,
-                    category = request.category
-                )
-            }
-        ).union(existsTagList)
-
-        questionTagsRepository.saveAll(
-            tagList.map {
-                QuestionTags(
-                    id = QuestionTagsId(problemId = problems.id, tagId = it.id),
-                    problems = problems,
-                    tags = it
-                )
-            }
-        )
-    }
-    private fun saveTag(
-        request: QuestionSetsRequest,
-        problems: Problem,
-    ) {
-        val existsTagList = tagsRepository.findByCategoryAndTagIn(request.category, request.tag)
-        val existsTagMap = existsTagList.associateBy { it.tag }
-        val tagListToSave = request.tag
-            .mapNotNull { if (existsTagMap[it] != null) null else it }
-
-        val tagList = tagsRepository.saveAll(
-            tagListToSave.map {
-                Tags(
-                    tag = it,
-                    category = request.category
+                    category = category
                 )
             }
         ).union(existsTagList)
@@ -330,7 +304,8 @@ class QuestionService(
         )
 
         saveTag(
-            request = request,
+            category = request.category,
+            tags = request.tag,
             problems = sets.problemId
         )
 
@@ -345,8 +320,8 @@ class QuestionService(
                             setId = sets.id,
                             questionId = questionId,
                         ),
-                        setId = sets,
-                        questionId = question,
+                        set = sets,
+                        question = question,
                         questionIndex = index,
                     )
                 )
@@ -355,15 +330,17 @@ class QuestionService(
             }
         }
 
-        val count = categories.groupingBy { it.category }.eachCount()
-        val category: MutableList<CategoriesDto> = mutableListOf()
-        count.map {
-            category.add(CategoriesDto(it.key, it.value))
+        val categoryCount: MutableList<CategoriesDto> = mutableListOf()
+        categories.groupingBy { it.category }.eachCount().map {
+            categoryCount.add(CategoriesDto(
+                category = it.key,
+                count = it.value
+            ))
         }
 
         return RegisterQuestionSetsResponse(
             questionSetsName = request.questionSetName,
-            categories = category,
+            categories = categoryCount,
             likeCount = 0,
             dislikeCount = 0,
             isLiked = false,

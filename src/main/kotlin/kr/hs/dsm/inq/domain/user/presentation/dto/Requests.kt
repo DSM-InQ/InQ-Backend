@@ -25,7 +25,6 @@ data class UserSignUpRequest(
     @field:NotBlank
     val job: String,
 
-    @field:NotBlank
     val jobDuration: Int
 )
 
@@ -37,6 +36,5 @@ data class UpdateUserInfoRequest(
     @field:NotBlank
     val job: String,
 
-    @field:NotBlank
     val jobDuration: Int
 )

@@ -7,17 +7,17 @@ import java.time.LocalDateTime
 import java.util.*
 
 class QuestionSetDto @QueryProjection constructor(
-    val questionSetId : Long?,
-    val questionSetName : String?,
+    val questionSetId : Long,
+    val questionSetName : String,
     val createdAt: LocalDateTime,
-    val category: Category?,
-    val username : String?,
-    val job : String?,
-    val jobDuration : Int?,
+    val category: Category,
+    val username : String,
+    val job : String,
+    val jobDuration : Int,
     tagList : List<Tags>?,
-    val isAnswered : Boolean?,
-    val likeCount : Int?,
-    val viewCount : Int?,
+    val isAnswered : Boolean,
+    val likeCount : Int,
+    val viewCount : Int,
 ) {
     val tagList = tagList ?: listOf()
 }

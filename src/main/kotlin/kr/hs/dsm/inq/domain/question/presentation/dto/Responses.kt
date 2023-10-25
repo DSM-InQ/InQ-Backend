@@ -59,30 +59,30 @@ data class QuestionResponse(
     companion object {
         fun of(dto: QuestionDto) = dto.run {
             QuestionResponse(
-                questionId = questionId ?: 0L,
-                question = question ?: "",
-                category = category ?: Category.CAREER,
-                username = username ?: "",
-                job = job  ?: "",
-                jobDuration = jobDuration ?: 1,
+                questionId = questionId,
+                question = question,
+                category = category,
+                username = username,
+                job = job,
+                jobDuration = jobDuration,
                 tags = tagList.map { it.tag },
-                isAnswered = isAnswered ?: true,
-                isFavorite = isFavorite ?: true
+                isAnswered = isAnswered,
+                isFavorite = isFavorite
             )
         }
 
         fun of(dto: QuestionDto, rank: Long) = dto.run {
             QuestionResponse(
-                questionId = questionId ?: 0L,
+                questionId = questionId,
                 rank = rank,
-                question = question ?: "",
-                category = category ?: Category.CAREER,
-                username = username ?: "",
-                job = job  ?: "",
-                jobDuration = jobDuration ?: 1,
+                question = question,
+                category = category,
+                username = username,
+                job = job,
+                jobDuration = jobDuration,
                 tags = tagList.map { it.tag },
-                isAnswered = isAnswered ?: true,
-                isFavorite = isFavorite ?: true
+                isAnswered = isAnswered,
+                isFavorite = isFavorite
             )
         }
     }
@@ -216,17 +216,17 @@ data class QuestionSet (
     companion object {
         fun of (dto: QuestionSetDto) = dto.run {
             QuestionSet(
-                questionSetId = questionSetId ?: 0L,
-                questionSetName = questionSetName ?: "",
+                questionSetId = questionSetId,
+                questionSetName = questionSetName,
                 createdAt = createdAt,
-                category = category ?: Category.CAREER,
-                username = username ?: "",
-                job = job ?: "",
-                jobDuration = jobDuration ?: 1,
+                category = category,
+                username = username,
+                job = job,
+                jobDuration = jobDuration,
                 tags = tagList.map { it.tag },
-                isAnswered = isAnswered ?: true,
-                likeCount = likeCount ?: 0,
-                viewCount = viewCount ?: 0,
+                isAnswered = isAnswered,
+                likeCount = likeCount,
+                viewCount = viewCount
             )
         }
     }
@@ -267,10 +267,3 @@ data class GetQuestionSetDetailResponse(
         }
     }
 }
-
-/**
- *     val isLiked: Boolean,
- *     val isDisliked: Boolean,
- *     val isFavorite: Boolean,
- *     tagList: List<String>,
- */

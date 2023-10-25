@@ -2,19 +2,19 @@ package kr.hs.dsm.inq.domain.user.service
 
 import kr.hs.dsm.inq.common.dto.TokenResponse
 import kr.hs.dsm.inq.common.util.SecurityUtil
-import kr.hs.dsm.inq.domain.user.exception.AttendanceNotFound
 import kr.hs.dsm.inq.domain.user.exception.PasswordMismatchException
 import kr.hs.dsm.inq.domain.user.exception.UserAlreadyExist
 import kr.hs.dsm.inq.domain.user.exception.UserNotFound
 import kr.hs.dsm.inq.domain.user.persistence.User
 import kr.hs.dsm.inq.domain.user.persistence.repository.AttendanceRepository
-import kr.hs.dsm.inq.domain.user.persistence.repository.UserRepository
 import kr.hs.dsm.inq.domain.user.presentation.dto.*
 import kr.hs.dsm.inq.global.security.token.JwtGenerator
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.time.LocalDate
+import java.time.LocalDateTime
 import javax.transaction.Transactional
+import kr.hs.dsm.inq.domain.user.persistence.repository.UserRepository
 
 @Service
 class UserService(
@@ -48,7 +48,7 @@ class UserService(
                 jobDuration = request.jobDuration,
                 accountId = request.accountId,
                 password = passwordEncoder.encode(request.password),
-                joinDate = LocalDate.now()
+                joinDate = LocalDateTime.now()
             )
         )
     }
@@ -59,7 +59,7 @@ class UserService(
 
         return UserInfoResponse(
             username = user.username,
-            joinDate = user.joinDate,
+            joinDate = user.joinDate.toLocalDate(),
             coin = user.coin,
             job = user.job,
             jobDuration = user.jobDuration

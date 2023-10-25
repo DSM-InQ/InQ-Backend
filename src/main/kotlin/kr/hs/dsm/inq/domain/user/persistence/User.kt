@@ -2,6 +2,7 @@ package kr.hs.dsm.inq.domain.user.persistence
 
 import kr.hs.dsm.inq.domain.user.presentation.dto.UpdateUserInfoRequest
 import java.time.LocalDate
+import java.time.LocalDateTime
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
@@ -32,8 +33,8 @@ data class User(
     @Column(nullable = false)
     var password: String,
 
-    @Column(nullable = false)
-    val joinDate: LocalDate,
+    @Column(columnDefinition = "TIMESTAMP")
+    val joinDate: LocalDateTime,
 
     @Column(columnDefinition = "INT", nullable = false)
     var coin: Int = 0

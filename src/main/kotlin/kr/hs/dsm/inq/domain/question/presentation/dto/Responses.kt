@@ -54,7 +54,8 @@ data class QuestionResponse(
     val category: Category,
     val tags: List<String>,
     val isAnswered: Boolean,
-    val isFavorite: Boolean
+    val isFavorite: Boolean,
+    val createdAt: LocalDateTime
 ) {
     companion object {
         fun of(dto: QuestionDto) = dto.run {
@@ -67,7 +68,8 @@ data class QuestionResponse(
                 jobDuration = jobDuration,
                 tags = tagList.map { it.tag },
                 isAnswered = isAnswered,
-                isFavorite = isFavorite
+                isFavorite = isFavorite,
+                createdAt = createdAt
             )
         }
 
@@ -82,7 +84,8 @@ data class QuestionResponse(
                 jobDuration = jobDuration,
                 tags = tagList.map { it.tag },
                 isAnswered = isAnswered,
-                isFavorite = isFavorite
+                isFavorite = isFavorite,
+                createdAt = createdAt
             )
         }
     }
@@ -98,7 +101,8 @@ data class QuestionDetailResponse(
     val category: Category,
     val tags: List<String>,
     val isFavorite: Boolean,
-    val exemplaryAnswer: AnswerResponse
+    val exemplaryAnswer: AnswerResponse,
+    val createdAt: LocalDateTime
 ) {
     companion object {
         fun of(questionDetail: QuestionDetailDto, answer: AnswersDto) = questionDetail.run {
@@ -112,7 +116,8 @@ data class QuestionDetailResponse(
                 category = category,
                 tags = tagList.map { it.tag },
                 isFavorite = isFavorite,
-                exemplaryAnswer = AnswerResponse.of(answer)
+                exemplaryAnswer = AnswerResponse.of(answer),
+                createdAt = createdAt
             )
         }
     }

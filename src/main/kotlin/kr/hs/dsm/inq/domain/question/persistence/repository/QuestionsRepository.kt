@@ -104,10 +104,21 @@ class CustomQuestionRepositoryImpl(
                             /* jobDuration = */ writer.jobDuration,
                             /* tagList = */ GroupBy.list(tags),
                             /* isAnswered = */ questions.isNull, // answers.isNotNull,
-                            /* isFavorite = */ questions.isNull // favorite.isNotNull
+                            /* isFavorite = */ questions.isNull, // favorite.isNotNull
+                            /* createdAt = */ questions.createdAt
                         )
                     )
             )
+
+//        val questionId: Long,
+//        val question: String,
+//        val category: Category,
+//        val username: String,
+//        val job: String,
+//        val jobDuration: Int,
+//        tagList: List<Tags>?,
+//        val isAnswered: Boolean,
+//        val isFavorite: Boolean
     }
 
     override fun queryQuestionDetailDtoById(
@@ -142,7 +153,8 @@ class CustomQuestionRepositoryImpl(
                             /* question = */ questions.question,
                             /* category = */ questions.category,
                             /* tagList = */ GroupBy.list(tags),
-                            /* isFavorite = */ questions.isNull
+                            /* isFavorite = */ questions.isNull,
+                            /* createdAt = */ questions.createdAt
                         )
                     )
             )

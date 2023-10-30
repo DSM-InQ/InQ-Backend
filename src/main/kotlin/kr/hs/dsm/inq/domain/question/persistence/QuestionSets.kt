@@ -32,13 +32,13 @@ class QuestionSets (
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", columnDefinition = "BIGINT",nullable = false)
-    var postId: Post,
+    var post: Post,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "problem_id", columnDefinition = "BIGINT", nullable = false)
-    var problemId: Problem,
+    var problem: Problem,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", columnDefinition = "BIGINT", nullable = false)
-    val authorId: User,
+    val author: User,
 )

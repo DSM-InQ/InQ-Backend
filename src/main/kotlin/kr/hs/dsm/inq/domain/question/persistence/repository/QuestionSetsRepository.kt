@@ -84,11 +84,11 @@ class CustomQuestionSetsRepositoryImpl(
 
     private fun <T> JPAQuery<T>.getQuestionSetDto(user: User): MutableList<QuestionSetDto> {
         val author = QUser("writer")
-        return leftJoin(questionTags).on(questionTags.problems.eq(questionSets.problemId))
+        return leftJoin(questionTags).on(questionTags.problems.eq(questionSets.problem))
             .leftJoin(tags).on(tags.id.eq(questionTags.id.tagId))
             .leftJoin(questionSolvingHistory)
-                .on(questionSolvingHistory.userId.id.eq(user.id)).on(questionSolvingHistory.problem.eq(questionSets.problemId))
-            .innerJoin(author).on(author.id.eq(questionSets.authorId.id))
+                .on(questionSolvingHistory.userId.id.eq(user.id)).on(questionSolvingHistory.problem.eq(questionSets.problem))
+            .innerJoin(author).on(author.id.eq(questionSets.author.id))
 //            .rightJoin(favorite).on(favorite.questions.id.eq(questions.id))
 //            .rightJoin(answers).on(answers.writer.eq(user).and(answers.questions.eq(questions)))
             .transform(
@@ -116,11 +116,11 @@ class CustomQuestionSetsRepositoryImpl(
         val author = QUser("writer")
         val liked = QLike("liked")
         val favorite = QFavorite("favorite")
-        return@run leftJoin(questionTags).on(questionTags.problems.eq(questionSets.problemId))
+        return@run leftJoin(questionTags).on(questionTags.problems.eq(questionSets.problem))
             .leftJoin(tags).on(tags.id.eq(questionTags.id.tagId))
-            .innerJoin(author).on(author.id.eq(questionSets.authorId.id))
-            .leftJoin(liked).on(liked.id.userId.eq(user.id)).on(liked.post.eq(questionSets.postId))
-            .leftJoin(favorite).on(favorite.id.userId.eq(user.id)).on(favorite.problemId.eq(questionSets.problemId))
+            .innerJoin(author).on(author.id.eq(questionSets.author.id))
+            .leftJoin(liked).on(liked.id.userId.eq(user.id)).on(liked.post.eq(questionSets.post))
+            .leftJoin(favorite).on(favorite.id.userId.eq(user.id)).on(favorite.problemId.eq(questionSets.problem))
             .transform(
                 GroupBy.groupBy(questionSets)
                     .list(

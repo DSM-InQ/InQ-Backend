@@ -11,6 +11,7 @@ import kr.hs.dsm.inq.domain.question.persistence.dto.AnswersDto
 import kr.hs.dsm.inq.domain.question.persistence.dto.CategoriesDto
 import kr.hs.dsm.inq.domain.question.persistence.repository.*
 import kr.hs.dsm.inq.domain.question.presentation.dto.*
+import kr.hs.dsm.inq.domain.user.persistence.User
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -221,66 +222,88 @@ class QuestionService(
     }
 
     fun likeAnswer(answerId: Long): LikeResponse {
-
         val user = SecurityUtil.getCurrentUser()
         val answer = answersRepository.findByIdOrNull(answerId) ?: throw AnswerNotFoundException
+        return toggleLike(answer.post, user)
+    }
 
-        val likeId = LikeId(answer.post.id, user.id)
+    fun likeQuestionSet(questionSetId: Long): LikeResponse {
+        val user = SecurityUtil.getCurrentUser()
+        val questionSet = questionSetsRepository.findByIdOrNull(questionSetId) ?: throw AnswerNotFoundException
+        return toggleLike(questionSet.post, user)
+    }
+
+    private fun toggleLike(
+        post: Post,
+        user: User
+    ): LikeResponse {
+        val likeId = LikeId(post.id, user.id)
         val like = likeRepository.findByIdOrNull(likeId)
-
-        if (like == null) {
+        return if (like == null) {
             postRepository.save(
-                answer.post.apply { addLikeCount() }
+                post.apply { addLikeCount() }
             )
             likeRepository.save(
                 Like(
                     id = likeId,
-                    post = answer.post,
+                    post = post,
                     user = user,
                     isLiked = true
                 )
             )
-            return LikeResponse(isLiked = true)
+            LikeResponse(isLiked = true)
         } else if (!like.isLiked) {
             throw AlreadyDislikedPostException
         } else {
             postRepository.save(
-                answer.post.apply { reduceLikeCount() }
+                post.apply { reduceLikeCount() }
             )
             likeRepository.deleteById(likeId)
-            return LikeResponse(isLiked = false)
+            LikeResponse(isLiked = false)
         }
     }
 
     fun dislikeAnswer(answerId: Long): DislikeResponse {
-
         val user = SecurityUtil.getCurrentUser()
         val answer = answersRepository.findByIdOrNull(answerId) ?: throw AnswerNotFoundException
+        return toggleDislike(answer.post, user)
+    }
 
-        val likeId = LikeId(answer.post.id, user.id)
+    fun dislikeQuestionSet(questionSetId: Long): DislikeResponse {
+        val user = SecurityUtil.getCurrentUser()
+        val questionSet = questionSetsRepository.findByIdOrNull(questionSetId) ?: throw AnswerNotFoundException
+        return toggleDislike(questionSet.post, user)
+    }
+
+    private fun toggleDislike(
+        post: Post,
+        user: User
+    ): DislikeResponse {
+        val likeId = LikeId(post.id, user.id)
         val like = likeRepository.findByIdOrNull(likeId)
-
-        if (like == null) {
+        return if (like == null) {
+            // doDislike
             postRepository.save(
-                answer.post.apply { addDislikeCount() }
+                post.apply { addDislikeCount() }
             )
             likeRepository.save(
                 Like(
                     id = likeId,
-                    post = answer.post,
+                    post = post,
                     user = user,
                     isLiked = true
                 )
             )
-            return DislikeResponse(isDisliked = true)
+            DislikeResponse(isDisliked = true)
         } else if (like.isLiked) {
             throw AlreadyLikedPostException
         } else {
+            // cancelDislike
             postRepository.save(
-                answer.post.apply { reduceDislikeCount() }
+                post.apply { reduceDislikeCount() }
             )
             likeRepository.deleteById(likeId)
-            return DislikeResponse(isDisliked = false)
+            DislikeResponse(isDisliked = false)
         }
     }
 
@@ -297,16 +320,16 @@ class QuestionService(
                 category = request.category,
                 likeCount = 0,
                 viewCount = 0,
-                postId = postId,
-                problemId = problemId,
-                authorId = user,
+                post = postId,
+                problem = problemId,
+                author = user,
             )
         )
 
         saveTag(
             category = request.category,
             tags = request.tag,
-            problems = sets.problemId
+            problems = sets.problem
         )
 
         val questions = questionsRepository.findByIdIn(request.questionId)
@@ -386,7 +409,7 @@ class QuestionService(
         questionSolvingHistoryRepository.save(
             QuestionSolvingHistory(
                 userId = user,
-                problem = questionSet.problemId
+                problem = questionSet.problem
             )
         )
     }

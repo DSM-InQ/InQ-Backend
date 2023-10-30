@@ -37,7 +37,7 @@ data class QuestionRankResponse(
             QuestionListResponse(
                 hasNext = hasNext,
                 questionList = list.mapIndexed { idx, it ->
-                    QuestionResponse.of(it, PageUtil.getOffset(page) + idx)
+                    QuestionResponse.of(it, PageUtil.getOffset(page) + idx + 1)
                 }
             )
         }

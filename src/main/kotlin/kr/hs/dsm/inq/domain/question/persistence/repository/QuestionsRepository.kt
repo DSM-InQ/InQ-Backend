@@ -5,7 +5,6 @@ import com.querydsl.jpa.impl.JPAQuery
 import com.querydsl.jpa.impl.JPAQueryFactory
 import kr.hs.dsm.inq.common.util.PageResponse
 import kr.hs.dsm.inq.common.util.PageUtil
-import kr.hs.dsm.inq.common.util.offsetAndLimit
 import kr.hs.dsm.inq.domain.question.persistence.Category
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionTags.questionTags
 import kr.hs.dsm.inq.domain.question.persistence.QQuestions.questions
@@ -50,17 +49,18 @@ class CustomQuestionRepositoryImpl(
         keyword: String?,
         tagList: List<String>
     ): PageResponse<QuestionDto> {
+        val keyword = keyword ?: ""
         val questionList = queryFactory
             .selectFrom(questions)
             .where(
-                category?.let { questions.category.eq(it)
-                    .and((keyword ?: "").let { questions.question.contains(keyword) }) }
+                questions.question.contains(keyword)
+                    .and(category?.let { questions.category.eq(it)})
             )
             .orderBy(questions.likeCount.asc())
-            .offsetAndLimit(page)
             .getQuestionDto(user)
-        return PageResponse(
-            hasNext = PageUtil.hasNext(questionList),
+
+        return PageUtil.toPageResponse(
+            page = page,
             list = questionList.filter { it.tagList.map { it.tag }.containsAll(tagList) }
         )
     }
@@ -69,10 +69,10 @@ class CustomQuestionRepositoryImpl(
         val questionList = queryFactory
             .selectFrom(questions)
             .orderBy(questions.answerCount.asc())
-            .offsetAndLimit(page)
             .getQuestionDto(user)
-        return PageResponse(
-            hasNext = PageUtil.hasNext(questionList),
+
+        return PageUtil.toPageResponse(
+            page = page,
             list = questionList
         )
     }

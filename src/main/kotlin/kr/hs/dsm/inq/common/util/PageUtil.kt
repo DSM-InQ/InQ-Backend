@@ -1,26 +1,30 @@
 package kr.hs.dsm.inq.common.util
 
 import com.querydsl.jpa.impl.JPAQuery
-import kr.hs.dsm.inq.common.util.PageUtil.getLimit
-import kr.hs.dsm.inq.common.util.PageUtil.getOffset
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 
 val defaultPage: Pageable = PageRequest.of(0, 15)
 
 object PageUtil {
-    const val pageSize = 5L
-    fun getOffset(page: Long) = page * pageSize
-    fun getLimit() = pageSize + 1
-    fun <T> hasNext(list: List<T>) = list.size > pageSize
-}
+    private const val pageSize = 5L
 
-/**
- * JPAQuery에 주어진 page에 대한 offset과 limit을 지정하는 extension function
- */
-fun <T> JPAQuery<T>.offsetAndLimit(page: Long): JPAQuery<T> =
-    offset(getOffset(page))
-        .limit(getLimit())
+    private fun <T> List<T>.safeSlice(startIndex: Int, endIndex: Int): List<T> {
+        val start = startIndex.coerceAtLeast(0)
+        val end = endIndex.coerceAtMost(size - 1)
+        return slice(start..end)
+    }
+
+    fun getOffset(page: Long) = page * pageSize
+    fun <T> toPageResponse(page: Long, list: List<T>): PageResponse<T> {
+        val offset = getOffset(page).toInt()
+        val sliceList = list.safeSlice(offset, offset + pageSize.toInt() - 1)
+        return PageResponse(
+            list = sliceList,
+            hasNext = list.safeSlice(offset, offset + pageSize.toInt()).size > sliceList.size
+        )
+    }
+}
 
 /**
  * repository 계층에서 page 결과를 반환하기 위한 class

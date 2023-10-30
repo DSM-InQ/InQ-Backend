@@ -1,9 +1,8 @@
 package kr.hs.dsm.inq.domain.user.persistence
 
-import java.time.LocalDate
 import javax.persistence.*
 
-@Table(name = "tbl_attendence")
+@Table(name = "tbl_attendance")
 @Entity
 class Attendance (
 

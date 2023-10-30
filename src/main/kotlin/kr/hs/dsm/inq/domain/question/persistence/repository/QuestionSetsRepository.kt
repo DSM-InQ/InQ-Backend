@@ -5,10 +5,11 @@ import com.querydsl.jpa.impl.JPAQuery
 import com.querydsl.jpa.impl.JPAQueryFactory
 import kr.hs.dsm.inq.common.util.PageResponse
 import kr.hs.dsm.inq.common.util.PageUtil
-import kr.hs.dsm.inq.common.util.offsetAndLimit
 import kr.hs.dsm.inq.domain.question.persistence.*
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionSets.questionSets
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionSolvingHistory.questionSolvingHistory
+import kr.hs.dsm.inq.domain.question.persistence.QQuestionTags.questionTags
+import kr.hs.dsm.inq.domain.question.persistence.QTags.tags
 import kr.hs.dsm.inq.domain.question.persistence.dto.QQuestionSetDetailDto
 import kr.hs.dsm.inq.domain.question.persistence.dto.QQuestionSetDto
 import kr.hs.dsm.inq.domain.question.persistence.dto.QuestionSetDetailDto
@@ -46,19 +47,18 @@ class CustomQuestionSetsRepositoryImpl(
         category: Category?,
         keyword: String?,
         tags: List<String>?,
-        page: Long)
-    : PageResponse<QuestionSetDto> {
+        page: Long
+    ): PageResponse<QuestionSetDto> {
         val questionSetResponse = queryFactory
             .selectFrom(questionSets)
             .where(
                 questionSets.name.contains(keyword ?: "")
                     .and(category?.let { questionSets.category.eq(it)})
             )
-            .offsetAndLimit(page)
             .getQuestionSetDto(user)
 
-        return PageResponse<QuestionSetDto>(
-            hasNext = PageUtil.hasNext(questionSetResponse),
+        return PageUtil.toPageResponse(
+            page = page,
             list = questionSetResponse
         )
     }
@@ -84,8 +84,8 @@ class CustomQuestionSetsRepositoryImpl(
 
     private fun <T> JPAQuery<T>.getQuestionSetDto(user: User): MutableList<QuestionSetDto> {
         val author = QUser("writer")
-        return leftJoin(QQuestionTags.questionTags).on(QQuestionTags.questionTags.problems.eq(questionSets.problemId))
-            .leftJoin(QTags.tags).on(QTags.tags.id.eq(QQuestionTags.questionTags.id.tagId))
+        return leftJoin(questionTags).on(questionTags.problems.eq(questionSets.problemId))
+            .leftJoin(tags).on(tags.id.eq(questionTags.id.tagId))
             .leftJoin(questionSolvingHistory)
                 .on(questionSolvingHistory.userId.id.eq(user.id)).on(questionSolvingHistory.problem.eq(questionSets.problemId))
             .innerJoin(author).on(author.id.eq(questionSets.authorId.id))
@@ -102,7 +102,7 @@ class CustomQuestionSetsRepositoryImpl(
                             /* username = */ author.username,
                             /* job = */ author.job,
                             /* jobDuration = */ author.jobDuration,
-                            /* tagList = */ GroupBy.list(QTags.tags),
+                            /* tagList = */ GroupBy.list(tags),
                             /* isAnswered = */ questionSolvingHistory.isNotNull,
                             /* likeCount = */ questionSets.likeCount,
                             /* viewCount = */ questionSets.viewCount,
@@ -116,8 +116,8 @@ class CustomQuestionSetsRepositoryImpl(
         val author = QUser("writer")
         val liked = QLike("liked")
         val favorite = QFavorite("favorite")
-        return@run leftJoin(QQuestionTags.questionTags).on(QQuestionTags.questionTags.problems.eq(questionSets.problemId))
-            .leftJoin(QTags.tags).on(QTags.tags.id.eq(QQuestionTags.questionTags.id.tagId))
+        return@run leftJoin(questionTags).on(questionTags.problems.eq(questionSets.problemId))
+            .leftJoin(tags).on(tags.id.eq(questionTags.id.tagId))
             .innerJoin(author).on(author.id.eq(questionSets.authorId.id))
             .leftJoin(liked).on(liked.id.userId.eq(user.id)).on(liked.post.eq(questionSets.postId))
             .leftJoin(favorite).on(favorite.id.userId.eq(user.id)).on(favorite.problemId.eq(questionSets.problemId))
@@ -137,7 +137,7 @@ class CustomQuestionSetsRepositoryImpl(
                             /* isLiked = */ liked.isLiked.isTrue,
                             /* isDisliked = */ liked.isLiked.isFalse,
                             /* isFavorite = */ favorite.isNotNull,
-                            /* tagList = */ GroupBy.list(QTags.tags),
+                            /* tagList = */ GroupBy.list(tags),
                         )
                     )
             )

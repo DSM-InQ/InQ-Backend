@@ -40,9 +40,9 @@ data class User(
     var coin: Int = 0
 ) {
 
-    fun updateInfo(request: UpdateUserInfoRequest) {
-        this.username = request.username
-        this.job = request.job
-        this.jobDuration = request.jobDuration
+    fun updateInfo(username: String, job: String, jobDuration: Int) {
+        this.username = username
+        this.job = job
+        this.jobDuration = jobDuration
     }
 }

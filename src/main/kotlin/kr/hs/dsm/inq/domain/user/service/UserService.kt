@@ -69,7 +69,9 @@ class UserService(
     fun updateUserInfo(request: UpdateUserInfoRequest) {
         val user = SecurityUtil.getCurrentUser()
 
-        user.updateInfo(request)
+        user.updateInfo(request.username, request.job, request.jobDuration)
+
+        userRepository.save(user)
     }
 
     fun queryUserAttendance(): UserAttendanceResponse {

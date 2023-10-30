@@ -2,6 +2,7 @@ package kr.hs.dsm.inq.domain.user.service
 
 import kr.hs.dsm.inq.common.dto.TokenResponse
 import kr.hs.dsm.inq.common.util.SecurityUtil
+import kr.hs.dsm.inq.domain.user.exception.AttendanceNotFound
 import kr.hs.dsm.inq.domain.user.exception.PasswordMismatchException
 import kr.hs.dsm.inq.domain.user.exception.UserAlreadyExist
 import kr.hs.dsm.inq.domain.user.exception.UserNotFound
@@ -36,7 +37,6 @@ class UserService(
     }
 
     fun signUp(request: UserSignUpRequest) {
-
         if (userRepository.existsByAccountId(request.accountId)) {
             throw UserAlreadyExist
         }
@@ -54,7 +54,6 @@ class UserService(
     }
 
     fun queryUserInfo(): UserInfoResponse {
-
         val user = SecurityUtil.getCurrentUser()
 
         return UserInfoResponse(
@@ -68,9 +67,25 @@ class UserService(
 
     @Transactional
     fun updateUserInfo(request: UpdateUserInfoRequest) {
-
         val user = SecurityUtil.getCurrentUser()
 
         user.updateInfo(request)
+    }
+
+    fun queryUserAttendance(): UserAttendanceResponse {
+        val user = SecurityUtil.getCurrentUser()
+
+        val attendance =  attendanceRepository.findByUserId(user.id)
+            ?: throw AttendanceNotFound
+
+        return UserAttendanceResponse(
+            monday = attendance.monday,
+            tuesday = attendance.tuesday,
+            wednesday = attendance.wednesday,
+            thursday = attendance.thursday,
+            friday = attendance.friday,
+            saturday = attendance.saturday,
+            sunday = attendance.sunday
+        )
     }
 }

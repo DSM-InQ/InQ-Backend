@@ -2,10 +2,7 @@ package kr.hs.dsm.inq.domain.user.presentation
 
 import javax.validation.Valid
 import kr.hs.dsm.inq.common.dto.TokenResponse
-import kr.hs.dsm.inq.domain.user.presentation.dto.UpdateUserInfoRequest
-import kr.hs.dsm.inq.domain.user.presentation.dto.UserInfoResponse
-import kr.hs.dsm.inq.domain.user.presentation.dto.UserSignInRequest
-import kr.hs.dsm.inq.domain.user.presentation.dto.UserSignUpRequest
+import kr.hs.dsm.inq.domain.user.presentation.dto.*
 import kr.hs.dsm.inq.domain.user.service.UserService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
@@ -37,8 +34,12 @@ class UserController(
         userService.queryUserInfo()
 
     @PutMapping("/profile")
-    fun updateUserInfo(@RequestBody request: UpdateUserInfoRequest) {
+    fun updateUserInfo(@Valid @RequestBody request: UpdateUserInfoRequest) {
         userService.updateUserInfo(request)
     }
+
+    @GetMapping("/check")
+    fun queryUserAttendance(): UserAttendanceResponse =
+        userService.queryUserAttendance()
 
 }

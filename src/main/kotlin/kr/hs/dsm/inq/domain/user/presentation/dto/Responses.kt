@@ -9,3 +9,19 @@ data class UserInfoResponse(
     val job: String,
     val jobDuration: Int
 )
+
+data class UserAttendanceResponse(
+    val monday: Boolean,
+
+    val tuesday: Boolean,
+
+    val wednesday: Boolean,
+
+    val thursday: Boolean,
+
+    val friday: Boolean,
+
+    val saturday: Boolean,
+
+    val sunday: Boolean,
+)

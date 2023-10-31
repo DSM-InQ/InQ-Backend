@@ -288,8 +288,8 @@ class QuestionService(
     fun registerQuestionSet(request: QuestionSetsRequest): RegisterQuestionSetsResponse{
         val user = SecurityUtil.getCurrentUser()
 
-        val postId = postRepository.save(Post())
-        val problemId = problemRepository.save(Problem(type = ProblemType.SET))
+        val post = postRepository.save(Post())
+        val problem = problemRepository.save(Problem(type = ProblemType.SET))
 
         val sets = questionSetsRepository.save(
             QuestionSets(
@@ -298,16 +298,16 @@ class QuestionService(
                 category = request.category,
                 likeCount = 0,
                 viewCount = 0,
-                postId = postId,
-                problemId = problemId,
-                authorId = user,
+                post = post,
+                problem = problem,
+                author = user,
             )
         )
 
         saveTag(
             category = request.category,
             tags = request.tag,
-            problems = sets.problemId
+            problems = sets.problem
         )
 
         val questions = questionsRepository.findByIdIn(request.questionId)
@@ -386,7 +386,7 @@ class QuestionService(
         questionSolvingHistoryRepository.save(
             QuestionSolvingHistory(
                 userId = user,
-                problem = questionSet.problemId
+                problem = questionSet.problem
             )
         )
     }

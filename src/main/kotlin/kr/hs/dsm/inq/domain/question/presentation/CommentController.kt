@@ -22,7 +22,7 @@ class CommentController(
         @PathVariable("question-set-id") questionSetId: Long,
         @RequestBody request: CreateCommentRequest
     ) {
-        commentService.createComment(questionSetId, request)
+        commentService.createQuestionSetComment(questionSetId, request)
     }
 
     @ResponseStatus(HttpStatus.CREATED)
@@ -31,6 +31,6 @@ class CommentController(
         @PathVariable("answer-id") answerId: Long,
         @RequestBody request: CreateCommentRequest
     ) {
-        commentService.createComment(answerId, request)
+        commentService.createAnswerComment(answerId, request)
     }
 }

@@ -3,6 +3,7 @@ package kr.hs.dsm.inq.domain.question.presentation
 import javax.validation.Valid
 import javax.websocket.server.PathParam
 import kr.hs.dsm.inq.domain.question.persistence.Category
+import kr.hs.dsm.inq.domain.question.persistence.DifficultyLevel
 import kr.hs.dsm.inq.domain.question.presentation.dto.*
 import kr.hs.dsm.inq.domain.question.service.QuestionService
 import org.springframework.http.HttpStatus
@@ -105,5 +106,16 @@ class QuestionController(
         @RequestBody answerRequest: AnswerRequest
     ) {
         return questionService.answerQuestionInQuestionSet(questionId, answerRequest)
+    }
+
+    @PostMapping("//{question-id}/difficulty")
+    fun assessDifficulty(
+        @PathVariable("question-id") questionId: Long,
+        @RequestParam level: DifficultyLevel
+    ): DifficultyResponse {
+        return questionService.assessDifficulty(
+            questionId = questionId,
+            difficultyLevel = level
+        )
     }
 }

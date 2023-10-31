@@ -29,6 +29,7 @@ class QuestionService(
     private val questionSetsRepository: QuestionSetsRepository,
     private val setQuestionRepository: SetQuestionRepository,
     private val questionSolvingHistoryRepository: QuestionSolvingHistoryRepository,
+    private val difficultyRepository: DifficultyRepository
 ) {
 
     fun createQuestion(request: CreateQuestionRequest): CreateQuestionResponses {
@@ -368,7 +369,6 @@ class QuestionService(
     fun getQuestionSetDetail(questionSetId: Long): GetQuestionSetDetailResponse {
 
         val user = SecurityUtil.getCurrentUser()
-        questionSetsRepository
 
         val questionSetDetail = questionSetId.run {
             questionSetsRepository.queryQuestionSetDtoById(user, questionSetId)
@@ -413,6 +413,23 @@ class QuestionService(
 
         questionsRepository.save(
             question.apply { answerCount += 1 }
+        )
+    }
+
+    fun assessDifficulty(questionId: Long, difficultyLevel: DifficultyLevel): DifficultyResponse {
+
+        val questions = questionsRepository.findByIdOrNull(questionId) ?: throw QuestionNotFoundException
+
+        val difficulty = difficultyRepository.queryByQuestionsId(questions.id) ?: difficultyRepository.save(
+            Difficulty(questions = questions)
+        )
+
+        return DifficultyResponse(
+            veryEasy = difficulty.getPercentage(DifficultyLevel.VERY_EASY),
+            easy = difficulty.getPercentage(DifficultyLevel.EASY),
+            normal = difficulty.getPercentage(DifficultyLevel.NORMAL),
+            hard = difficulty.getPercentage(DifficultyLevel.HARD),
+            veryHard = difficulty.getPercentage(DifficultyLevel.VERY_HARD),
         )
     }
 }

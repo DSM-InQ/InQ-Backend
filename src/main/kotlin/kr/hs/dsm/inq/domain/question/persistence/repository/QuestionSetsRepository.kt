@@ -6,10 +6,13 @@ import com.querydsl.jpa.impl.JPAQueryFactory
 import kr.hs.dsm.inq.common.util.PageResponse
 import kr.hs.dsm.inq.common.util.PageUtil
 import kr.hs.dsm.inq.domain.question.persistence.*
+import kr.hs.dsm.inq.domain.question.persistence.QAnswers.answers
+import kr.hs.dsm.inq.domain.question.persistence.QComments.comments
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionSets.questionSets
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionSolvingHistory.questionSolvingHistory
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionTags.questionTags
 import kr.hs.dsm.inq.domain.question.persistence.QTags.tags
+import kr.hs.dsm.inq.domain.question.persistence.dto.QAnswersDto
 import kr.hs.dsm.inq.domain.question.persistence.dto.QQuestionSetDetailDto
 import kr.hs.dsm.inq.domain.question.persistence.dto.QQuestionSetDto
 import kr.hs.dsm.inq.domain.question.persistence.dto.QuestionSetDetailDto
@@ -118,9 +121,10 @@ class CustomQuestionSetsRepositoryImpl(
         val favorite = QFavorite("favorite")
         return@run leftJoin(questionTags).on(questionTags.problems.eq(questionSets.problemId))
             .leftJoin(tags).on(tags.id.eq(questionTags.id.tagId))
-            .innerJoin(author).on(author.id.eq(questionSets.authorId.id))
-            .leftJoin(liked).on(liked.id.userId.eq(user.id)).on(liked.post.eq(questionSets.postId))
-            .leftJoin(favorite).on(favorite.id.userId.eq(user.id)).on(favorite.problemId.eq(questionSets.problemId))
+            .innerJoin(author).on(author.id.eq(questionSets.author.id))
+            .leftJoin(liked).on(liked.id.userId.eq(user.id)).on(liked.post.eq(questionSets.post))
+            .leftJoin(favorite).on(favorite.id.userId.eq(user.id)).on(favorite.problemId.eq(questionSets.problem))
+            .rightJoin(comments).on(comments.post.eq(questionSets.post))
             .transform(
                 GroupBy.groupBy(questionSets)
                     .list(
@@ -138,6 +142,7 @@ class CustomQuestionSetsRepositoryImpl(
                             /* isDisliked = */ liked.isLiked.isFalse,
                             /* isFavorite = */ favorite.isNotNull,
                             /* tagList = */ GroupBy.list(tags),
+                            /* comments = */ GroupBy.list(comments)
                         )
                     )
             )

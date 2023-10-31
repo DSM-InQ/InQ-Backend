@@ -26,7 +26,7 @@ class CommentService(
             Comments(
                 comment = request.comment,
                 writer = user,
-                post = questionSets.postId
+                post = questionSets.post
             )
         )
     }

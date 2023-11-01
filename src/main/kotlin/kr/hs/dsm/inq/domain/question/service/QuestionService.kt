@@ -30,6 +30,7 @@ class QuestionService(
     private val questionSetsRepository: QuestionSetsRepository,
     private val setQuestionRepository: SetQuestionRepository,
     private val questionSolvingHistoryRepository: QuestionSolvingHistoryRepository,
+    private val difficultyRepository: DifficultyRepository
 ) {
 
     fun createQuestion(request: CreateQuestionRequest): CreateQuestionResponses {
@@ -310,8 +311,8 @@ class QuestionService(
     fun registerQuestionSet(request: QuestionSetsRequest): RegisterQuestionSetsResponse{
         val user = SecurityUtil.getCurrentUser()
 
-        val postId = postRepository.save(Post())
-        val problemId = problemRepository.save(Problem(type = ProblemType.SET))
+        val post = postRepository.save(Post())
+        val problem = problemRepository.save(Problem(type = ProblemType.SET))
 
         val sets = questionSetsRepository.save(
             QuestionSets(
@@ -320,8 +321,8 @@ class QuestionService(
                 category = request.category,
                 likeCount = 0,
                 viewCount = 0,
-                post = postId,
-                problem = problemId,
+                post = post,
+                problem = problem,
                 author = user,
             )
         )
@@ -391,7 +392,6 @@ class QuestionService(
     fun getQuestionSetDetail(questionSetId: Long): GetQuestionSetDetailResponse {
 
         val user = SecurityUtil.getCurrentUser()
-        questionSetsRepository
 
         val questionSetDetail = questionSetId.run {
             questionSetsRepository.queryQuestionSetDtoById(user, questionSetId)
@@ -436,6 +436,23 @@ class QuestionService(
 
         questionsRepository.save(
             question.apply { answerCount += 1 }
+        )
+    }
+
+    fun assessDifficulty(questionId: Long, difficultyLevel: DifficultyLevel): DifficultyResponse {
+
+        val questions = questionsRepository.findByIdOrNull(questionId) ?: throw QuestionNotFoundException
+
+        val difficulty = difficultyRepository.queryByQuestionsId(questions.id) ?: difficultyRepository.save(
+            Difficulty(questions = questions)
+        )
+
+        return DifficultyResponse(
+            veryEasy = difficulty.getPercentage(DifficultyLevel.VERY_EASY),
+            easy = difficulty.getPercentage(DifficultyLevel.EASY),
+            normal = difficulty.getPercentage(DifficultyLevel.NORMAL),
+            hard = difficulty.getPercentage(DifficultyLevel.HARD),
+            veryHard = difficulty.getPercentage(DifficultyLevel.VERY_HARD),
         )
     }
 }

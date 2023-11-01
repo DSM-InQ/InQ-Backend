@@ -4,6 +4,7 @@ import com.querydsl.core.annotations.QueryProjection
 import kr.hs.dsm.inq.domain.question.persistence.Category
 import kr.hs.dsm.inq.domain.question.persistence.Tags
 import java.time.LocalDateTime
+import kr.hs.dsm.inq.domain.question.persistence.Comments
 
 class QuestionSetDetailDto @QueryProjection constructor(
     val questionSetId: Long,
@@ -19,4 +20,7 @@ class QuestionSetDetailDto @QueryProjection constructor(
     val isDisliked: Boolean,
     val isFavorite: Boolean,
     val tagList: List<Tags>,
-)
+    commentList: List<Comments>?
+) {
+    val commentList: List<Comments> = commentList ?: listOf()
+}

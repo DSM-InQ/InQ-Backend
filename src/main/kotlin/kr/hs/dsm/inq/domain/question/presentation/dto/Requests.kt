@@ -62,3 +62,9 @@ data class GetQuestionSetsRequest(
     @field:Nullable
     val tags: List<String>?
 )
+
+data class CreateCommentRequest(
+    @field:NotBlank
+    @field:Size(max = 1000)
+    val comment: String
+)

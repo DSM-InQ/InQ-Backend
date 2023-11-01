@@ -251,6 +251,7 @@ data class GetQuestionSetDetailResponse(
     val isDisliked: Boolean,
     val isFavorite: Boolean,
     val tags: List<String>,
+    val comments: List<CommentResponse>
 ) {
     companion object {
         fun of(questionSetDetail: QuestionSetDetailDto) = questionSetDetail.run {
@@ -267,8 +268,17 @@ data class GetQuestionSetDetailResponse(
                 isLiked = isLiked,
                 isDisliked = isDisliked,
                 isFavorite = isFavorite,
-                tags = tagList.map { it.tag }
+                tags = tagList.map { it.tag },
+                comments = commentList.map { CommentResponse.of(it) }
             )
         }
     }
 }
+
+data class DifficultyResponse(
+    val veryEasy: Int,
+    val easy: Int,
+    val normal: Int,
+    val hard: Int,
+    val veryHard: Int
+)

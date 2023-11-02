@@ -18,6 +18,9 @@ class QuestionSets (
     @Column(columnDefinition = "DATETIME(6)", nullable = false, updatable = false)
     var createdAt: LocalDateTime = LocalDateTime.now(),
 
+    @Column(columnDefinition = "VARCHAR(1000)", nullable = false)
+    var description: String,
+
     @Column(columnDefinition = "INT", nullable = false)
     var answerCount: Int,
 
@@ -26,6 +29,9 @@ class QuestionSets (
 
     @Column(columnDefinition = "INT", nullable = false)
     var likeCount: Int,
+
+    @Column(columnDefinition = "INT", nullable = false)
+    val dislikeCount: Int,
 
     @Column(columnDefinition = "INT", nullable = false)
     var viewCount: Int,

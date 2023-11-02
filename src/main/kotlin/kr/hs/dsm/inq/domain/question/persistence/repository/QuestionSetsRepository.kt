@@ -1,22 +1,22 @@
 package kr.hs.dsm.inq.domain.question.persistence.repository
 
+import com.querydsl.core.ResultTransformer
 import com.querydsl.core.group.GroupBy
+import com.querydsl.core.types.Expression
+import com.querydsl.core.types.Ops
+import com.querydsl.core.types.dsl.Expressions
 import com.querydsl.jpa.impl.JPAQuery
 import com.querydsl.jpa.impl.JPAQueryFactory
 import kr.hs.dsm.inq.common.util.PageResponse
 import kr.hs.dsm.inq.common.util.PageUtil
 import kr.hs.dsm.inq.domain.question.persistence.*
-import kr.hs.dsm.inq.domain.question.persistence.QAnswers.answers
 import kr.hs.dsm.inq.domain.question.persistence.QComments.comments
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionSets.questionSets
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionSolvingHistory.questionSolvingHistory
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionTags.questionTags
+import kr.hs.dsm.inq.domain.question.persistence.QQuestions.questions
 import kr.hs.dsm.inq.domain.question.persistence.QTags.tags
-import kr.hs.dsm.inq.domain.question.persistence.dto.QAnswersDto
-import kr.hs.dsm.inq.domain.question.persistence.dto.QQuestionSetDetailDto
-import kr.hs.dsm.inq.domain.question.persistence.dto.QQuestionSetDto
-import kr.hs.dsm.inq.domain.question.persistence.dto.QuestionSetDetailDto
-import kr.hs.dsm.inq.domain.question.persistence.dto.QuestionSetDto
+import kr.hs.dsm.inq.domain.question.persistence.dto.*
 import kr.hs.dsm.inq.domain.user.persistence.QUser
 import kr.hs.dsm.inq.domain.user.persistence.User
 import org.springframework.data.repository.CrudRepository
@@ -35,7 +35,7 @@ interface CustomQuestionSetsRepository {
         page: Long
     ): PageResponse<QuestionSetDto>
 
-    fun queryQuestionSetDtoById(
+    fun queryQuestionSetDetailDtoById(
         user: User,
         id: Long
     ): QuestionSetDetailDto?
@@ -67,11 +67,12 @@ class CustomQuestionSetsRepositoryImpl(
     }
 
     @Transactional
-    override fun queryQuestionSetDtoById(
+    override fun queryQuestionSetDetailDtoById(
         user: User,
         id: Long
     ): QuestionSetDetailDto? {
-        queryFactory
+
+       queryFactory
             .update(questionSets)
             .set(questionSets.viewCount, questionSets.viewCount.add(1))
             .where(questionSets.id.eq(id))
@@ -119,12 +120,13 @@ class CustomQuestionSetsRepositoryImpl(
         val author = QUser("writer")
         val liked = QLike("liked")
         val favorite = QFavorite("favorite")
+
         return@run leftJoin(questionTags).on(questionTags.problems.eq(questionSets.problem))
             .leftJoin(tags).on(tags.id.eq(questionTags.id.tagId))
             .innerJoin(author).on(author.id.eq(questionSets.author.id))
             .leftJoin(liked).on(liked.id.userId.eq(user.id)).on(liked.post.eq(questionSets.post))
             .leftJoin(favorite).on(favorite.id.userId.eq(user.id)).on(favorite.problemId.eq(questionSets.problem))
-            .rightJoin(comments).on(comments.post.eq(questionSets.post))
+            .leftJoin(comments).on(comments.post.eq(questionSets.post))
             .transform(
                 GroupBy.groupBy(questionSets)
                     .list(
@@ -132,17 +134,18 @@ class CustomQuestionSetsRepositoryImpl(
                             /* questionSetId = */ questionSets.id,
                             /* name = */ questionSets.name,
                             /* createdAt = */ questionSets.createdAt,
+                            /* description = */ questionSets.description,
                             /* username = */ author.username,
                             /* job = */ author.job,
                             /* jobDuration = */ author.jobDuration,
-                            /* category = */ questionSets.category,
                             /* likeCount = */ questionSets.likeCount,
+                            /* dislikeCount = */ questionSets.dislikeCount,
                             /* viewCount = */ questionSets.viewCount,
                             /* isLiked = */ liked.isLiked.isTrue,
                             /* isDisliked = */ liked.isLiked.isFalse,
                             /* isFavorite = */ favorite.isNotNull,
                             /* tagList = */ GroupBy.list(tags),
-                            /* comments = */ GroupBy.list(comments)
+                            /* commentList = */ GroupBy.list(comments)
                         )
                     )
             )

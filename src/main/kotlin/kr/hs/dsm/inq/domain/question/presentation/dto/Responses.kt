@@ -2,10 +2,7 @@ package kr.hs.dsm.inq.domain.question.presentation.dto
 
 import kr.hs.dsm.inq.common.util.PageResponse
 import kr.hs.dsm.inq.common.util.PageUtil
-import kr.hs.dsm.inq.domain.question.persistence.Category
-import kr.hs.dsm.inq.domain.question.persistence.Comments
-import kr.hs.dsm.inq.domain.question.persistence.QuestionSets
-import kr.hs.dsm.inq.domain.question.persistence.Tags
+import kr.hs.dsm.inq.domain.question.persistence.*
 import kr.hs.dsm.inq.domain.question.persistence.dto.*
 import java.time.LocalDateTime
 import java.util.Date
@@ -195,8 +192,8 @@ data class GetQuestionSetResponse(
     val hasNext: Boolean,
     val questionSetsList: List<QuestionSet>,
 ) {
-    companion object{
-        fun of(pageResponse: PageResponse<QuestionSetDto>) = pageResponse.run{
+    companion object {
+        fun of(pageResponse: PageResponse<QuestionSetDto>) = pageResponse.run {
             GetQuestionSetResponse(
                 hasNext = hasNext,
                 questionSetsList = list.map { QuestionSet.of(it) }
@@ -205,21 +202,21 @@ data class GetQuestionSetResponse(
     }
 }
 
-data class QuestionSet (
-    val questionSetId : Long?,
-    val questionSetName : String?,
+data class QuestionSet(
+    val questionSetId: Long?,
+    val questionSetName: String?,
     val createdAt: LocalDateTime,
     val category: Category?,
-    val username : String?,
-    val job : String?,
-    val jobDuration : Int?,
-    val tags : List<String>?,
-    val isAnswered : Boolean?,
-    val likeCount : Int?,
-    val viewCount : Int?,
+    val username: String?,
+    val job: String?,
+    val jobDuration: Int?,
+    val tags: List<String>?,
+    val isAnswered: Boolean?,
+    val likeCount: Int?,
+    val viewCount: Int?,
 ) {
     companion object {
-        fun of (dto: QuestionSetDto) = dto.run {
+        fun of(dto: QuestionSetDto) = dto.run {
             QuestionSet(
                 questionSetId = questionSetId,
                 questionSetName = questionSetName,
@@ -241,11 +238,13 @@ data class GetQuestionSetDetailResponse(
     val questionSetId: Long,
     val name: String,
     val createdAt: LocalDateTime,
+    val description: String,
     val username: String,
     val job: String,
     val jobDuration: Int,
-    val category: Category,
+    val category: List<CategoriesDto?>?,
     val likeCount: Int,
+    val dislikeCount: Int,
     val viewCount: Int,
     val isLiked: Boolean,
     val isDisliked: Boolean,
@@ -254,16 +253,26 @@ data class GetQuestionSetDetailResponse(
     val comments: List<CommentResponse>
 ) {
     companion object {
-        fun of(questionSetDetail: QuestionSetDetailDto) = questionSetDetail.run {
+        fun of(questionSetDetail: QuestionSetDetailDto, questionList: List<Questions>) = questionSetDetail.run {
             GetQuestionSetDetailResponse(
                 questionSetId = questionSetId,
                 name = name,
                 createdAt = createdAt,
+                description = description,
                 username = username,
                 job = job,
                 jobDuration = jobDuration,
-                category = category,
+                category = questionList
+                    .groupingBy { it.category }
+                    .eachCount()
+                    .map {
+                        CategoriesDto(
+                            category = it.key,
+                            count = it.value
+                        )
+                    },
                 likeCount = likeCount,
+                dislikeCount = dislikeCount,
                 viewCount = viewCount,
                 isLiked = isLiked,
                 isDisliked = isDisliked,

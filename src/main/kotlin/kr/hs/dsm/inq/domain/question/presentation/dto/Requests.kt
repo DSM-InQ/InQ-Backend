@@ -45,6 +45,7 @@ data class GetPopularQuestionRequest(
 
 data class QuestionSetsRequest(
     val questionSetName: String,
+    val description: String,
     val category: Category,
     val questionId: List<Long>,
     val tag: List<String>,

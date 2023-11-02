@@ -13,9 +13,10 @@ enum class DomainErrorCode(
 
     USER_NOT_FOUND(ErrorStatus.NOT_FOUND, "User Not Found", 1),
     QUESTION_NOT_FOUND(ErrorStatus.NOT_FOUND, "Question Not Found", 2),
-    ANSWER_NOT_FOUND(ErrorStatus.NOT_FOUND, "Answer Not Found", 3),
-    TAG_NOT_FOUND(ErrorStatus.NOT_FOUND, "Tag Not Found", 4),
-    ATTENDANCE_NOT_FOUND(ErrorStatus.NOT_FOUND, "Attendance Not Found", 5),
+    QUESTION_SET_NOT_FOUND(ErrorStatus.NOT_FOUND, "Question Set Not Found", 3),
+    ANSWER_NOT_FOUND(ErrorStatus.NOT_FOUND, "Answer Not Found", 4),
+    TAG_NOT_FOUND(ErrorStatus.NOT_FOUND, "Tag Not Found", 5),
+    ATTENDANCE_NOT_FOUND(ErrorStatus.NOT_FOUND, "Attendance Not Found", 6),
 
     ALREADY_LIKED_POST(ErrorStatus.CONFLICT, "Already liked post", 1),
     ALREADY_DISLIKED_POST(ErrorStatus.CONFLICT, "Already disliked post", 2),

@@ -7,6 +7,7 @@ import kr.hs.dsm.inq.domain.question.exception.AlreadyLikedPostException
 import kr.hs.dsm.inq.domain.question.exception.AnswerNotFoundException
 import kr.hs.dsm.inq.domain.question.exception.QuestionNotFoundException
 import kr.hs.dsm.inq.domain.question.exception.QuestionSetNotFoundException
+import kr.hs.dsm.inq.domain.question.exception.*
 import kr.hs.dsm.inq.domain.question.persistence.*
 import kr.hs.dsm.inq.domain.question.persistence.dto.AnswersDto
 import kr.hs.dsm.inq.domain.question.persistence.dto.CategoriesDto
@@ -319,8 +320,10 @@ class QuestionService(
             QuestionSets(
                 name = request.questionSetName,
                 answerCount = 0,
+                description = request.description,
                 category = request.category,
                 likeCount = 0,
+                dislikeCount = 0,
                 viewCount = 0,
                 post = post,
                 problem = problem,
@@ -395,11 +398,14 @@ class QuestionService(
         val user = SecurityUtil.getCurrentUser()
 
         val questionSetDetail = questionSetId.run {
-            questionSetsRepository.queryQuestionSetDtoById(user, questionSetId)
+            questionSetsRepository.queryQuestionSetDetailDtoById(user, questionSetId)
                 ?: throw QuestionSetNotFoundException
         }
 
-        return GetQuestionSetDetailResponse.of(questionSetDetail)
+        val setQuestionList = setQuestionRepository.findAllBySetId(questionSetDetail.questionSetId)
+        val questionList = questionsRepository.findByIdIn(setQuestionList.map { it.question.id })
+
+        return GetQuestionSetDetailResponse.of(questionSetDetail, questionList)
     }
 
     fun answerQuestionSet(questionSetId: Long){

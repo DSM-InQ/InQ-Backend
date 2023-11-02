@@ -78,6 +78,16 @@ class QuestionController(
         return questionService.dislikeAnswer(answerId)
     }
 
+    @PostMapping("/set/{question-set-id}/like")
+    fun likeQuestionSet(@PathVariable("question-set-id") questionSetId: Long): LikeResponse {
+        return questionService.likeQuestionSet(questionSetId)
+    }
+
+    @PostMapping("/set/{question-set-id}/dislike")
+    fun dislikeQuestionSet(@PathVariable("question-set-id") questionSetId: Long): DislikeResponse {
+        return questionService.dislikeQuestionSet(questionSetId)
+    }
+
     @PostMapping("/set")
     fun registerQuestionSets(@RequestBody request: QuestionSetsRequest): RegisterQuestionSetsResponse{
         return questionService.registerQuestionSet(request)

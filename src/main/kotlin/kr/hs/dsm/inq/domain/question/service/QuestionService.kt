@@ -6,6 +6,7 @@ import kr.hs.dsm.inq.domain.question.exception.AlreadyDislikedPostException
 import kr.hs.dsm.inq.domain.question.exception.AlreadyLikedPostException
 import kr.hs.dsm.inq.domain.question.exception.AnswerNotFoundException
 import kr.hs.dsm.inq.domain.question.exception.QuestionNotFoundException
+import kr.hs.dsm.inq.domain.question.exception.QuestionSetNotFoundException
 import kr.hs.dsm.inq.domain.question.persistence.*
 import kr.hs.dsm.inq.domain.question.persistence.dto.AnswersDto
 import kr.hs.dsm.inq.domain.question.persistence.dto.CategoriesDto
@@ -230,7 +231,7 @@ class QuestionService(
 
     fun likeQuestionSet(questionSetId: Long): LikeResponse {
         val user = SecurityUtil.getCurrentUser()
-        val questionSet = questionSetsRepository.findByIdOrNull(questionSetId) ?: throw AnswerNotFoundException
+        val questionSet = questionSetsRepository.findByIdOrNull(questionSetId) ?: throw QuestionSetNotFoundException
         return toggleLike(questionSet.post, user)
     }
 
@@ -272,7 +273,7 @@ class QuestionService(
 
     fun dislikeQuestionSet(questionSetId: Long): DislikeResponse {
         val user = SecurityUtil.getCurrentUser()
-        val questionSet = questionSetsRepository.findByIdOrNull(questionSetId) ?: throw AnswerNotFoundException
+        val questionSet = questionSetsRepository.findByIdOrNull(questionSetId) ?: throw QuestionSetNotFoundException
         return toggleDislike(questionSet.post, user)
     }
 
@@ -395,7 +396,7 @@ class QuestionService(
 
         val questionSetDetail = questionSetId.run {
             questionSetsRepository.queryQuestionSetDtoById(user, questionSetId)
-                ?: throw QuestionNotFoundException
+                ?: throw QuestionSetNotFoundException
         }
 
         return GetQuestionSetDetailResponse.of(questionSetDetail)
@@ -404,7 +405,7 @@ class QuestionService(
     fun answerQuestionSet(questionSetId: Long){
         val user = SecurityUtil.getCurrentUser()
 
-        val questionSet = questionSetsRepository.findByIdOrNull(questionSetId)?: throw QuestionNotFoundException
+        val questionSet = questionSetsRepository.findByIdOrNull(questionSetId)?: throw QuestionSetNotFoundException
 
         questionSolvingHistoryRepository.save(
             QuestionSolvingHistory(

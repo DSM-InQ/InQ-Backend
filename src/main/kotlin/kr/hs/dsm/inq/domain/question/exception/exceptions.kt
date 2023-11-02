@@ -8,6 +8,10 @@ object QuestionNotFoundException : CustomException(
     DomainErrorCode.QUESTION_NOT_FOUND
 )
 
+object QuestionSetNotFoundException : CustomException(
+    DomainErrorCode.QUESTION_NOT_FOUND
+)
+
 object AnswerNotFoundException : CustomException(
     DomainErrorCode.ANSWER_NOT_FOUND
 )

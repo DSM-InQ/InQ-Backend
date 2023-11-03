@@ -27,7 +27,7 @@ interface QuestionSetsRepository : CrudRepository<QuestionSets, Long>, CustomQue
 }
 
 interface CustomQuestionSetsRepository {
-    fun queryQuestionSetDto(
+    fun queryQuestionSetDtoOrderByLike(
         user: User,
         category: Category? = null,
         keyword: String? = null,
@@ -45,24 +45,25 @@ interface CustomQuestionSetsRepository {
 class CustomQuestionSetsRepositoryImpl(
     private val queryFactory: JPAQueryFactory
 ): CustomQuestionSetsRepository {
-    override fun queryQuestionSetDto(
+    override fun queryQuestionSetDtoOrderByLike(
         user: User,
         category: Category?,
         keyword: String?,
         tags: List<String>?,
         page: Long
     ): PageResponse<QuestionSetDto> {
-        val questionSetResponse = queryFactory
+        val questionSetList = queryFactory
             .selectFrom(questionSets)
             .where(
                 questionSets.name.contains(keyword ?: "")
                     .and(category?.let { questionSets.category.eq(it)})
             )
+            .orderBy(questionSets.likeCount.asc())
             .getQuestionSetDto(user)
 
         return PageUtil.toPageResponse(
             page = page,
-            list = questionSetResponse
+            list = questionSetList
         )
     }
 

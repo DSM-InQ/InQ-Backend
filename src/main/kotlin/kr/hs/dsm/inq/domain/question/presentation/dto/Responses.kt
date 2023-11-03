@@ -202,8 +202,25 @@ data class GetQuestionSetResponse(
     }
 }
 
+data class QuestionSetRankResponse(
+    val hasNext: Boolean,
+    val questionSetsList: List<QuestionSet>
+) {
+    companion object {
+        fun of(page: Long, pageResponse: PageResponse<QuestionSetDto>) = pageResponse.run {
+            GetQuestionSetResponse(
+                hasNext = hasNext,
+                questionSetsList = list.mapIndexed { idx, it ->
+                    QuestionSet.of(it, PageUtil.getOffset(page) + idx + 1)
+                }
+            )
+        }
+    }
+}
+
 data class QuestionSet(
     val questionSetId: Long?,
+    val rank: Long? = null,
     val questionSetName: String?,
     val createdAt: LocalDateTime,
     val category: Category?,
@@ -219,6 +236,23 @@ data class QuestionSet(
         fun of(dto: QuestionSetDto) = dto.run {
             QuestionSet(
                 questionSetId = questionSetId,
+                questionSetName = questionSetName,
+                createdAt = createdAt,
+                category = category,
+                username = username,
+                job = job,
+                jobDuration = jobDuration,
+                tags = tagList.map { it.tag },
+                isAnswered = isAnswered,
+                likeCount = likeCount,
+                viewCount = viewCount
+            )
+        }
+
+        fun of(dto: QuestionSetDto, rank: Long) = dto.run {
+            QuestionSet(
+                questionSetId = questionSetId,
+                rank = rank,
                 questionSetName = questionSetName,
                 createdAt = createdAt,
                 category = category,

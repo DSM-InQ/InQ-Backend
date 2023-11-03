@@ -11,6 +11,7 @@ import kr.hs.dsm.inq.common.util.PageResponse
 import kr.hs.dsm.inq.common.util.PageUtil
 import kr.hs.dsm.inq.domain.question.persistence.*
 import kr.hs.dsm.inq.domain.question.persistence.QComments.comments
+import kr.hs.dsm.inq.domain.question.persistence.QPost.post
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionSets.questionSets
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionSolvingHistory.questionSolvingHistory
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionTags.questionTags
@@ -58,7 +59,7 @@ class CustomQuestionSetsRepositoryImpl(
                 questionSets.name.contains(keyword ?: "")
                     .and(category?.let { questionSets.category.eq(it)})
             )
-            .orderBy(questionSets.likeCount.asc())
+            .orderBy(questionSets.post.likeCount.asc())
             .getQuestionSetDto(user)
 
         return PageUtil.toPageResponse(
@@ -94,6 +95,7 @@ class CustomQuestionSetsRepositoryImpl(
             .leftJoin(questionSolvingHistory)
                 .on(questionSolvingHistory.userId.id.eq(user.id)).on(questionSolvingHistory.problem.eq(questionSets.problem))
             .innerJoin(author).on(author.id.eq(questionSets.author.id))
+            .innerJoin(post).on(post.id.eq(questionSets.post.id))
 //            .rightJoin(favorite).on(favorite.questions.id.eq(questions.id))
 //            .rightJoin(answers).on(answers.writer.eq(user).and(answers.questions.eq(questions)))
             .transform(
@@ -109,7 +111,7 @@ class CustomQuestionSetsRepositoryImpl(
                             /* jobDuration = */ author.jobDuration,
                             /* tagList = */ GroupBy.list(tags),
                             /* isAnswered = */ questionSolvingHistory.isNotNull,
-                            /* likeCount = */ questionSets.likeCount,
+                            /* likeCount = */ post.likeCount,
                             /* viewCount = */ questionSets.viewCount,
                         )
                     )
@@ -126,6 +128,7 @@ class CustomQuestionSetsRepositoryImpl(
             .leftJoin(tags).on(tags.id.eq(questionTags.id.tagId))
             .innerJoin(author).on(author.id.eq(questionSets.author.id))
             .leftJoin(liked).on(liked.id.userId.eq(user.id)).on(liked.post.eq(questionSets.post))
+            .leftJoin(post).on(post.id.eq(questionSets.post.id))
             .leftJoin(favorite).on(favorite.id.userId.eq(user.id)).on(favorite.problemId.eq(questionSets.problem))
             .leftJoin(comments).on(comments.post.eq(questionSets.post))
             .transform(
@@ -139,8 +142,8 @@ class CustomQuestionSetsRepositoryImpl(
                             /* username = */ author.username,
                             /* job = */ author.job,
                             /* jobDuration = */ author.jobDuration,
-                            /* likeCount = */ questionSets.likeCount,
-                            /* dislikeCount = */ questionSets.dislikeCount,
+                            /* likeCount = */ post.likeCount,
+                            /* dislikeCount = */ post.dislikeCount,
                             /* viewCount = */ questionSets.viewCount,
                             /* isLiked = */ liked.isLiked.isTrue,
                             /* isDisliked = */ liked.isLiked.isFalse,

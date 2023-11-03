@@ -1,5 +1,11 @@
 package kr.hs.dsm.inq.domain.question.service
 
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
+import java.util.Date
 import kr.hs.dsm.inq.common.util.SecurityUtil
 import kr.hs.dsm.inq.common.util.defaultPage
 import kr.hs.dsm.inq.domain.question.exception.AlreadyDislikedPostException
@@ -243,9 +249,10 @@ class QuestionService(
         val likeId = LikeId(post.id, user.id)
         val like = likeRepository.findByIdOrNull(likeId)
         return if (like == null) {
-            postRepository.save(
-                post.apply { addLikeCount() }
-            )
+            post.apply {
+                addLikeCount()
+                postRepository.save(this)
+            }
             likeRepository.save(
                 Like(
                     id = likeId,
@@ -258,9 +265,10 @@ class QuestionService(
         } else if (!like.isLiked) {
             throw AlreadyDislikedPostException
         } else {
-            postRepository.save(
-                post.apply { reduceLikeCount() }
-            )
+            post.apply {
+                reduceLikeCount()
+                postRepository.save(this)
+            }
             likeRepository.deleteById(likeId)
             LikeResponse(isLiked = false)
         }
@@ -285,10 +293,10 @@ class QuestionService(
         val likeId = LikeId(post.id, user.id)
         val like = likeRepository.findByIdOrNull(likeId)
         return if (like == null) {
-            // doDislike
-            postRepository.save(
-                post.apply { addDislikeCount() }
-            )
+            post.apply {
+                addDislikeCount()
+                postRepository.save(this)
+            }
             likeRepository.save(
                 Like(
                     id = likeId,
@@ -301,10 +309,10 @@ class QuestionService(
         } else if (like.isLiked) {
             throw AlreadyLikedPostException
         } else {
-            // cancelDislike
-            postRepository.save(
-                post.apply { reduceDislikeCount() }
-            )
+            post.apply {
+                reduceDislikeCount()
+                postRepository.save(this)
+            }
             likeRepository.deleteById(likeId)
             DislikeResponse(isDisliked = false)
         }
@@ -322,8 +330,6 @@ class QuestionService(
                 answerCount = 0,
                 description = request.description,
                 category = request.category,
-                likeCount = 0,
-                dislikeCount = 0,
                 viewCount = 0,
                 post = post,
                 problem = problem,

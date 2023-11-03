@@ -28,12 +28,6 @@ class QuestionSets (
     var category: Category,
 
     @Column(columnDefinition = "INT", nullable = false)
-    var likeCount: Int,
-
-    @Column(columnDefinition = "INT", nullable = false)
-    val dislikeCount: Int,
-
-    @Column(columnDefinition = "INT", nullable = false)
     var viewCount: Int,
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -128,4 +128,9 @@ class QuestionController(
             difficultyLevel = level
         )
     }
+
+    @GetMapping("/set/rank")
+    fun getQuestionSetRank(@Valid @ModelAttribute request: GetQuestionSetRankRequest): GetQuestionSetResponse {
+        return questionService.getQuestionSetRank(request)
+    }
 }

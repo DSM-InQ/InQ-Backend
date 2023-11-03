@@ -69,3 +69,7 @@ data class CreateCommentRequest(
     @field:Size(max = 1000)
     val comment: String
 )
+
+data class GetQuestionSetRankRequest(
+    val page: Long
+)

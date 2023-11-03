@@ -381,7 +381,7 @@ class QuestionService(
         val user = SecurityUtil.getCurrentUser()
 
         val questionSetList = request.run{
-            questionSetsRepository.queryQuestionSetDto(
+            questionSetsRepository.queryQuestionSetDtoOrderByLike(
                 user = user,
                 category = category,
                 keyword = keyword,
@@ -460,6 +460,20 @@ class QuestionService(
             normal = difficulty.getPercentage(DifficultyLevel.NORMAL),
             hard = difficulty.getPercentage(DifficultyLevel.HARD),
             veryHard = difficulty.getPercentage(DifficultyLevel.VERY_HARD),
+        )
+    }
+
+    fun getQuestionSetRank(request: GetQuestionSetRankRequest): GetQuestionSetResponse {
+        val user = SecurityUtil.getCurrentUser()
+
+        val questionSetList = questionSetsRepository.queryQuestionSetDtoOrderByLike(
+            user = user,
+            page = request.page
+        )
+
+        return QuestionSetRankResponse.of(
+            page = request.page,
+            pageResponse = questionSetList
         )
     }
 }

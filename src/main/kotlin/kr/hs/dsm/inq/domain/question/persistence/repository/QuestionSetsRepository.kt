@@ -129,7 +129,7 @@ class CustomQuestionSetsRepositoryImpl(
             .innerJoin(author).on(author.id.eq(questionSets.author.id))
             .leftJoin(liked).on(liked.id.userId.eq(user.id)).on(liked.post.eq(questionSets.post))
             .leftJoin(post).on(post.id.eq(questionSets.post.id))
-            .leftJoin(favorite).on(favorite.id.userId.eq(user.id)).on(favorite.problemId.eq(questionSets.problem))
+            .leftJoin(favorite).on(favorite.id.userId.eq(user.id)).on(favorite.problem.eq(questionSets.problem))
             .leftJoin(comments).on(comments.post.eq(questionSets.post))
             .transform(
                 GroupBy.groupBy(questionSets)

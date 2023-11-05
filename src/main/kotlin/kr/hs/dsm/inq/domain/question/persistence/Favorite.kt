@@ -23,7 +23,7 @@ class Favorite(
     @MapsId("problemId")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "problem_id", columnDefinition = "BIGINT", nullable = false)
-    val problemId: Problem,
+    val problem: Problem,
 
     @MapsId("userId")
     @ManyToOne(fetch = FetchType.LAZY)

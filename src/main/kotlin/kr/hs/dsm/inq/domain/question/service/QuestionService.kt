@@ -1,11 +1,5 @@
 package kr.hs.dsm.inq.domain.question.service
 
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.ZoneOffset
-import java.time.ZonedDateTime
-import java.util.Date
 import kr.hs.dsm.inq.common.util.SecurityUtil
 import kr.hs.dsm.inq.common.util.defaultPage
 import kr.hs.dsm.inq.domain.question.exception.AlreadyDislikedPostException
@@ -13,7 +7,6 @@ import kr.hs.dsm.inq.domain.question.exception.AlreadyLikedPostException
 import kr.hs.dsm.inq.domain.question.exception.AnswerNotFoundException
 import kr.hs.dsm.inq.domain.question.exception.QuestionNotFoundException
 import kr.hs.dsm.inq.domain.question.exception.QuestionSetNotFoundException
-import kr.hs.dsm.inq.domain.question.exception.*
 import kr.hs.dsm.inq.domain.question.persistence.*
 import kr.hs.dsm.inq.domain.question.persistence.dto.AnswersDto
 import kr.hs.dsm.inq.domain.question.persistence.dto.CategoriesDto
@@ -38,7 +31,8 @@ class QuestionService(
     private val questionSetsRepository: QuestionSetsRepository,
     private val setQuestionRepository: SetQuestionRepository,
     private val questionSolvingHistoryRepository: QuestionSolvingHistoryRepository,
-    private val difficultyRepository: DifficultyRepository
+    private val difficultyRepository: DifficultyRepository,
+    private val favoriteRepository: FavoriteRepository,
 ) {
 
     fun createQuestion(request: CreateQuestionRequest): CreateQuestionResponses {
@@ -480,6 +474,53 @@ class QuestionService(
         return QuestionSetRankResponse.of(
             page = request.page,
             pageResponse = questionSetList
+        )
+    }
+
+    fun questionFavorite(questionId: Long): favoriteResponse {
+        val user = SecurityUtil.getCurrentUser()
+
+        val problem = questionsRepository.findByIdOrNull(questionId)?.problem
+            ?: throw QuestionNotFoundException
+
+        return favorite(user, problem)
+    }
+
+    fun questionSetFavorite(questionSetId: Long): favoriteResponse {
+        val user = SecurityUtil.getCurrentUser()
+
+        val problem = questionSetsRepository.findByIdOrNull(questionSetId)?.problem
+            ?: throw QuestionSetNotFoundException
+
+        return favorite(user, problem)
+    }
+
+    fun favorite(user: User, problem: Problem): favoriteResponse{
+        var isFavorite = false
+
+        val favorite = favoriteRepository.findById(
+            FavoriteId(
+                problem.id,
+                user.id,
+            )
+        )
+
+        if(favorite === null) {
+            favoriteRepository.save(
+                Favorite(
+                    FavoriteId(
+                        user.id,
+                        problem.id
+                    ),
+                    problem,
+                    user
+                )
+            )
+            isFavorite = true
+        } else favoriteRepository.delete(favorite)
+
+        return favoriteResponse(
+            isFavorite
         )
     }
 }

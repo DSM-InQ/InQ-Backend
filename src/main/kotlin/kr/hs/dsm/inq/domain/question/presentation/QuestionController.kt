@@ -118,7 +118,7 @@ class QuestionController(
         return questionService.answerQuestionInQuestionSet(questionId, answerRequest)
     }
 
-    @PostMapping("//{question-id}/difficulty")
+    @PostMapping("/{question-id}/difficulty")
     fun assessDifficulty(
         @PathVariable("question-id") questionId: Long,
         @RequestParam level: DifficultyLevel
@@ -132,5 +132,19 @@ class QuestionController(
     @GetMapping("/set/rank")
     fun getQuestionSetRank(@Valid @ModelAttribute request: GetQuestionSetRankRequest): GetQuestionSetResponse {
         return questionService.getQuestionSetRank(request)
+    }
+
+    @PostMapping("/{question-id}/favorite")
+    fun questionFavorite(@PathVariable("question-id") questionId: Long): favoriteResponse{
+        println("question")
+
+        return questionService.questionFavorite(questionId)
+    }
+
+    @PostMapping("/set/{question-set-id}/favorite")
+    fun questionSetFavorite(@PathVariable("question-set-id") questionSetId: Long): favoriteResponse{
+        println("set")
+
+        return questionService.questionSetFavorite(questionSetId)
     }
 }

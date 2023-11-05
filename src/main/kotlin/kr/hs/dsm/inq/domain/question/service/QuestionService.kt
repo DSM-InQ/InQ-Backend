@@ -303,7 +303,7 @@ class QuestionService(
                     id = likeId,
                     post = post,
                     user = user,
-                    isLiked = true
+                    isLiked = false
                 )
             )
             DislikeResponse(isDisliked = true)

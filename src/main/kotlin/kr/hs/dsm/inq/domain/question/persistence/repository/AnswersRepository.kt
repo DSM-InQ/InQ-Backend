@@ -60,15 +60,15 @@ class CustomAnswerRepositoryImpl(
                     .list(
                         QAnswersDto(
                             /* id = */ answers.id,
-                            /* writerId = */ answers.writer.id,
-                            /* username = */ answers.answer,
-                            /* job = */ answers.answer,
-                            /* jobDuration = */ post.likeCount,
+                            /* writerId = */ user.id,
+                            /* username = */ user.username,
+                            /* job = */ user.job,
+                            /* jobDuration = */ user.jobDuration,
                             /* answer = */ answers.answer,
                             /* likeCount = */ post.likeCount,
-                            /* isLiked = */ post.isNotNull,
+                            /* isLiked = */ like.isNotNull,
                             /* dislikeCount = */ post.dislikeCount,
-                            /* isDisliked = */ post.isNotNull,
+                            /* isDisliked = */ dislike.isNotNull,
                             /* commentList = */ list(comments)
                        )
                     )

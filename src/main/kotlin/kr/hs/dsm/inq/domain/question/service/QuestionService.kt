@@ -175,6 +175,7 @@ class QuestionService(
         return QuestionDetailResponse.of(
             questionDetail = question,
             answer = AnswersDto(
+                id = exemplaryAnswer.id,
                 writerId = question.authorId,
                 username = question.username,
                 job = question.job,

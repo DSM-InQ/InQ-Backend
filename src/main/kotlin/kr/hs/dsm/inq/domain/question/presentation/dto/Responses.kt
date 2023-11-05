@@ -121,6 +121,7 @@ data class QuestionDetailResponse(
 }
 
 data class AnswerResponse(
+    val id: Long,
     val username: String,
     val job: String,
     val jobDuration: Int,
@@ -134,6 +135,7 @@ data class AnswerResponse(
     companion object {
         fun of(answers: AnswersDto) = answers.run {
             AnswerResponse(
+                id = answers.id,
                 username = username,
                 job = job,
                 jobDuration = jobDuration,

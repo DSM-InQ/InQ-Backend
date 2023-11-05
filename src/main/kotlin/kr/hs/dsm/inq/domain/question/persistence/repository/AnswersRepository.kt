@@ -59,7 +59,8 @@ class CustomAnswerRepositoryImpl(
                 GroupBy.groupBy(answers.id)
                     .list(
                         QAnswersDto(
-                            /* writerId = */ answers.id,
+                            /* id = */ answers.id,
+                            /* writerId = */ answers.writer.id,
                             /* username = */ answers.answer,
                             /* job = */ answers.answer,
                             /* jobDuration = */ post.likeCount,

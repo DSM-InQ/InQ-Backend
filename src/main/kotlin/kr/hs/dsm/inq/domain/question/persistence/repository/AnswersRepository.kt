@@ -100,7 +100,7 @@ class CustomAnswerRepositoryImpl(
                             writer.username,
                             writer.job,
                             writer.jobDuration,
-                            GroupBy.list(tags),
+                            list(tags),
                             questions.isNull,
                             questions.createdAt,
                             answers.answer

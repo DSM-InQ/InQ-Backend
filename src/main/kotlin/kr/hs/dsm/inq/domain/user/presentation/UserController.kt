@@ -6,6 +6,7 @@ import kr.hs.dsm.inq.domain.user.presentation.dto.*
 import kr.hs.dsm.inq.domain.user.service.UserService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -41,5 +42,9 @@ class UserController(
     @GetMapping("/check")
     fun queryUserAttendance(): UserAttendanceResponse =
         userService.queryUserAttendance()
+
+    @GetMapping("/me/questions")
+    fun queryUserAnswered(@Valid @ModelAttribute request: GetUserAnsweredRequest): QuestionUserAnsweredResponse =
+        userService.queryUserAnswered(request)
 
 }

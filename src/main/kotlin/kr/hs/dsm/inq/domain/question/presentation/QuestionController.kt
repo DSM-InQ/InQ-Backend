@@ -135,16 +135,12 @@ class QuestionController(
     }
 
     @PostMapping("/{question-id}/favorite")
-    fun questionFavorite(@PathVariable("question-id") questionId: Long): favoriteResponse{
-        println("question")
-
+    fun questionFavorite(@PathVariable("question-id") questionId: Long): FavoriteResponse{
         return questionService.questionFavorite(questionId)
     }
 
     @PostMapping("/set/{question-set-id}/favorite")
-    fun questionSetFavorite(@PathVariable("question-set-id") questionSetId: Long): favoriteResponse{
-        println("set")
-
+    fun questionSetFavorite(@PathVariable("question-set-id") questionSetId: Long): FavoriteResponse{
         return questionService.questionSetFavorite(questionSetId)
     }
 }

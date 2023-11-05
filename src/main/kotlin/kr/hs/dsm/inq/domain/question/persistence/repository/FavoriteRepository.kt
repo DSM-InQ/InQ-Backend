@@ -6,4 +6,5 @@ import org.springframework.data.repository.CrudRepository
 
 interface FavoriteRepository: CrudRepository<Favorite, Long> {
     fun findById(id: FavoriteId): Favorite?
+    fun deleteById(id: FavoriteId)
 }

@@ -326,6 +326,6 @@ data class DifficultyResponse(
     val veryHard: Int
 )
 
-data class favoriteResponse(
+data class FavoriteResponse(
     val isFavorite: Boolean
 )

@@ -477,7 +477,7 @@ class QuestionService(
         )
     }
 
-    fun questionFavorite(questionId: Long): favoriteResponse {
+    fun questionFavorite(questionId: Long): FavoriteResponse {
         val user = SecurityUtil.getCurrentUser()
 
         val problem = questionsRepository.findByIdOrNull(questionId)?.problem
@@ -486,7 +486,7 @@ class QuestionService(
         return favorite(user, problem)
     }
 
-    fun questionSetFavorite(questionSetId: Long): favoriteResponse {
+    fun questionSetFavorite(questionSetId: Long): FavoriteResponse {
         val user = SecurityUtil.getCurrentUser()
 
         val problem = questionSetsRepository.findByIdOrNull(questionSetId)?.problem
@@ -495,32 +495,24 @@ class QuestionService(
         return favorite(user, problem)
     }
 
-    fun favorite(user: User, problem: Problem): favoriteResponse{
-        var isFavorite = false
-
-        val favorite = favoriteRepository.findById(
-            FavoriteId(
-                problem.id,
-                user.id,
-            )
+    fun favorite(user: User, problem: Problem): FavoriteResponse{
+        val id = FavoriteId(
+            problemId = problem.id,
+            userId = user.id,
         )
 
-        if(favorite === null) {
+        return favoriteRepository.findById(id)?.let {
+            favoriteRepository.deleteById(id)
+            FavoriteResponse(false)
+        } ?: run {
             favoriteRepository.save(
                 Favorite(
-                    FavoriteId(
-                        user.id,
-                        problem.id
-                    ),
-                    problem,
-                    user
+                    id = id,
+                    problem = problem,
+                    user = user
                 )
             )
-            isFavorite = true
-        } else favoriteRepository.delete(favorite)
-
-        return favoriteResponse(
-            isFavorite
-        )
+            FavoriteResponse(true)
+        }
     }
 }

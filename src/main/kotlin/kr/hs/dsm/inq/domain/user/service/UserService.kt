@@ -2,6 +2,8 @@ package kr.hs.dsm.inq.domain.user.service
 
 import kr.hs.dsm.inq.common.dto.TokenResponse
 import kr.hs.dsm.inq.common.util.SecurityUtil
+import kr.hs.dsm.inq.domain.question.persistence.repository.QuestionsRepository
+import kr.hs.dsm.inq.domain.user.presentation.dto.GetMyQuestionResponse
 import kr.hs.dsm.inq.domain.user.exception.AttendanceNotFound
 import kr.hs.dsm.inq.domain.user.exception.PasswordMismatchException
 import kr.hs.dsm.inq.domain.user.exception.UserAlreadyExist
@@ -12,7 +14,6 @@ import kr.hs.dsm.inq.domain.user.presentation.dto.*
 import kr.hs.dsm.inq.global.security.token.JwtGenerator
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
-import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.transaction.Transactional
 import kr.hs.dsm.inq.domain.user.persistence.repository.UserRepository
@@ -22,7 +23,8 @@ class UserService(
     private val userRepository: UserRepository,
     private val passwordEncoder: PasswordEncoder,
     private val jwtGenerator: JwtGenerator,
-    private val attendanceRepository: AttendanceRepository
+    private val attendanceRepository: AttendanceRepository,
+    private val questionsRepository: QuestionsRepository
 ) {
 
     fun signIn(request: UserSignInRequest): TokenResponse {
@@ -89,5 +91,13 @@ class UserService(
             saturday = attendance.saturday,
             sunday = attendance.sunday
         )
+    }
+
+    fun getMyQuestion(page: Int): GetMyQuestionResponse {
+        val user = SecurityUtil.getCurrentUser()
+
+        val usersQuestions = questionsRepository.queryGetQuestionDtoById(user)
+
+        return GetMyQuestionResponse.of(usersQuestions)
     }
 }

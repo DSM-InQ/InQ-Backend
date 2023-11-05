@@ -5,7 +5,6 @@ import kr.hs.dsm.inq.common.util.PageUtil
 import kr.hs.dsm.inq.domain.question.persistence.*
 import kr.hs.dsm.inq.domain.question.persistence.dto.*
 import java.time.LocalDateTime
-import java.util.Date
 
 data class CreateQuestionResponses(
     val questionId: Long

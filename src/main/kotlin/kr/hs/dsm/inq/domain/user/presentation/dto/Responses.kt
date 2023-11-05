@@ -25,3 +25,15 @@ data class UserAttendanceResponse(
 
     val sunday: Boolean,
 )
+
+data class GetMyQuestionResponse(
+    val questionList: List<UserQuestionDto>
+) {
+    companion object {
+        fun of(questionList: List<UserQuestionDto>) = questionList.run{
+            GetMyQuestionResponse(
+                questionList = questionList.map { it }
+            )
+        }
+    }
+}

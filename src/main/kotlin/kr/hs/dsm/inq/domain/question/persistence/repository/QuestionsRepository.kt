@@ -10,12 +10,11 @@ import kr.hs.dsm.inq.domain.question.persistence.QQuestionTags.questionTags
 import kr.hs.dsm.inq.domain.question.persistence.QQuestions.questions
 import kr.hs.dsm.inq.domain.question.persistence.QTags.tags
 import kr.hs.dsm.inq.domain.question.persistence.Questions
-import kr.hs.dsm.inq.domain.question.persistence.dto.QQuestionDetailDto
-import kr.hs.dsm.inq.domain.question.persistence.dto.QQuestionDto
-import kr.hs.dsm.inq.domain.question.persistence.dto.QuestionDetailDto
-import kr.hs.dsm.inq.domain.question.persistence.dto.QuestionDto
+import kr.hs.dsm.inq.domain.question.persistence.dto.*
 import kr.hs.dsm.inq.domain.user.persistence.QUser
 import kr.hs.dsm.inq.domain.user.persistence.User
+import kr.hs.dsm.inq.domain.user.presentation.dto.QUserQuestionDto
+import kr.hs.dsm.inq.domain.user.presentation.dto.UserQuestionDto
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 
@@ -35,6 +34,8 @@ interface CustomQuestionRepository {
     fun queryQuestionDtoOrderByAnswerCount(user: User, page: Long): PageResponse<QuestionDto>
     fun queryQuestionDtoById(id: Long, user: User): QuestionDto?
     fun queryQuestionDetailDtoById(user: User, questionId: Long): QuestionDetailDto?
+
+    fun queryGetQuestionDtoById(user: User): List<UserQuestionDto>
 }
 
 @Repository
@@ -109,16 +110,6 @@ class CustomQuestionRepositoryImpl(
                         )
                     )
             )
-
-//        val questionId: Long,
-//        val question: String,
-//        val category: Category,
-//        val username: String,
-//        val job: String,
-//        val jobDuration: Int,
-//        tagList: List<Tags>?,
-//        val isAnswered: Boolean,
-//        val isFavorite: Boolean
     }
 
     override fun queryQuestionDetailDtoById(
@@ -155,6 +146,31 @@ class CustomQuestionRepositoryImpl(
                             /* tagList = */ GroupBy.list(tags),
                             /* isFavorite = */ questions.isNull,
                             /* createdAt = */ questions.createdAt
+                        )
+                    )
+            )
+    }
+
+    override fun queryGetQuestionDtoById(user: User): List<UserQuestionDto> {
+        return queryFactory
+            .selectFrom(questions)
+            .where(questions.author.eq(user))
+            .getUserQuestionListDto(user)
+    }
+
+    fun <T> JPAQuery<T>.getUserQuestionListDto(user: User): List<UserQuestionDto> = run {
+        return@run innerJoin(questionTags).on(questionTags.problems.eq(questions.problem))
+            .innerJoin(tags).on(tags.id.eq(questionTags.id.tagId))
+            .transform(
+                GroupBy.groupBy(questions)
+                    .list(
+                        QUserQuestionDto(
+                            /* questionId = */ questions.id,
+                            /* question = */ questions.question,
+                            /* createdAt = */ questions.createdAt,
+                            /* category = */ questions.category,
+                            /* tagList = */ GroupBy.list(tags),
+                            /* isAnswered = */ questions.isNull
                         )
                     )
             )

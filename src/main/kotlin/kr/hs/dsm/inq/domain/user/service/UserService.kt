@@ -95,8 +95,9 @@ class UserService(
     fun queryUserAnswered(request: GetUserAnsweredRequest): QuestionUserAnsweredResponse {
         val user = SecurityUtil.getCurrentUser()
 
-        val questionList = answersRepository.queryAnswerHistoryDtoByUserId(user.id, request.page)
+        val questionList = answersRepository.querySolvedQuestionDtoByUserId(user.id, request.page)
+        val questionSetList = answersRepository.querySolvedQuestionSetDtoByUserId(user.id, request.page)
 
-        return QuestionUserAnsweredResponse.of(pageResponse = questionList)
+        return QuestionUserAnsweredResponse.of(questionList, questionSetList)
     }
 }

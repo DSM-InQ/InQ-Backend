@@ -2,10 +2,12 @@ package kr.hs.dsm.inq.domain.question.persistence.dto
 
 import com.querydsl.core.annotations.QueryProjection
 import kr.hs.dsm.inq.domain.question.persistence.Category
+import kr.hs.dsm.inq.domain.question.persistence.ProblemType
 import kr.hs.dsm.inq.domain.question.persistence.Tags
 import java.time.LocalDateTime
 
-class QuestionUserAnsweredDto @QueryProjection constructor (
+class QuestionUserSolvedDto @QueryProjection constructor (
+    val problemType: ProblemType,
     val questionId: Long,
     val question: String,
     val category: Category,
@@ -14,8 +16,9 @@ class QuestionUserAnsweredDto @QueryProjection constructor (
     val jobDuration: Int,
     tagList: List<Tags>?,
     val isFavorite: Boolean,
-    val createdAt: LocalDateTime,
-    val answer: String
+    val solvedAt: LocalDateTime,
+    val answer: String,
+    val isAnswered: Boolean
 ) {
     val tagList = tagList ?: listOf()
 }

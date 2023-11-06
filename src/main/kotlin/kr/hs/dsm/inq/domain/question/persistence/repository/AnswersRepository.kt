@@ -1,7 +1,7 @@
 package kr.hs.dsm.inq.domain.question.persistence.repository
 
 import com.querydsl.core.group.GroupBy
-import com.querydsl.core.group.GroupBy.list
+import com.querydsl.core.group.GroupBy.*
 import com.querydsl.jpa.impl.JPAQuery
 import com.querydsl.jpa.impl.JPAQueryFactory
 import kr.hs.dsm.inq.common.util.PageResponse
@@ -10,13 +10,13 @@ import kr.hs.dsm.inq.domain.question.persistence.*
 import kr.hs.dsm.inq.domain.question.persistence.QAnswers.answers
 import kr.hs.dsm.inq.domain.question.persistence.QComments.comments
 import kr.hs.dsm.inq.domain.question.persistence.QPost.post
+import kr.hs.dsm.inq.domain.question.persistence.QProblem.problem
+import kr.hs.dsm.inq.domain.question.persistence.QQuestionSets.questionSets
+import kr.hs.dsm.inq.domain.question.persistence.QQuestionSolvingHistory.questionSolvingHistory
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionTags.questionTags
 import kr.hs.dsm.inq.domain.question.persistence.QQuestions.questions
 import kr.hs.dsm.inq.domain.question.persistence.QTags.tags
-import kr.hs.dsm.inq.domain.question.persistence.dto.AnswersDto
-import kr.hs.dsm.inq.domain.question.persistence.dto.QAnswersDto
-import kr.hs.dsm.inq.domain.question.persistence.dto.QQuestionUserAnsweredDto
-import kr.hs.dsm.inq.domain.question.persistence.dto.QuestionUserAnsweredDto
+import kr.hs.dsm.inq.domain.question.persistence.dto.*
 import kr.hs.dsm.inq.domain.user.persistence.QUser
 import kr.hs.dsm.inq.domain.user.persistence.QUser.user
 import org.springframework.data.repository.CrudRepository
@@ -29,7 +29,8 @@ interface AnswersRepository : CrudRepository<Answers, Long>, CustomAnswerReposit
 interface CustomAnswerRepository {
     fun queryAnswerByQuestionId(questionId: Long): List<AnswersDto>
     fun queryExemplaryAnswerDto(questionId: Long, authorId: Long): AnswersDto?
-    fun queryAnswerHistoryDtoByUserId(userId: Long, page: Long): PageResponse<QuestionUserAnsweredDto>
+    fun querySolvedQuestionDtoByUserId(userId: Long, page: Long): PageResponse<QuestionUserSolvedDto>
+    fun querySolvedQuestionSetDtoByUserId(userId: Long, page: Long): PageResponse<QuestionSetUserSolvedDto>
 }
 
 @Repository
@@ -80,20 +81,22 @@ class CustomAnswerRepositoryImpl(
             )
     }
 
-    override fun queryAnswerHistoryDtoByUserId(userId: Long, page: Long): PageResponse<QuestionUserAnsweredDto> {
+    override fun querySolvedQuestionDtoByUserId(userId: Long, page: Long): PageResponse<QuestionUserSolvedDto> {
         val writer = QUser("writer")
         val questionList = queryFactory
-            .selectFrom(answers)
-            .where(answers.writer.id.eq(userId))
-//            .innerJoin(user).on(user.id.eq(answers.writer.id))
-            .innerJoin(questions).on(questions.id.eq(answers.questions.id))
+            .selectFrom(questionSolvingHistory)
+            .where(questionSolvingHistory.userId.id.eq(userId))
+            .innerJoin(problem).on(problem.id.eq(questionSolvingHistory.problem.id))
+            .innerJoin(questions).on(questions.problem.id.eq(problem.id))
+            .innerJoin(answers).on(answers.questions.id.eq(questions.id))
             .innerJoin(questionTags).on(questionTags.problems.eq(questions.problem))
             .innerJoin(tags).on(tags.id.eq(questionTags.id.tagId))
             .innerJoin(writer).on(writer.id.eq(questions.author.id))
             .transform(
-                GroupBy.groupBy(questions)
+                groupBy(questions)
                     .list(
-                        QQuestionUserAnsweredDto(
+                        QQuestionUserSolvedDto(
+                            problem.type,
                             questions.id,
                             questions.question,
                             questions.category,
@@ -102,8 +105,9 @@ class CustomAnswerRepositoryImpl(
                             writer.jobDuration,
                             list(tags),
                             questions.isNull,
-                            questions.createdAt,
-                            answers.answer
+                            questionSolvingHistory.solvedAt,
+                            answers.answer,
+                            questions.isNotNull
                         )
                     )
             )
@@ -111,6 +115,28 @@ class CustomAnswerRepositoryImpl(
         return PageUtil.toPageResponse(
             page = page,
             list = questionList
+        )
+    }
+
+    override fun querySolvedQuestionSetDtoByUserId(userId: Long, page: Long): PageResponse<QuestionSetUserSolvedDto> {
+        val questionSetList = queryFactory
+            .selectFrom(questionSolvingHistory)
+            .where(questionSolvingHistory.userId.id.eq(userId))
+            .innerJoin(problem).on(problem.id.eq(questionSolvingHistory.problem.id))
+            .innerJoin(questionSets).on(questionSets.problem.id.eq(problem.id))
+            .transform(
+                groupBy(questionSets)
+                    .list(QQuestionSetUserSolvedDto(
+                        problem.type,
+                        questionSets.id,
+                        questionSets.name,
+                        questionSolvingHistory.solvedAt
+                    ))
+            )
+
+        return PageUtil.toPageResponse(
+            page = page,
+            list = questionSetList
         )
     }
 }

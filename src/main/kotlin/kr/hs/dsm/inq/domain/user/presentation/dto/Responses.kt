@@ -1,5 +1,6 @@
 package kr.hs.dsm.inq.domain.user.presentation.dto
 
+import kr.hs.dsm.inq.domain.user.persistence.dto.UserQuestionDto
 import java.time.LocalDate
 
 data class UserInfoResponse(

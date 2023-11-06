@@ -2,16 +2,11 @@ package kr.hs.dsm.inq.domain.user.presentation
 
 import javax.validation.Valid
 import kr.hs.dsm.inq.common.dto.TokenResponse
+import kr.hs.dsm.inq.domain.question.presentation.dto.UserQuestionResponse
 import kr.hs.dsm.inq.domain.user.presentation.dto.*
 import kr.hs.dsm.inq.domain.user.service.UserService
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.ResponseStatus
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RequestMapping("/user")
 @RestController
@@ -42,4 +37,8 @@ class UserController(
     fun queryUserAttendance(): UserAttendanceResponse =
         userService.queryUserAttendance()
 
+    @GetMapping("/question/{page}")
+    fun getMyQuestion(@PathVariable("page") page: Long): List<UserQuestionResponse> {
+        return userService.getMyQuestion(page)
+    }
 }

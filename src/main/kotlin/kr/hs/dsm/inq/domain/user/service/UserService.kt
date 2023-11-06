@@ -2,8 +2,9 @@ package kr.hs.dsm.inq.domain.user.service
 
 import kr.hs.dsm.inq.common.dto.TokenResponse
 import kr.hs.dsm.inq.common.util.SecurityUtil
+import kr.hs.dsm.inq.domain.question.persistence.dto.QuestionDetailDto
 import kr.hs.dsm.inq.domain.question.persistence.repository.QuestionsRepository
-import kr.hs.dsm.inq.domain.user.presentation.dto.GetMyQuestionResponse
+import kr.hs.dsm.inq.domain.question.presentation.dto.UserQuestionResponse
 import kr.hs.dsm.inq.domain.user.exception.AttendanceNotFound
 import kr.hs.dsm.inq.domain.user.exception.PasswordMismatchException
 import kr.hs.dsm.inq.domain.user.exception.UserAlreadyExist
@@ -93,11 +94,28 @@ class UserService(
         )
     }
 
-    fun getMyQuestion(page: Int): GetMyQuestionResponse {
+    fun getMyQuestion(page: Long): List<UserQuestionResponse> {
         val user = SecurityUtil.getCurrentUser()
 
-        val usersQuestions = questionsRepository.queryGetQuestionDtoById(user)
+        val usersQuestions = questionsRepository.queryQuestionDtoByWriterId(page, user)
 
-        return GetMyQuestionResponse.of(usersQuestions)
+        return usersQuestions.list.map {
+            UserQuestionResponse.of(
+                questionDetail = QuestionDetailDto(
+                    questionId = it.questionId,
+                    authorId = it.authorId,
+                    username = it.username,
+                    job = it.job,
+                    jobDuration = it.jobDuration,
+                    question = it.question,
+                    category = it.category,
+                    tagList = it.tagList,
+                    isFavorite = it.isFavorite,
+                    createdAt = it.createdAt
+                ),
+                exemplaryAnswer = it.exemplaryAnswer
+            )
+        }
+
     }
 }

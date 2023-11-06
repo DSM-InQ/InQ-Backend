@@ -2,7 +2,7 @@ package kr.hs.dsm.inq.domain.user.presentation
 
 import javax.validation.Valid
 import kr.hs.dsm.inq.common.dto.TokenResponse
-import kr.hs.dsm.inq.domain.user.presentation.dto.GetMyQuestionResponse
+import kr.hs.dsm.inq.domain.question.presentation.dto.UserQuestionResponse
 import kr.hs.dsm.inq.domain.user.presentation.dto.*
 import kr.hs.dsm.inq.domain.user.service.UserService
 import org.springframework.http.HttpStatus
@@ -38,7 +38,7 @@ class UserController(
         userService.queryUserAttendance()
 
     @GetMapping("/question/{page}")
-    fun getMyQuestion(@PathVariable("page") page: Int): GetMyQuestionResponse {
+    fun getMyQuestion(@PathVariable("page") page: Long): List<UserQuestionResponse> {
         return userService.getMyQuestion(page)
     }
 }

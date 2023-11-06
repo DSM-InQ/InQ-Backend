@@ -116,6 +116,40 @@ data class QuestionDetailResponse(
                 createdAt = createdAt
             )
         }
+
+
+    }
+}
+
+data class UserQuestionResponse(
+    val questionId: Long,
+    val authorId: Long,
+    val username: String,
+    val job: String,
+    val jobDuration: Int,
+    val question: String,
+    val category: Category,
+    val tags: List<String>,
+    val isFavorite: Boolean,
+    val exemplaryAnswer: String,
+    val createdAt: LocalDateTime
+) {
+    companion object {
+        fun of(questionDetail: QuestionDetailDto, exemplaryAnswer: String) = questionDetail.run {
+            UserQuestionResponse(
+                questionId = questionId,
+                authorId = authorId,
+                username = username,
+                job = job,
+                jobDuration = jobDuration,
+                question = question,
+                category = category,
+                tags = tagList.map { it.tag },
+                isFavorite = isFavorite,
+                exemplaryAnswer = exemplaryAnswer,
+                createdAt = createdAt
+            )
+        }
     }
 }
 

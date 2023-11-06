@@ -138,7 +138,7 @@ class QuestionService(
 
     fun getTodayQuestion(): QuestionResponse {
         val user = SecurityUtil.getCurrentUser()
-        val todayQuestion = questionsRepository.queryQuestionDtoById(1L, user) ?: throw QuestionNotFoundException
+        val todayQuestion = questionsRepository.queryQuestionDto(user = user).get(0)
         return QuestionResponse.of(todayQuestion)
     }
 

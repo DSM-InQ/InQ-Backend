@@ -142,6 +142,16 @@ class QuestionService(
         return QuestionResponse.of(todayQuestion)
     }
 
+    fun getRandomQuestion(category: Category?): QuestionResponse {
+        val user = SecurityUtil.getCurrentUser()
+        val random = questionsRepository.queryQuestionDtoOrderByLike(
+            user = user,
+            page = 0,
+            category = category
+        ).list.random()
+        return QuestionResponse.of(random)
+    }
+
     fun getPopularQuestion(): QuestionListResponse {
 
         val user = SecurityUtil.getCurrentUser()

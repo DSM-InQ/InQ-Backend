@@ -42,6 +42,13 @@ class QuestionController(
         return questionService.getTodayQuestion()
     }
 
+    @GetMapping("/random")
+    fun getRandomQuestion(@Valid @ModelAttribute request: GetRandomQuestionRequest): QuestionResponse {
+        return questionService.getRandomQuestion(
+            category = request.category
+        )
+    }
+
     @GetMapping("/popular")
     fun getPopularQuestion(): QuestionListResponse {
         return questionService.getPopularQuestion()

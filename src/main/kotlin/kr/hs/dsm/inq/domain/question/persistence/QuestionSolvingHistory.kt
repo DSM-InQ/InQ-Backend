@@ -14,7 +14,7 @@ class QuestionSolvingHistory(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", columnDefinition = "BIGINT", nullable = false)
-    var userId: User,
+    var user: User,
 
     @Column(columnDefinition = "DATETIME(6)", nullable = false)
     var solvedAt: LocalDateTime = LocalDateTime.now(),

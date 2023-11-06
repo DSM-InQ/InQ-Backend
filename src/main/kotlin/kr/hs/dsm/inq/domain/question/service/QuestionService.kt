@@ -207,9 +207,7 @@ class QuestionService(
     fun answerQuestion(questionId: Long, request: AnswerRequest) {
 
         val user = SecurityUtil.getCurrentUser()
-
         val questions = questionsRepository.findByIdOrNull(questionId) ?: throw QuestionNotFoundException
-        
         val post = postRepository.save(Post())
 
         answersRepository.save(
@@ -228,7 +226,7 @@ class QuestionService(
 
         questionSolvingHistoryRepository.save(
             QuestionSolvingHistory(
-                userId = user,
+                user = user,
                 problem = questions.problem
             )
         )
@@ -425,7 +423,7 @@ class QuestionService(
 
         questionSolvingHistoryRepository.save(
             QuestionSolvingHistory(
-                userId = user,
+                user = user,
                 problem = questionSet.problem
             )
         )

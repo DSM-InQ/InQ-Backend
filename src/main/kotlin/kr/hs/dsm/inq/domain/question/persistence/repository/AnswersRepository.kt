@@ -85,7 +85,7 @@ class CustomAnswerRepositoryImpl(
         val writer = QUser("writer")
         val questionList = queryFactory
             .selectFrom(questionSolvingHistory)
-            .where(questionSolvingHistory.userId.id.eq(userId))
+            .where(questionSolvingHistory.user.id.eq(userId))
             .innerJoin(problem).on(problem.id.eq(questionSolvingHistory.problem.id))
             .innerJoin(questions).on(questions.problem.id.eq(problem.id))
             .innerJoin(answers).on(answers.questions.id.eq(questions.id))
@@ -121,7 +121,7 @@ class CustomAnswerRepositoryImpl(
     override fun querySolvedQuestionSetDtoByUserId(userId: Long, page: Long): PageResponse<QuestionSetUserSolvedDto> {
         val questionSetList = queryFactory
             .selectFrom(questionSolvingHistory)
-            .where(questionSolvingHistory.userId.id.eq(userId))
+            .where(questionSolvingHistory.user.id.eq(userId))
             .innerJoin(problem).on(problem.id.eq(questionSolvingHistory.problem.id))
             .innerJoin(questionSets).on(questionSets.problem.id.eq(problem.id))
             .transform(

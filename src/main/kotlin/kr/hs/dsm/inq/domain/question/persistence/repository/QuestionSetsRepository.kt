@@ -1,10 +1,6 @@
 package kr.hs.dsm.inq.domain.question.persistence.repository
 
-import com.querydsl.core.ResultTransformer
 import com.querydsl.core.group.GroupBy
-import com.querydsl.core.types.Expression
-import com.querydsl.core.types.Ops
-import com.querydsl.core.types.dsl.Expressions
 import com.querydsl.jpa.impl.JPAQuery
 import com.querydsl.jpa.impl.JPAQueryFactory
 import kr.hs.dsm.inq.common.util.PageResponse
@@ -15,7 +11,6 @@ import kr.hs.dsm.inq.domain.question.persistence.QPost.post
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionSets.questionSets
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionSolvingHistory.questionSolvingHistory
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionTags.questionTags
-import kr.hs.dsm.inq.domain.question.persistence.QQuestions.questions
 import kr.hs.dsm.inq.domain.question.persistence.QTags.tags
 import kr.hs.dsm.inq.domain.question.persistence.dto.*
 import kr.hs.dsm.inq.domain.user.persistence.QUser
@@ -40,6 +35,8 @@ interface CustomQuestionSetsRepository {
         user: User,
         id: Long
     ): QuestionSetDetailDto?
+
+    fun queryQuestionSetDtoByProblemIdIn(user: User, problemIds: List<Long>): PageResponse<QuestionSetDto>
 }
 
 @Repository
@@ -86,6 +83,21 @@ class CustomQuestionSetsRepositoryImpl(
             .getQuestionSetDetailDto(user)
 
         return if (questionSetDetailResponse.isEmpty()) null else questionSetDetailResponse[0]
+    }
+
+    override fun queryQuestionSetDtoByProblemIdIn(user: User, problemIds: List<Long>): PageResponse<QuestionSetDto> {
+        val questionSetList = queryFactory
+            .selectFrom(questionSets)
+            .where(
+                questionSets.problem.id.`in`(problemIds)
+            )
+            .orderBy(questionSets.post.likeCount.asc())
+            .getQuestionSetDto(user)
+
+        return PageUtil.toPageResponse(
+            page = 0,
+            list = questionSetList
+        )
     }
 
     private fun <T> JPAQuery<T>.getQuestionSetDto(user: User): MutableList<QuestionSetDto> {

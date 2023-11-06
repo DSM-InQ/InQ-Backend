@@ -189,13 +189,13 @@ data class RegisterQuestionSetsResponse(
     val isFavorite: Boolean
 )
 
-data class QuestionSetResponse(
+data class QuestionSetListResponse(
     val hasNext: Boolean,
     val questionSetsList: List<QuestionSetsResponse>,
 ) {
     companion object {
         fun of(pageResponse: PageResponse<QuestionSetDto>) = pageResponse.run {
-            QuestionSetResponse(
+            QuestionSetListResponse(
                 hasNext = hasNext,
                 questionSetsList = list.map { QuestionSetsResponse.of(it) }
             )
@@ -209,7 +209,7 @@ data class QuestionSetRankResponse(
 ) {
     companion object {
         fun of(page: Long, pageResponse: PageResponse<QuestionSetDto>) = pageResponse.run {
-            QuestionSetResponse(
+            QuestionSetListResponse(
                 hasNext = hasNext,
                 questionSetsList = list.mapIndexed { idx, it ->
                     QuestionSetsResponse.of(it, PageUtil.getOffset(page) + idx + 1)

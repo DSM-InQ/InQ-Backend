@@ -6,6 +6,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory
 import kr.hs.dsm.inq.common.util.PageResponse
 import kr.hs.dsm.inq.common.util.PageUtil
 import kr.hs.dsm.inq.domain.question.persistence.Category
+import kr.hs.dsm.inq.domain.question.persistence.QQuestionSets
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionTags.questionTags
 import kr.hs.dsm.inq.domain.question.persistence.QQuestions.questions
 import kr.hs.dsm.inq.domain.question.persistence.QTags.tags
@@ -36,6 +37,7 @@ interface CustomQuestionRepository {
     fun queryQuestionDtoById(id: Long, user: User): QuestionDto?
     fun queryQuestionDetailDtoById(user: User, questionId: Long): QuestionDetailDto?
     fun queryQuestionDto(user: User): List<QuestionDto>
+    fun queryQuestionDtoByProblemIdIn(user: User, problemIds: List<Long>): PageResponse<QuestionDto>
 }
 
 @Repository
@@ -73,6 +75,20 @@ class CustomQuestionRepositoryImpl(
             .selectFrom(questions)
             .orderBy(questions.likeCount.asc())
             .getQuestionDto(user)
+    }
+
+    override fun queryQuestionDtoByProblemIdIn(user: User, problemIds: List<Long>): PageResponse<QuestionDto> {
+        val questionList = queryFactory
+            .selectFrom(QQuestionSets.questionSets)
+            .where(
+                questions.problem.id.`in`(problemIds)
+            )
+            .getQuestionDto(user)
+
+        return PageUtil.toPageResponse(
+            page = 0,
+            list = questionList
+        )
     }
 
     override fun queryQuestionDtoOrderByAnswerCount(user: User, page: Long): PageResponse<QuestionDto> {

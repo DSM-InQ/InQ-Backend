@@ -153,23 +153,38 @@ class QuestionService(
     }
 
     fun getPopularQuestion(): QuestionListResponse {
-
         val user = SecurityUtil.getCurrentUser()
         val questionList = questionsRepository.queryQuestionDtoOrderByAnswerCount(
             user = user,
             page = 1L
         )
-
         return QuestionListResponse.of(questionList)
     }
 
-    fun getPopularQuestionSet(): QuestionSetResponse {
+    fun getPopularQuestionSet(): QuestionSetListResponse {
         val user = SecurityUtil.getCurrentUser()
         val questionSetList = questionSetsRepository.queryQuestionSetDtoOrderByLike(
             user = user,
             page = 1L
         )
-        return QuestionSetResponse.of(questionSetList)
+        return QuestionSetListResponse.of(questionSetList)
+    }
+
+    fun getFavoriteQuestion(): QuestionListResponse {
+        val user = SecurityUtil.getCurrentUser()
+        val problems = problemRepository.queryFavoriteProblemSet(user.id)
+        val questionList = questionsRepository.queryQuestionDtoByProblemIdIn(user, problems.map { it.id })
+        return QuestionListResponse.of(questionList)
+    }
+
+    fun getFavoriteQuestionSet(): QuestionSetListResponse {
+        val user = SecurityUtil.getCurrentUser()
+        val problems = problemRepository.queryFavoriteProblem(user.id)
+        val questionSetList = questionSetsRepository.queryQuestionSetDtoByProblemIdIn(
+            user = user,
+            problemIds = problems.map { it.id }
+        )
+       return QuestionSetListResponse.of(questionSetList)
     }
 
     fun getQuestionDetail(questionId: Long): QuestionDetailResponse {
@@ -395,7 +410,7 @@ class QuestionService(
         )
     }
 
-    fun getQuestionSet(request: GetQuestionSetsRequest): QuestionSetResponse {
+    fun getQuestionSet(request: GetQuestionSetsRequest): QuestionSetListResponse {
         val user = SecurityUtil.getCurrentUser()
 
         val questionSetList = request.run{
@@ -408,7 +423,7 @@ class QuestionService(
             )
         }
 
-        return QuestionSetResponse.of(questionSetList)
+        return QuestionSetListResponse.of(questionSetList)
     }
 
     fun getQuestionSetDetail(questionSetId: Long): GetQuestionSetDetailResponse {
@@ -481,7 +496,7 @@ class QuestionService(
         )
     }
 
-    fun getQuestionSetRank(request: GetQuestionSetRankRequest): QuestionSetResponse {
+    fun getQuestionSetRank(request: GetQuestionSetRankRequest): QuestionSetListResponse {
         val user = SecurityUtil.getCurrentUser()
 
         val questionSetList = questionSetsRepository.queryQuestionSetDtoOrderByLike(

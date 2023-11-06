@@ -54,9 +54,19 @@ class QuestionController(
         return questionService.getPopularQuestion()
     }
 
-    @GetMapping("/popular/set")
-    fun getPopularQuestionSet(): QuestionSetResponse {
+    @GetMapping("/set/popular")
+    fun getPopularQuestionSet(): QuestionSetListResponse {
         return questionService.getPopularQuestionSet()
+    }
+
+    @GetMapping("/favorite")
+    fun getFavoriteQuestion(): QuestionListResponse {
+        return questionService.getFavoriteQuestion()
+    }
+
+    @GetMapping("/favorite/set")
+    fun getFavoriteQuestionSet(): QuestionSetListResponse {
+        return questionService.getFavoriteQuestionSet()
     }
 
     @GetMapping("/{question-id}")
@@ -104,7 +114,7 @@ class QuestionController(
     }
 
     @GetMapping("/set")
-    fun getQuestionSets(@Valid @ModelAttribute request: GetQuestionSetsRequest): QuestionSetResponse{
+    fun getQuestionSets(@Valid @ModelAttribute request: GetQuestionSetsRequest): QuestionSetListResponse{
         return questionService.getQuestionSet(request)
     }
 
@@ -140,7 +150,7 @@ class QuestionController(
     }
 
     @GetMapping("/set/rank")
-    fun getQuestionSetRank(@Valid @ModelAttribute request: GetQuestionSetRankRequest): QuestionSetResponse {
+    fun getQuestionSetRank(@Valid @ModelAttribute request: GetQuestionSetRankRequest): QuestionSetListResponse {
         return questionService.getQuestionSetRank(request)
     }
 

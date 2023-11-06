@@ -138,8 +138,18 @@ class QuestionService(
 
     fun getTodayQuestion(): QuestionResponse {
         val user = SecurityUtil.getCurrentUser()
-        val todayQuestion = questionsRepository.queryQuestionDtoById(1L, user) ?: throw QuestionNotFoundException
+        val todayQuestion = questionsRepository.queryQuestionDto(user = user).get(0)
         return QuestionResponse.of(todayQuestion)
+    }
+
+    fun getRandomQuestion(category: Category?): QuestionResponse {
+        val user = SecurityUtil.getCurrentUser()
+        val random = questionsRepository.queryQuestionDtoOrderByLike(
+            user = user,
+            page = 0,
+            category = category
+        ).list.random()
+        return QuestionResponse.of(random)
     }
 
     fun getPopularQuestion(): QuestionListResponse {
@@ -151,6 +161,15 @@ class QuestionService(
         )
 
         return QuestionListResponse.of(questionList)
+    }
+
+    fun getPopularQuestionSet(): QuestionSetResponse {
+        val user = SecurityUtil.getCurrentUser()
+        val questionSetList = questionSetsRepository.queryQuestionSetDtoOrderByLike(
+            user = user,
+            page = 1L
+        )
+        return QuestionSetResponse.of(questionSetList)
     }
 
     fun getQuestionDetail(questionId: Long): QuestionDetailResponse {
@@ -198,9 +217,7 @@ class QuestionService(
     fun answerQuestion(questionId: Long, request: AnswerRequest) {
 
         val user = SecurityUtil.getCurrentUser()
-
         val questions = questionsRepository.findByIdOrNull(questionId) ?: throw QuestionNotFoundException
-        
         val post = postRepository.save(Post())
 
         answersRepository.save(
@@ -219,7 +236,7 @@ class QuestionService(
 
         questionSolvingHistoryRepository.save(
             QuestionSolvingHistory(
-                userId = user,
+                user = user,
                 problem = questions.problem
             )
         )
@@ -378,7 +395,7 @@ class QuestionService(
         )
     }
 
-    fun getQuestionSet(request: GetQuestionSetsRequest): GetQuestionSetResponse {
+    fun getQuestionSet(request: GetQuestionSetsRequest): QuestionSetResponse {
         val user = SecurityUtil.getCurrentUser()
 
         val questionSetList = request.run{
@@ -391,7 +408,7 @@ class QuestionService(
             )
         }
 
-        return GetQuestionSetResponse.of(questionSetList)
+        return QuestionSetResponse.of(questionSetList)
     }
 
     fun getQuestionSetDetail(questionSetId: Long): GetQuestionSetDetailResponse {
@@ -416,7 +433,7 @@ class QuestionService(
 
         questionSolvingHistoryRepository.save(
             QuestionSolvingHistory(
-                userId = user,
+                user = user,
                 problem = questionSet.problem
             )
         )
@@ -464,7 +481,7 @@ class QuestionService(
         )
     }
 
-    fun getQuestionSetRank(request: GetQuestionSetRankRequest): GetQuestionSetResponse {
+    fun getQuestionSetRank(request: GetQuestionSetRankRequest): QuestionSetResponse {
         val user = SecurityUtil.getCurrentUser()
 
         val questionSetList = questionSetsRepository.queryQuestionSetDtoOrderByLike(

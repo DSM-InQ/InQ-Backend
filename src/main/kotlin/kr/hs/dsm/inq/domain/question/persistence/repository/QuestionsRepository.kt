@@ -35,7 +35,6 @@ interface CustomQuestionRepository {
     fun queryQuestionDtoOrderByAnswerCount(user: User, page: Long): PageResponse<QuestionDto>
     fun queryQuestionDtoById(id: Long, user: User): QuestionDto?
     fun queryQuestionDetailDtoById(user: User, questionId: Long): QuestionDetailDto?
-
     fun queryQuestionDtoByWriterId(page: Long, user: User): PageResponse<UserQuestionDto>
 }
 
@@ -65,6 +64,15 @@ class CustomQuestionRepositoryImpl(
             page = page,
             list = questionList.filter { it.tagList.map { it.tag }.containsAll(tagList) }
         )
+    }
+
+    override fun queryQuestionDto(
+        user: User,
+    ): List<QuestionDto> {
+        return queryFactory
+            .selectFrom(questions)
+            .orderBy(questions.likeCount.asc())
+            .getQuestionDto(user)
     }
 
     override fun queryQuestionDtoOrderByAnswerCount(user: User, page: Long): PageResponse<QuestionDto> {

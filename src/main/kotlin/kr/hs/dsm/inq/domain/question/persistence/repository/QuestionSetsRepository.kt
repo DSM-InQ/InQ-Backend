@@ -93,7 +93,7 @@ class CustomQuestionSetsRepositoryImpl(
         return leftJoin(questionTags).on(questionTags.problems.eq(questionSets.problem))
             .leftJoin(tags).on(tags.id.eq(questionTags.id.tagId))
             .leftJoin(questionSolvingHistory)
-                .on(questionSolvingHistory.userId.id.eq(user.id)).on(questionSolvingHistory.problem.eq(questionSets.problem))
+                .on(questionSolvingHistory.user.id.eq(user.id)).on(questionSolvingHistory.problem.eq(questionSets.problem))
             .innerJoin(author).on(author.id.eq(questionSets.author.id))
             .innerJoin(post).on(post.id.eq(questionSets.post.id))
 //            .rightJoin(favorite).on(favorite.questions.id.eq(questions.id))

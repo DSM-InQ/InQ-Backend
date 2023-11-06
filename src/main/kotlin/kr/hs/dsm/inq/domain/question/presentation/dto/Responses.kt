@@ -223,15 +223,15 @@ data class RegisterQuestionSetsResponse(
     val isFavorite: Boolean
 )
 
-data class GetQuestionSetResponse(
+data class QuestionSetResponse(
     val hasNext: Boolean,
-    val questionSetsList: List<QuestionSet>,
+    val questionSetsList: List<QuestionSetsResponse>,
 ) {
     companion object {
         fun of(pageResponse: PageResponse<QuestionSetDto>) = pageResponse.run {
-            GetQuestionSetResponse(
+            QuestionSetResponse(
                 hasNext = hasNext,
-                questionSetsList = list.map { QuestionSet.of(it) }
+                questionSetsList = list.map { QuestionSetsResponse.of(it) }
             )
         }
     }
@@ -239,21 +239,21 @@ data class GetQuestionSetResponse(
 
 data class QuestionSetRankResponse(
     val hasNext: Boolean,
-    val questionSetsList: List<QuestionSet>
+    val questionSetsList: List<QuestionSetsResponse>
 ) {
     companion object {
         fun of(page: Long, pageResponse: PageResponse<QuestionSetDto>) = pageResponse.run {
-            GetQuestionSetResponse(
+            QuestionSetResponse(
                 hasNext = hasNext,
                 questionSetsList = list.mapIndexed { idx, it ->
-                    QuestionSet.of(it, PageUtil.getOffset(page) + idx + 1)
+                    QuestionSetsResponse.of(it, PageUtil.getOffset(page) + idx + 1)
                 }
             )
         }
     }
 }
 
-data class QuestionSet(
+data class QuestionSetsResponse(
     val questionSetId: Long?,
     val rank: Long? = null,
     val questionSetName: String?,
@@ -269,7 +269,7 @@ data class QuestionSet(
 ) {
     companion object {
         fun of(dto: QuestionSetDto) = dto.run {
-            QuestionSet(
+            QuestionSetsResponse(
                 questionSetId = questionSetId,
                 questionSetName = questionSetName,
                 createdAt = createdAt,
@@ -285,7 +285,7 @@ data class QuestionSet(
         }
 
         fun of(dto: QuestionSetDto, rank: Long) = dto.run {
-            QuestionSet(
+            QuestionSetsResponse(
                 questionSetId = questionSetId,
                 rank = rank,
                 questionSetName = questionSetName,

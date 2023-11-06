@@ -1,13 +1,11 @@
 package kr.hs.dsm.inq.domain.question.presentation
 
 import javax.validation.Valid
-import javax.websocket.server.PathParam
 import kr.hs.dsm.inq.domain.question.persistence.Category
 import kr.hs.dsm.inq.domain.question.persistence.DifficultyLevel
 import kr.hs.dsm.inq.domain.question.presentation.dto.*
 import kr.hs.dsm.inq.domain.question.service.QuestionService
 import org.springframework.http.HttpStatus
-import org.springframework.lang.Nullable
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
@@ -47,6 +45,11 @@ class QuestionController(
     @GetMapping("/popular")
     fun getPopularQuestion(): QuestionListResponse {
         return questionService.getPopularQuestion()
+    }
+
+    @GetMapping("/popular/set")
+    fun getPopularQuestionSet(): QuestionSetResponse {
+        return questionService.getPopularQuestionSet()
     }
 
     @GetMapping("/{question-id}")
@@ -94,7 +97,7 @@ class QuestionController(
     }
 
     @GetMapping("/set")
-    fun getQuestionSets(@Valid @ModelAttribute request: GetQuestionSetsRequest): GetQuestionSetResponse{
+    fun getQuestionSets(@Valid @ModelAttribute request: GetQuestionSetsRequest): QuestionSetResponse{
         return questionService.getQuestionSet(request)
     }
 
@@ -130,7 +133,7 @@ class QuestionController(
     }
 
     @GetMapping("/set/rank")
-    fun getQuestionSetRank(@Valid @ModelAttribute request: GetQuestionSetRankRequest): GetQuestionSetResponse {
+    fun getQuestionSetRank(@Valid @ModelAttribute request: GetQuestionSetRankRequest): QuestionSetResponse {
         return questionService.getQuestionSetRank(request)
     }
 

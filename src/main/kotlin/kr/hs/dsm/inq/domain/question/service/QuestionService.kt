@@ -153,6 +153,15 @@ class QuestionService(
         return QuestionListResponse.of(questionList)
     }
 
+    fun getPopularQuestionSet(): QuestionSetResponse {
+        val user = SecurityUtil.getCurrentUser()
+        val questionSetList = questionSetsRepository.queryQuestionSetDtoOrderByLike(
+            user = user,
+            page = 1L
+        )
+        return QuestionSetResponse.of(questionSetList)
+    }
+
     fun getQuestionDetail(questionId: Long): QuestionDetailResponse {
 
         val user = SecurityUtil.getCurrentUser()
@@ -378,7 +387,7 @@ class QuestionService(
         )
     }
 
-    fun getQuestionSet(request: GetQuestionSetsRequest): GetQuestionSetResponse {
+    fun getQuestionSet(request: GetQuestionSetsRequest): QuestionSetResponse {
         val user = SecurityUtil.getCurrentUser()
 
         val questionSetList = request.run{
@@ -391,7 +400,7 @@ class QuestionService(
             )
         }
 
-        return GetQuestionSetResponse.of(questionSetList)
+        return QuestionSetResponse.of(questionSetList)
     }
 
     fun getQuestionSetDetail(questionSetId: Long): GetQuestionSetDetailResponse {
@@ -464,7 +473,7 @@ class QuestionService(
         )
     }
 
-    fun getQuestionSetRank(request: GetQuestionSetRankRequest): GetQuestionSetResponse {
+    fun getQuestionSetRank(request: GetQuestionSetRankRequest): QuestionSetResponse {
         val user = SecurityUtil.getCurrentUser()
 
         val questionSetList = questionSetsRepository.queryQuestionSetDtoOrderByLike(

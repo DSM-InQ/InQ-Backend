@@ -15,6 +15,7 @@ import kr.hs.dsm.inq.domain.question.persistence.QQuestionSets.questionSets
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionSolvingHistory.questionSolvingHistory
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionTags.questionTags
 import kr.hs.dsm.inq.domain.question.persistence.QQuestions.questions
+import kr.hs.dsm.inq.domain.question.persistence.QSetQuestion.setQuestion
 import kr.hs.dsm.inq.domain.question.persistence.QTags.tags
 import kr.hs.dsm.inq.domain.question.persistence.dto.*
 import kr.hs.dsm.inq.domain.user.persistence.QUser
@@ -31,6 +32,7 @@ interface CustomAnswerRepository {
     fun queryExemplaryAnswerDto(questionId: Long, authorId: Long): AnswersDto?
     fun querySolvedQuestionDtoByUserId(userId: Long, page: Long): PageResponse<QuestionUserSolvedDto>
     fun querySolvedQuestionSetDtoByUserId(userId: Long, page: Long): PageResponse<QuestionSetUserSolvedDto>
+    fun queryQuestionDtoByQuestionSetId(userId: Long, questionSetId: Long): List<QuestionSetDetailsUserSolved>
 }
 
 @Repository
@@ -126,17 +128,53 @@ class CustomAnswerRepositoryImpl(
             .innerJoin(questionSets).on(questionSets.problem.id.eq(problem.id))
             .transform(
                 groupBy(questionSets)
-                    .list(QQuestionSetUserSolvedDto(
-                        problem.type,
-                        questionSets.id,
-                        questionSets.name,
-                        questionSolvingHistory.solvedAt
-                    ))
+                    .list(
+                        QQuestionSetUserSolvedDto(
+                            problem.type,
+                            questionSets.id,
+                            questionSets.name,
+                            questionSolvingHistory.solvedAt
+                        )
+                    )
             )
 
         return PageUtil.toPageResponse(
             page = page,
             list = questionSetList
         )
+    }
+
+    override fun queryQuestionDtoByQuestionSetId(userId: Long, questionSetId: Long): List<QuestionSetDetailsUserSolved> {
+        val writer = QUser("writer")
+        return queryFactory
+            .selectFrom(setQuestion)
+            .where(setQuestion.set.id.eq(questionSetId))
+            .innerJoin(questions).on(setQuestion.question.id.eq(questions.id))
+            .innerJoin(problem).on(problem.id.eq(questions.problem.id))
+            .innerJoin(questionTags).on(questionTags.problems.eq(questions.problem))
+            .innerJoin(tags).on(tags.id.eq(questionTags.id.tagId))
+            .innerJoin(writer).on(writer.id.eq(questions.author.id))
+            .innerJoin(questionSolvingHistory).on(questionSolvingHistory.problem.id.eq(questions.problem.id))
+            .innerJoin(answers).on(answers.questions.id.eq(questions.id))
+            .transform(
+                groupBy(questions)
+                    .list(
+                        QQuestionSetDetailsUserSolved(
+                            problem.type,
+                            setQuestion.set.id,
+                            questions.id,
+                            questions.question,
+                            questions.category,
+                            writer.username,
+                            writer.job,
+                            writer.jobDuration,
+                            list(tags),
+                            questions.isNull,
+                            questionSolvingHistory.solvedAt,
+                            answers.answer,
+                            questions.isNotNull
+                        )
+                    )
+            )
     }
 }

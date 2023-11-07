@@ -3,6 +3,7 @@ package kr.hs.dsm.inq.domain.user.presentation.dto
 import kr.hs.dsm.inq.common.util.PageResponse
 import kr.hs.dsm.inq.domain.question.persistence.Category
 import kr.hs.dsm.inq.domain.question.persistence.ProblemType
+import kr.hs.dsm.inq.domain.question.persistence.dto.QuestionSetDetailsUserSolved
 import kr.hs.dsm.inq.domain.question.persistence.dto.QuestionSetUserSolvedDto
 import kr.hs.dsm.inq.domain.question.persistence.dto.QuestionUserSolvedDto
 import java.time.LocalDate
@@ -32,22 +33,27 @@ data class UserAttendanceResponse(
     val sunday: Boolean,
 )
 
+sealed class SolvedQuestion
+
 data class QuestionUserAnsweredResponse(
     val hasNext: Boolean,
-    val solvedQuestionList: List<QuestionAnswered>,
-    val solvedQuestionSetList: List<QuestionSetAnswered>
+    val solvedQuestionList: List<SolvedQuestion>
 ) {
     companion object {
         fun of(
             questionPageResponse: PageResponse<QuestionUserSolvedDto>,
-            questionSetPageResponse: PageResponse<QuestionSetUserSolvedDto>
+            questionSetPageResponse: PageResponse<QuestionSetUserSolvedDto>,
+            questionSetDetailsList: List<QuestionSetDetailsUserSolved>
         ) =
             QuestionUserAnsweredResponse(
                 hasNext = questionPageResponse.hasNext && questionSetPageResponse.hasNext,
-                solvedQuestionList = questionPageResponse.list.map { QuestionAnswered.of(it) },
-                solvedQuestionSetList = questionSetPageResponse.list.map { QuestionSetAnswered.of(it) }
+                solvedQuestionList = questionPageResponse.list.map { QuestionAnswered.of(it) } + questionSetPageResponse.list.map {
+                    QuestionSetAnswered.of(
+                        it,
+                        questionSetDetailsList
+                    )
+                }
             )
-
     }
 }
 
@@ -56,15 +62,11 @@ data class QuestionAnswered(
     val questionId: Long,
     val question: String,
     val category: Category,
-    val username: String,
-    val job: String,
-    val jobDuration: Int,
     val tags: List<String>?,
-    val isFavorite: Boolean,
     val solvedAt: LocalDateTime,
     val answer: String,
     val isAnswered: Boolean
-) {
+) : SolvedQuestion() {
     companion object {
         fun of(dto: QuestionUserSolvedDto) = dto.run {
             QuestionAnswered(
@@ -72,11 +74,20 @@ data class QuestionAnswered(
                 questionId = questionId,
                 question = question,
                 category = category,
-                username = username,
-                job = job,
-                jobDuration = jobDuration,
                 tags = tagList.map { it.tag },
-                isFavorite = isFavorite,
+                solvedAt = solvedAt,
+                answer = answer,
+                isAnswered = isAnswered
+            )
+        }
+
+        fun of(dto: QuestionSetDetailsUserSolved) = dto.run {
+            QuestionAnswered(
+                type = problemType,
+                questionId = questionId,
+                question = question,
+                category = category,
+                tags = tagList.map { it.tag },
                 solvedAt = solvedAt,
                 answer = answer,
                 isAnswered = isAnswered
@@ -89,15 +100,18 @@ data class QuestionSetAnswered(
     val type: ProblemType,
     val questionSetId: Long,
     val questionSetName: String,
-    val solvedAt: LocalDateTime
-) {
+    val solvedAt: LocalDateTime,
+    val questionList: List<QuestionAnswered>
+) : SolvedQuestion() {
     companion object {
-        fun of(dto: QuestionSetUserSolvedDto) = dto.run {
+        fun of(dto: QuestionSetUserSolvedDto, questionSetDetailsList: List<QuestionSetDetailsUserSolved>) = dto.run {
             QuestionSetAnswered(
                 type = problemType,
                 questionSetId = questionSetId,
                 questionSetName = questionSetName,
-                solvedAt = solvedAt
+                solvedAt = solvedAt,
+                questionList = questionSetDetailsList.filter { it.questionSetId == this.questionSetId }
+                    .map { QuestionAnswered.of(it) }
             )
         }
     }

@@ -97,7 +97,8 @@ class UserService(
 
         val questionList = answersRepository.querySolvedQuestionDtoByUserId(user.id, request.page)
         val questionSetList = answersRepository.querySolvedQuestionSetDtoByUserId(user.id, request.page)
+        val questionSetDetailsList = questionSetList.list.flatMap { answersRepository.queryQuestionDtoByQuestionSetId(user.id, it.questionSetId) }
 
-        return QuestionUserAnsweredResponse.of(questionList, questionSetList)
+        return QuestionUserAnsweredResponse.of(questionList, questionSetList, questionSetDetailsList)
     }
 }

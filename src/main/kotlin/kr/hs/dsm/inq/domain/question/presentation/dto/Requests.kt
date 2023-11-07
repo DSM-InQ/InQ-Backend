@@ -73,3 +73,7 @@ data class CreateCommentRequest(
 data class GetQuestionSetRankRequest(
     val page: Long
 )
+
+data class GetOthersAnswerRequest(
+    val page: Long
+)

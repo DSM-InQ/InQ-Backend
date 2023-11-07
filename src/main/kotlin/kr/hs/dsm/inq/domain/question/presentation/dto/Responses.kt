@@ -364,3 +364,17 @@ data class DifficultyResponse(
 data class FavoriteResponse(
     val isFavorite: Boolean
 )
+
+data class OthersAnswerResponse(
+    val hasNext: Boolean,
+    val answerList: List<AnswerResponse>
+) {
+    companion object {
+        fun of(pageResponse: PageResponse<AnswersDto>) = pageResponse.run {
+            OthersAnswerResponse(
+                hasNext = hasNext,
+                answerList = list.map { AnswerResponse.of(it) }
+            )
+        }
+    }
+}

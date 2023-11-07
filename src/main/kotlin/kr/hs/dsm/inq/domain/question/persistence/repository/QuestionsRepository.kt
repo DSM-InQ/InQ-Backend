@@ -152,8 +152,8 @@ class CustomQuestionRepositoryImpl(
 
         val author = QUser("writer")
 
-        return@run innerJoin(questionTags).on(questionTags.problems.eq(questions.problem))
-            .innerJoin(tags).on(tags.id.eq(questionTags.id.tagId))
+        return@run rightJoin(questionTags).on(questionTags.problems.eq(questions.problem))
+            .rightJoin(tags).on(tags.id.eq(questionTags.id.tagId))
 //            .rightJoin(favorite).on(favorite.questions.id.eq(questions.id))
 //            .rightJoin(answers).on(answers.writer.eq(user).and(answers.questions.eq(questions)))
             .rightJoin(author).on(author.eq(questions.author))

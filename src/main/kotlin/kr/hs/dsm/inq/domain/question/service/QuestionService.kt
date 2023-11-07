@@ -1,5 +1,6 @@
 package kr.hs.dsm.inq.domain.question.service
 
+import kr.hs.dsm.inq.common.util.PageUtil
 import kr.hs.dsm.inq.common.util.SecurityUtil
 import kr.hs.dsm.inq.common.util.defaultPage
 import kr.hs.dsm.inq.domain.question.exception.AlreadyDislikedPostException
@@ -237,7 +238,7 @@ class QuestionService(
 
         answersRepository.save(
             Answers(
-                isExamplary = true,
+                isExamplary = false,
                 answer = request.answer,
                 questions = questions,
                 writer = user,
@@ -547,5 +548,14 @@ class QuestionService(
             )
             FavoriteResponse(true)
         }
+    }
+
+    fun othersAnswer(questionId: Long, request: GetOthersAnswerRequest): OthersAnswerResponse {
+        SecurityUtil.getCurrentUser()
+
+        val answerList = answersRepository
+            .queryAnswerByQuestionIdOrderByLikeCount(request.page, questionId)
+
+        return OthersAnswerResponse.of(answerList)
     }
 }

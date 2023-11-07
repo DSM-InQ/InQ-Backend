@@ -163,4 +163,10 @@ class QuestionController(
     fun questionSetFavorite(@PathVariable("question-set-id") questionSetId: Long): FavoriteResponse{
         return questionService.questionSetFavorite(questionSetId)
     }
+
+    @GetMapping("/{question-id}/answer")
+    fun othersAnswer(@PathVariable("question-id") questionId: Long,
+                     @Valid @ModelAttribute request: GetOthersAnswerRequest): OthersAnswerResponse {
+        return questionService.othersAnswer(questionId, request)
+    }
 }

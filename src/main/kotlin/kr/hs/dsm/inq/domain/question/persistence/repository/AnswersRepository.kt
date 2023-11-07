@@ -25,6 +25,7 @@ import org.springframework.stereotype.Repository
 
 interface AnswersRepository : CrudRepository<Answers, Long>, CustomAnswerRepository {
     fun findByQuestionsIdAndIsExamplaryIsTrue(questionId: Long): Answers
+    fun findByQuestionsIdAndIsExamplaryIsFalse(questionId: Long): List<Answers>
 }
 
 interface CustomAnswerRepository {
@@ -33,6 +34,7 @@ interface CustomAnswerRepository {
     fun querySolvedQuestionDtoByUserId(userId: Long, page: Long): PageResponse<QuestionUserSolvedDto>
     fun querySolvedQuestionSetDtoByUserId(userId: Long, page: Long): PageResponse<QuestionSetUserSolvedDto>
     fun queryQuestionDtoByQuestionSetId(userId: Long, questionSetId: Long): List<QuestionSetDetailsUserSolved>
+    fun queryAnswerByQuestionIdOrderByLikeCount(page: Long, questionId: Long): PageResponse<AnswersDto>
 }
 
 @Repository
@@ -61,9 +63,9 @@ class CustomAnswerRepositoryImpl(
         val dislike = QLike("dislikes")
         return rightJoin(user).on(user.id.eq(answers.writer.id))
             .rightJoin(post).on(post.id.eq(answers.post.id))
-            .rightJoin(like).on(like.post.id.eq(post.id).and(like.isLiked.isTrue))
-            .rightJoin(dislike).on(dislike.post.id.eq(post.id).and(dislike.isLiked.isFalse))
-            .rightJoin(comments).on(comments.post.eq(answers.post))
+            .leftJoin(like).on(like.post.id.eq(post.id).and(like.isLiked.isTrue))
+            .leftJoin(dislike).on(dislike.post.id.eq(post.id).and(dislike.isLiked.isFalse))
+            .leftJoin(comments).on(comments.post.eq(answers.post))
             .transform(
                 GroupBy.groupBy(answers.id)
                     .list(
@@ -177,5 +179,18 @@ class CustomAnswerRepositoryImpl(
                         )
                     )
             )
+    }
+
+    override fun queryAnswerByQuestionIdOrderByLikeCount(page: Long, questionId: Long): PageResponse<AnswersDto> {
+        val answerList = queryFactory
+            .selectFrom(answers)
+            .where(answers.questions.id.eq(questionId))
+            .orderBy(answers.post.likeCount.desc())
+            .getAnswerDetailDto()
+
+        return PageUtil.toPageResponse(
+            page = page,
+            list = answerList
+        )
     }
 }

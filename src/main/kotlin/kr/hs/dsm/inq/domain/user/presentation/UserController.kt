@@ -38,13 +38,14 @@ class UserController(
     fun queryUserAttendance(): UserAttendanceResponse =
         userService.queryUserAttendance()
 
-    @GetMapping("/question/{paging}")
-    fun getMyQuestion(@PathVariable("paging") page: Long): List<UserQuestionResponse> {
-        return userService.getMyQuestion(page)
+    @GetMapping("/question")
+    fun getMyQuestion(@Valid @ModelAttribute request: GetMyQuestionRequest): List<UserQuestionResponse> {
+        return userService.getMyQuestion(request)
     }
 
-    @GetMapping("/set/{paging}")
-    fun getMyQuestionSet(@PathVariable("paging") page: Long): QuestionSetListResponse {
-        return userService.getMyQuestionSet(page)
+    @GetMapping("/set")
+    fun getMyQuestionSet(@Valid @ModelAttribute request: GetMyQuestionRequest): QuestionSetListResponse {
+
+        return userService.getMyQuestionSet(request)
     }
 }

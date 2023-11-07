@@ -99,10 +99,10 @@ class UserService(
         )
     }
 
-    fun getMyQuestion(page: Long): List<UserQuestionResponse> {
+    fun getMyQuestion(request: GetMyQuestionRequest): List<UserQuestionResponse> {
         val user = SecurityUtil.getCurrentUser()
 
-        val usersQuestions = questionsRepository.queryQuestionDtoByWriterId(page, user)
+        val usersQuestions = questionsRepository.queryQuestionDtoByWriterId(request.page, user)
 
         return usersQuestions.list.map {
             UserQuestionResponse.of(
@@ -123,10 +123,10 @@ class UserService(
         }
     }
 
-    fun getMyQuestionSet(page: Long): QuestionSetListResponse {
+    fun getMyQuestionSet(request: GetMyQuestionRequest): QuestionSetListResponse {
         val user = SecurityUtil.getCurrentUser()
 
-        val userQuestionSets = questionSetsRepository.queryQuestionSetDtoByWriterId(page, user)
+        val userQuestionSets = questionSetsRepository.queryQuestionSetDtoByWriterId(request.page, user)
 
         return QuestionSetListResponse.of(userQuestionSets)
     }

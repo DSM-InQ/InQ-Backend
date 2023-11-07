@@ -3,6 +3,7 @@ package kr.hs.dsm.inq.domain.user.service
 import kr.hs.dsm.inq.common.dto.TokenResponse
 import kr.hs.dsm.inq.common.util.PageResponse
 import kr.hs.dsm.inq.common.util.SecurityUtil
+import kr.hs.dsm.inq.domain.question.persistence.repository.AnswersRepository
 import kr.hs.dsm.inq.domain.question.persistence.dto.QuestionDetailDto
 import kr.hs.dsm.inq.domain.question.persistence.dto.QuestionSetDto
 import kr.hs.dsm.inq.domain.question.persistence.repository.QuestionSetsRepository
@@ -29,6 +30,7 @@ class UserService(
     private val passwordEncoder: PasswordEncoder,
     private val jwtGenerator: JwtGenerator,
     private val attendanceRepository: AttendanceRepository,
+    private val answersRepository: AnswersRepository,
     private val questionsRepository: QuestionsRepository,
     private val questionSetsRepository: QuestionSetsRepository
 ) {
@@ -85,7 +87,7 @@ class UserService(
     fun queryUserAttendance(): UserAttendanceResponse {
         val user = SecurityUtil.getCurrentUser()
 
-        val attendance =  attendanceRepository.findByUserId(user.id)
+        val attendance = attendanceRepository.findByUserId(user.id)
             ?: throw AttendanceNotFound
 
         return UserAttendanceResponse(
@@ -99,7 +101,17 @@ class UserService(
         )
     }
 
-    fun getMyQuestion(request: GetMyQuestionRequest): List<UserQuestionResponse> {
+    fun queryUserAnswered(request: GetUserAnsweredRequest): QuestionUserAnsweredResponse {
+        val user = SecurityUtil.getCurrentUser()
+
+        val questionList = answersRepository.querySolvedQuestionDtoByUserId(user.id, request.page)
+        val questionSetList = answersRepository.querySolvedQuestionSetDtoByUserId(user.id, request.page)
+        val questionSetDetailsList = questionSetList.list.flatMap { answersRepository.queryQuestionDtoByQuestionSetId(user.id, it.questionSetId) }
+
+        return QuestionUserAnsweredResponse.of(questionList, questionSetList, questionSetDetailsList)
+    }
+
+  fun getMyQuestion(request: GetMyQuestionRequest): List<UserQuestionResponse> {
         val user = SecurityUtil.getCurrentUser()
 
         val usersQuestions = questionsRepository.queryQuestionDtoByWriterId(request.page, user)

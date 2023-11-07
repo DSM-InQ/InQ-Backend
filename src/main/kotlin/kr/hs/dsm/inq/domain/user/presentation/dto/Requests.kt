@@ -39,6 +39,10 @@ data class UpdateUserInfoRequest(
     val jobDuration: Int
 )
 
+data class GetUserAnsweredRequest(
+    val page: Long
+)
+  
 data class GetMyQuestionRequest(
     val page: Int
 )

@@ -38,6 +38,12 @@ class UserController(
     fun queryUserAttendance(): UserAttendanceResponse =
         userService.queryUserAttendance()
 
+
+    @GetMapping("/me/questions")
+    fun queryUserAnswered(@Valid @ModelAttribute request: GetUserAnsweredRequest): QuestionUserAnsweredResponse =
+        userService.queryUserAnswered(request)
+
+
     @GetMapping("/question")
     fun getMyQuestion(@Valid @ModelAttribute request: GetMyQuestionRequest): List<UserQuestionResponse> {
         return userService.getMyQuestion(request)
@@ -48,4 +54,5 @@ class UserController(
 
         return userService.getMyQuestionSet(request)
     }
+
 }

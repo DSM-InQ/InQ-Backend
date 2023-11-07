@@ -19,7 +19,6 @@ import kr.hs.dsm.inq.domain.user.persistence.dto.QUserQuestionDto
 import kr.hs.dsm.inq.domain.user.persistence.dto.UserQuestionDto
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
-
 interface QuestionsRepository: CrudRepository<Questions, Long>, CustomQuestionRepository {
     fun findByIdIn(questionIds: List<Long>): List<Questions>
 }
@@ -36,7 +35,7 @@ interface CustomQuestionRepository {
     fun queryQuestionDtoOrderByAnswerCount(user: User, page: Long): PageResponse<QuestionDto>
     fun queryQuestionDtoById(id: Long, user: User): QuestionDto?
     fun queryQuestionDetailDtoById(user: User, questionId: Long): QuestionDetailDto?
-    fun queryQuestionDtoByWriterId(page: Long, user: User): PageResponse<UserQuestionDto>
+    fun queryQuestionDtoByWriterId(page: Int, user: User): PageResponse<UserQuestionDto>
     fun queryQuestionDto(user: User): List<QuestionDto>
     fun queryQuestionDtoByProblemIdIn(user: User, problemIds: List<Long>): PageResponse<QuestionDto>
 }
@@ -177,14 +176,14 @@ class CustomQuestionRepositoryImpl(
             )
     }
 
-    override fun queryQuestionDtoByWriterId(page: Long, user: User): PageResponse<UserQuestionDto> {
+    override fun queryQuestionDtoByWriterId(page: Int, user: User): PageResponse<UserQuestionDto> {
         val questions = queryFactory
             .selectFrom(questions)
             .where(questions.author.eq(user))
             .getUserQuestionListDto(user)
 
         return PageUtil.toPageResponse(
-            page = page,
+            page = page.toLong(),
             list = questions
         )
     }
@@ -208,7 +207,7 @@ class CustomQuestionRepositoryImpl(
                             /* question = */ questions.question,
                             /* category = */ questions.category,
                             /* tagList = */ GroupBy.list(tags),
-                            /* isFavorite = */ questions.isNull, // favorite.isNotNull
+                            /* isFavorite = */ questions.isNull,
                             /* exemplaryAnswer = */ answers.answer,
                             /* createdAt = */ questions.createdAt,
                         )

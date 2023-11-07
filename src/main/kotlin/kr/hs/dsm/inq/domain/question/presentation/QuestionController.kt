@@ -1,13 +1,11 @@
 package kr.hs.dsm.inq.domain.question.presentation
 
 import javax.validation.Valid
-import javax.websocket.server.PathParam
 import kr.hs.dsm.inq.domain.question.persistence.Category
 import kr.hs.dsm.inq.domain.question.persistence.DifficultyLevel
 import kr.hs.dsm.inq.domain.question.presentation.dto.*
 import kr.hs.dsm.inq.domain.question.service.QuestionService
 import org.springframework.http.HttpStatus
-import org.springframework.lang.Nullable
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
@@ -44,9 +42,31 @@ class QuestionController(
         return questionService.getTodayQuestion()
     }
 
+    @GetMapping("/random")
+    fun getRandomQuestion(@Valid @ModelAttribute request: GetRandomQuestionRequest): QuestionResponse {
+        return questionService.getRandomQuestion(
+            category = request.category
+        )
+    }
+
     @GetMapping("/popular")
     fun getPopularQuestion(): QuestionListResponse {
         return questionService.getPopularQuestion()
+    }
+
+    @GetMapping("/set/popular")
+    fun getPopularQuestionSet(): QuestionSetListResponse {
+        return questionService.getPopularQuestionSet()
+    }
+
+    @GetMapping("/favorite")
+    fun getFavoriteQuestion(): QuestionListResponse {
+        return questionService.getFavoriteQuestion()
+    }
+
+    @GetMapping("/favorite/set")
+    fun getFavoriteQuestionSet(): QuestionSetListResponse {
+        return questionService.getFavoriteQuestionSet()
     }
 
     @GetMapping("/{question-id}")
@@ -94,7 +114,7 @@ class QuestionController(
     }
 
     @GetMapping("/set")
-    fun getQuestionSets(@Valid @ModelAttribute request: GetQuestionSetsRequest): GetQuestionSetResponse{
+    fun getQuestionSets(@Valid @ModelAttribute request: GetQuestionSetsRequest): QuestionSetListResponse{
         return questionService.getQuestionSet(request)
     }
 
@@ -118,7 +138,7 @@ class QuestionController(
         return questionService.answerQuestionInQuestionSet(questionId, answerRequest)
     }
 
-    @PostMapping("//{question-id}/difficulty")
+    @PostMapping("/{question-id}/difficulty")
     fun assessDifficulty(
         @PathVariable("question-id") questionId: Long,
         @RequestParam level: DifficultyLevel
@@ -130,7 +150,17 @@ class QuestionController(
     }
 
     @GetMapping("/set/rank")
-    fun getQuestionSetRank(@Valid @ModelAttribute request: GetQuestionSetRankRequest): GetQuestionSetResponse {
+    fun getQuestionSetRank(@Valid @ModelAttribute request: GetQuestionSetRankRequest): QuestionSetListResponse {
         return questionService.getQuestionSetRank(request)
+    }
+
+    @PostMapping("/{question-id}/favorite")
+    fun questionFavorite(@PathVariable("question-id") questionId: Long): FavoriteResponse{
+        return questionService.questionFavorite(questionId)
+    }
+
+    @PostMapping("/set/{question-set-id}/favorite")
+    fun questionSetFavorite(@PathVariable("question-set-id") questionSetId: Long): FavoriteResponse{
+        return questionService.questionSetFavorite(questionSetId)
     }
 }

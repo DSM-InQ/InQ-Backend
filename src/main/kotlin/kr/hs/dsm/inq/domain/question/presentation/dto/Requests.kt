@@ -39,8 +39,8 @@ data class GetQuestionRankRequest(
     val page: Long
 )
 
-data class GetPopularQuestionRequest(
-    val page: Long
+data class GetRandomQuestionRequest(
+    val category: Category?
 )
 
 data class QuestionSetsRequest(

@@ -6,6 +6,8 @@ import kr.hs.dsm.inq.domain.question.persistence.ProblemType
 import kr.hs.dsm.inq.domain.question.persistence.dto.QuestionSetDetailsUserSolved
 import kr.hs.dsm.inq.domain.question.persistence.dto.QuestionSetUserSolvedDto
 import kr.hs.dsm.inq.domain.question.persistence.dto.QuestionUserSolvedDto
+import kr.hs.dsm.inq.domain.user.persistence.dto.UserQuestionDto
+
 import java.time.LocalDate
 import java.time.LocalDateTime
 

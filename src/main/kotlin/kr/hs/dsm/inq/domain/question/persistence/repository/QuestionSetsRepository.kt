@@ -1,10 +1,6 @@
 package kr.hs.dsm.inq.domain.question.persistence.repository
 
-import com.querydsl.core.ResultTransformer
 import com.querydsl.core.group.GroupBy
-import com.querydsl.core.types.Expression
-import com.querydsl.core.types.Ops
-import com.querydsl.core.types.dsl.Expressions
 import com.querydsl.jpa.impl.JPAQuery
 import com.querydsl.jpa.impl.JPAQueryFactory
 import kr.hs.dsm.inq.common.util.PageResponse
@@ -15,7 +11,6 @@ import kr.hs.dsm.inq.domain.question.persistence.QPost.post
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionSets.questionSets
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionSolvingHistory.questionSolvingHistory
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionTags.questionTags
-import kr.hs.dsm.inq.domain.question.persistence.QQuestions.questions
 import kr.hs.dsm.inq.domain.question.persistence.QTags.tags
 import kr.hs.dsm.inq.domain.question.persistence.dto.*
 import kr.hs.dsm.inq.domain.user.persistence.QUser
@@ -40,6 +35,10 @@ interface CustomQuestionSetsRepository {
         user: User,
         id: Long
     ): QuestionSetDetailDto?
+
+    fun queryQuestionSetDtoByProblemIdIn(user: User, problemIds: List<Long>): PageResponse<QuestionSetDto>
+
+    fun queryQuestionSetDtoByWriter(page: Int, user: User): PageResponse<QuestionSetDto>
 }
 
 @Repository
@@ -88,12 +87,27 @@ class CustomQuestionSetsRepositoryImpl(
         return if (questionSetDetailResponse.isEmpty()) null else questionSetDetailResponse[0]
     }
 
-    private fun <T> JPAQuery<T>.getQuestionSetDto(user: User): MutableList<QuestionSetDto> {
+    override fun queryQuestionSetDtoByProblemIdIn(user: User, problemIds: List<Long>): PageResponse<QuestionSetDto> {
+        val questionSetList = queryFactory
+            .selectFrom(questionSets)
+            .where(
+                questionSets.problem.id.`in`(problemIds)
+            )
+            .orderBy(questionSets.post.likeCount.asc())
+            .getQuestionSetDto(user)
+
+        return PageUtil.toPageResponse(
+            page = 0,
+            list = questionSetList
+        )
+    }
+
+    private fun <T> JPAQuery<T>.getQuestionSetDto(user: User): List<QuestionSetDto> {
         val author = QUser("writer")
         return leftJoin(questionTags).on(questionTags.problems.eq(questionSets.problem))
             .leftJoin(tags).on(tags.id.eq(questionTags.id.tagId))
             .leftJoin(questionSolvingHistory)
-                .on(questionSolvingHistory.userId.id.eq(user.id)).on(questionSolvingHistory.problem.eq(questionSets.problem))
+                .on(questionSolvingHistory.user.id.eq(user.id)).on(questionSolvingHistory.problem.eq(questionSets.problem))
             .innerJoin(author).on(author.id.eq(questionSets.author.id))
             .innerJoin(post).on(post.id.eq(questionSets.post.id))
 //            .rightJoin(favorite).on(favorite.questions.id.eq(questions.id))
@@ -129,7 +143,7 @@ class CustomQuestionSetsRepositoryImpl(
             .innerJoin(author).on(author.id.eq(questionSets.author.id))
             .leftJoin(liked).on(liked.id.userId.eq(user.id)).on(liked.post.eq(questionSets.post))
             .leftJoin(post).on(post.id.eq(questionSets.post.id))
-            .leftJoin(favorite).on(favorite.id.userId.eq(user.id)).on(favorite.problemId.eq(questionSets.problem))
+            .leftJoin(favorite).on(favorite.id.userId.eq(user.id)).on(favorite.problem.eq(questionSets.problem))
             .leftJoin(comments).on(comments.post.eq(questionSets.post))
             .transform(
                 GroupBy.groupBy(questionSets)
@@ -153,5 +167,17 @@ class CustomQuestionSetsRepositoryImpl(
                         )
                     )
             )
+    }
+
+    override fun queryQuestionSetDtoByWriter(page: Int, user: User): PageResponse<QuestionSetDto> {
+        val questionSets = queryFactory
+            .selectFrom(questionSets)
+            .where(questionSets.author.eq(user))
+            .getQuestionSetDto(user)
+
+        return PageUtil.toPageResponse(
+            page = page.toLong(),
+            list = questionSets
+        )
     }
 }

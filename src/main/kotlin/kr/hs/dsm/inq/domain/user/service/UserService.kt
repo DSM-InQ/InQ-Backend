@@ -1,8 +1,15 @@
 package kr.hs.dsm.inq.domain.user.service
 
 import kr.hs.dsm.inq.common.dto.TokenResponse
+import kr.hs.dsm.inq.common.util.PageResponse
 import kr.hs.dsm.inq.common.util.SecurityUtil
 import kr.hs.dsm.inq.domain.question.persistence.repository.AnswersRepository
+import kr.hs.dsm.inq.domain.question.persistence.dto.QuestionDetailDto
+import kr.hs.dsm.inq.domain.question.persistence.dto.QuestionSetDto
+import kr.hs.dsm.inq.domain.question.persistence.repository.QuestionSetsRepository
+import kr.hs.dsm.inq.domain.question.persistence.repository.QuestionsRepository
+import kr.hs.dsm.inq.domain.question.presentation.dto.QuestionSetListResponse
+import kr.hs.dsm.inq.domain.question.presentation.dto.UserQuestionResponse
 import kr.hs.dsm.inq.domain.user.exception.AttendanceNotFound
 import kr.hs.dsm.inq.domain.user.exception.PasswordMismatchException
 import kr.hs.dsm.inq.domain.user.exception.UserAlreadyExist
@@ -23,7 +30,9 @@ class UserService(
     private val passwordEncoder: PasswordEncoder,
     private val jwtGenerator: JwtGenerator,
     private val attendanceRepository: AttendanceRepository,
-    private val answersRepository: AnswersRepository
+    private val answersRepository: AnswersRepository,
+    private val questionsRepository: QuestionsRepository,
+    private val questionSetsRepository: QuestionSetsRepository
 ) {
 
     fun signIn(request: UserSignInRequest): TokenResponse {
@@ -100,5 +109,37 @@ class UserService(
         val questionSetDetailsList = questionSetList.list.flatMap { answersRepository.queryQuestionDtoByQuestionSetId(user.id, it.questionSetId) }
 
         return QuestionUserAnsweredResponse.of(questionList, questionSetList, questionSetDetailsList)
+    }
+
+  fun getMyQuestion(request: GetMyQuestionRequest): List<UserQuestionResponse> {
+        val user = SecurityUtil.getCurrentUser()
+
+        val usersQuestions = questionsRepository.queryQuestionDtoByWriterId(request.page, user)
+
+        return usersQuestions.list.map {
+            UserQuestionResponse.of(
+                questionDetail = QuestionDetailDto(
+                    questionId = it.questionId,
+                    authorId = it.authorId,
+                    username = it.username,
+                    job = it.job,
+                    jobDuration = it.jobDuration,
+                    question = it.question,
+                    category = it.category,
+                    tagList = it.tagList,
+                    isFavorite = it.isFavorite,
+                    createdAt = it.createdAt
+                ),
+                exemplaryAnswer = it.exemplaryAnswer
+            )
+        }
+    }
+
+    fun getMyQuestionSet(request: GetMyQuestionRequest): QuestionSetListResponse {
+        val user = SecurityUtil.getCurrentUser()
+
+        val userQuestionSets = questionSetsRepository.queryQuestionSetDtoByWriter(request.page, user)
+
+        return QuestionSetListResponse.of(userQuestionSets)
     }
 }

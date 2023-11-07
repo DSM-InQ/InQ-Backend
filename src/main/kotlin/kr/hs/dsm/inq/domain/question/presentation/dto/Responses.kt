@@ -5,7 +5,6 @@ import kr.hs.dsm.inq.common.util.PageUtil
 import kr.hs.dsm.inq.domain.question.persistence.*
 import kr.hs.dsm.inq.domain.question.persistence.dto.*
 import java.time.LocalDateTime
-import java.util.Date
 
 data class CreateQuestionResponses(
     val questionId: Long
@@ -117,10 +116,45 @@ data class QuestionDetailResponse(
                 createdAt = createdAt
             )
         }
+
+
+    }
+}
+
+data class UserQuestionResponse(
+    val questionId: Long,
+    val authorId: Long,
+    val username: String,
+    val job: String,
+    val jobDuration: Int,
+    val question: String,
+    val category: Category,
+    val tags: List<String>,
+    val isFavorite: Boolean,
+    val exemplaryAnswer: String,
+    val createdAt: LocalDateTime
+) {
+    companion object {
+        fun of(questionDetail: QuestionDetailDto, exemplaryAnswer: String) = questionDetail.run {
+            UserQuestionResponse(
+                questionId = questionId,
+                authorId = authorId,
+                username = username,
+                job = job,
+                jobDuration = jobDuration,
+                question = question,
+                category = category,
+                tags = tagList.map { it.tag },
+                isFavorite = isFavorite,
+                exemplaryAnswer = exemplaryAnswer,
+                createdAt = createdAt
+            )
+        }
     }
 }
 
 data class AnswerResponse(
+    val id: Long,
     val username: String,
     val job: String,
     val jobDuration: Int,
@@ -134,6 +168,7 @@ data class AnswerResponse(
     companion object {
         fun of(answers: AnswersDto) = answers.run {
             AnswerResponse(
+                id = answers.id,
                 username = username,
                 job = job,
                 jobDuration = jobDuration,
@@ -188,15 +223,15 @@ data class RegisterQuestionSetsResponse(
     val isFavorite: Boolean
 )
 
-data class GetQuestionSetResponse(
+data class QuestionSetListResponse(
     val hasNext: Boolean,
-    val questionSetsList: List<QuestionSet>,
+    val questionSetsList: List<QuestionSetsResponse>,
 ) {
     companion object {
         fun of(pageResponse: PageResponse<QuestionSetDto>) = pageResponse.run {
-            GetQuestionSetResponse(
+            QuestionSetListResponse(
                 hasNext = hasNext,
-                questionSetsList = list.map { QuestionSet.of(it) }
+                questionSetsList = list.map { QuestionSetsResponse.of(it) }
             )
         }
     }
@@ -204,21 +239,21 @@ data class GetQuestionSetResponse(
 
 data class QuestionSetRankResponse(
     val hasNext: Boolean,
-    val questionSetsList: List<QuestionSet>
+    val questionSetsList: List<QuestionSetsResponse>
 ) {
     companion object {
         fun of(page: Long, pageResponse: PageResponse<QuestionSetDto>) = pageResponse.run {
-            GetQuestionSetResponse(
+            QuestionSetListResponse(
                 hasNext = hasNext,
                 questionSetsList = list.mapIndexed { idx, it ->
-                    QuestionSet.of(it, PageUtil.getOffset(page) + idx + 1)
+                    QuestionSetsResponse.of(it, PageUtil.getOffset(page) + idx + 1)
                 }
             )
         }
     }
 }
 
-data class QuestionSet(
+data class QuestionSetsResponse(
     val questionSetId: Long?,
     val rank: Long? = null,
     val questionSetName: String?,
@@ -234,7 +269,7 @@ data class QuestionSet(
 ) {
     companion object {
         fun of(dto: QuestionSetDto) = dto.run {
-            QuestionSet(
+            QuestionSetsResponse(
                 questionSetId = questionSetId,
                 questionSetName = questionSetName,
                 createdAt = createdAt,
@@ -250,7 +285,7 @@ data class QuestionSet(
         }
 
         fun of(dto: QuestionSetDto, rank: Long) = dto.run {
-            QuestionSet(
+            QuestionSetsResponse(
                 questionSetId = questionSetId,
                 rank = rank,
                 questionSetName = questionSetName,
@@ -324,4 +359,8 @@ data class DifficultyResponse(
     val normal: Int,
     val hard: Int,
     val veryHard: Int
+)
+
+data class FavoriteResponse(
+    val isFavorite: Boolean
 )

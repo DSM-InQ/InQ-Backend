@@ -1,11 +1,5 @@
 package kr.hs.dsm.inq.domain.question.service
 
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.ZoneOffset
-import java.time.ZonedDateTime
-import java.util.Date
 import kr.hs.dsm.inq.common.util.SecurityUtil
 import kr.hs.dsm.inq.common.util.defaultPage
 import kr.hs.dsm.inq.domain.question.exception.AlreadyDislikedPostException
@@ -13,7 +7,6 @@ import kr.hs.dsm.inq.domain.question.exception.AlreadyLikedPostException
 import kr.hs.dsm.inq.domain.question.exception.AnswerNotFoundException
 import kr.hs.dsm.inq.domain.question.exception.QuestionNotFoundException
 import kr.hs.dsm.inq.domain.question.exception.QuestionSetNotFoundException
-import kr.hs.dsm.inq.domain.question.exception.*
 import kr.hs.dsm.inq.domain.question.persistence.*
 import kr.hs.dsm.inq.domain.question.persistence.dto.AnswersDto
 import kr.hs.dsm.inq.domain.question.persistence.dto.CategoriesDto
@@ -38,7 +31,8 @@ class QuestionService(
     private val questionSetsRepository: QuestionSetsRepository,
     private val setQuestionRepository: SetQuestionRepository,
     private val questionSolvingHistoryRepository: QuestionSolvingHistoryRepository,
-    private val difficultyRepository: DifficultyRepository
+    private val difficultyRepository: DifficultyRepository,
+    private val favoriteRepository: FavoriteRepository,
 ) {
 
     fun createQuestion(request: CreateQuestionRequest): CreateQuestionResponses {
@@ -144,19 +138,53 @@ class QuestionService(
 
     fun getTodayQuestion(): QuestionResponse {
         val user = SecurityUtil.getCurrentUser()
-        val todayQuestion = questionsRepository.queryQuestionDtoById(1L, user) ?: throw QuestionNotFoundException
+        val todayQuestion = questionsRepository.queryQuestionDto(user = user).get(0)
         return QuestionResponse.of(todayQuestion)
     }
 
-    fun getPopularQuestion(): QuestionListResponse {
+    fun getRandomQuestion(category: Category?): QuestionResponse {
+        val user = SecurityUtil.getCurrentUser()
+        val random = questionsRepository.queryQuestionDtoOrderByLike(
+            user = user,
+            page = 0,
+            category = category
+        ).list.random()
+        return QuestionResponse.of(random)
+    }
 
+    fun getPopularQuestion(): QuestionListResponse {
         val user = SecurityUtil.getCurrentUser()
         val questionList = questionsRepository.queryQuestionDtoOrderByAnswerCount(
             user = user,
             page = 1L
         )
-
         return QuestionListResponse.of(questionList)
+    }
+
+    fun getPopularQuestionSet(): QuestionSetListResponse {
+        val user = SecurityUtil.getCurrentUser()
+        val questionSetList = questionSetsRepository.queryQuestionSetDtoOrderByLike(
+            user = user,
+            page = 1L
+        )
+        return QuestionSetListResponse.of(questionSetList)
+    }
+
+    fun getFavoriteQuestion(): QuestionListResponse {
+        val user = SecurityUtil.getCurrentUser()
+        val problems = problemRepository.queryFavoriteProblemSet(user.id)
+        val questionList = questionsRepository.queryQuestionDtoByProblemIdIn(user, problems.map { it.id })
+        return QuestionListResponse.of(questionList)
+    }
+
+    fun getFavoriteQuestionSet(): QuestionSetListResponse {
+        val user = SecurityUtil.getCurrentUser()
+        val problems = problemRepository.queryFavoriteProblem(user.id)
+        val questionSetList = questionSetsRepository.queryQuestionSetDtoByProblemIdIn(
+            user = user,
+            problemIds = problems.map { it.id }
+        )
+       return QuestionSetListResponse.of(questionSetList)
     }
 
     fun getQuestionDetail(questionId: Long): QuestionDetailResponse {
@@ -175,6 +203,7 @@ class QuestionService(
         return QuestionDetailResponse.of(
             questionDetail = question,
             answer = AnswersDto(
+                id = exemplaryAnswer.id,
                 writerId = question.authorId,
                 username = question.username,
                 job = question.job,
@@ -203,9 +232,7 @@ class QuestionService(
     fun answerQuestion(questionId: Long, request: AnswerRequest) {
 
         val user = SecurityUtil.getCurrentUser()
-
         val questions = questionsRepository.findByIdOrNull(questionId) ?: throw QuestionNotFoundException
-        
         val post = postRepository.save(Post())
 
         answersRepository.save(
@@ -224,7 +251,7 @@ class QuestionService(
 
         questionSolvingHistoryRepository.save(
             QuestionSolvingHistory(
-                userId = user,
+                user = user,
                 problem = questions.problem
             )
         )
@@ -302,7 +329,7 @@ class QuestionService(
                     id = likeId,
                     post = post,
                     user = user,
-                    isLiked = true
+                    isLiked = false
                 )
             )
             DislikeResponse(isDisliked = true)
@@ -383,7 +410,7 @@ class QuestionService(
         )
     }
 
-    fun getQuestionSet(request: GetQuestionSetsRequest): GetQuestionSetResponse {
+    fun getQuestionSet(request: GetQuestionSetsRequest): QuestionSetListResponse {
         val user = SecurityUtil.getCurrentUser()
 
         val questionSetList = request.run{
@@ -396,7 +423,7 @@ class QuestionService(
             )
         }
 
-        return GetQuestionSetResponse.of(questionSetList)
+        return QuestionSetListResponse.of(questionSetList)
     }
 
     fun getQuestionSetDetail(questionSetId: Long): GetQuestionSetDetailResponse {
@@ -421,7 +448,7 @@ class QuestionService(
 
         questionSolvingHistoryRepository.save(
             QuestionSolvingHistory(
-                userId = user,
+                user = user,
                 problem = questionSet.problem
             )
         )
@@ -469,7 +496,7 @@ class QuestionService(
         )
     }
 
-    fun getQuestionSetRank(request: GetQuestionSetRankRequest): GetQuestionSetResponse {
+    fun getQuestionSetRank(request: GetQuestionSetRankRequest): QuestionSetListResponse {
         val user = SecurityUtil.getCurrentUser()
 
         val questionSetList = questionSetsRepository.queryQuestionSetDtoOrderByLike(
@@ -481,5 +508,44 @@ class QuestionService(
             page = request.page,
             pageResponse = questionSetList
         )
+    }
+
+    fun questionFavorite(questionId: Long): FavoriteResponse {
+        val user = SecurityUtil.getCurrentUser()
+
+        val problem = questionsRepository.findByIdOrNull(questionId)?.problem
+            ?: throw QuestionNotFoundException
+
+        return favorite(user, problem)
+    }
+
+    fun questionSetFavorite(questionSetId: Long): FavoriteResponse {
+        val user = SecurityUtil.getCurrentUser()
+
+        val problem = questionSetsRepository.findByIdOrNull(questionSetId)?.problem
+            ?: throw QuestionSetNotFoundException
+
+        return favorite(user, problem)
+    }
+
+    fun favorite(user: User, problem: Problem): FavoriteResponse{
+        val id = FavoriteId(
+            problemId = problem.id,
+            userId = user.id,
+        )
+
+        return favoriteRepository.findById(id)?.let {
+            favoriteRepository.deleteById(id)
+            FavoriteResponse(false)
+        } ?: run {
+            favoriteRepository.save(
+                Favorite(
+                    id = id,
+                    problem = problem,
+                    user = user
+                )
+            )
+            FavoriteResponse(true)
+        }
     }
 }

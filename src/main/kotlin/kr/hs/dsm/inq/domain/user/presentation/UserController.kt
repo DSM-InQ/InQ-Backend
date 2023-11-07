@@ -2,17 +2,12 @@ package kr.hs.dsm.inq.domain.user.presentation
 
 import javax.validation.Valid
 import kr.hs.dsm.inq.common.dto.TokenResponse
+import kr.hs.dsm.inq.domain.question.presentation.dto.QuestionSetListResponse
+import kr.hs.dsm.inq.domain.question.presentation.dto.UserQuestionResponse
 import kr.hs.dsm.inq.domain.user.presentation.dto.*
 import kr.hs.dsm.inq.domain.user.service.UserService
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.ResponseStatus
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RequestMapping("/user")
 @RestController
@@ -43,8 +38,21 @@ class UserController(
     fun queryUserAttendance(): UserAttendanceResponse =
         userService.queryUserAttendance()
 
+
     @GetMapping("/me/questions")
     fun queryUserAnswered(@Valid @ModelAttribute request: GetUserAnsweredRequest): QuestionUserAnsweredResponse =
         userService.queryUserAnswered(request)
+
+
+    @GetMapping("/question")
+    fun getMyQuestion(@Valid @ModelAttribute request: GetMyQuestionRequest): List<UserQuestionResponse> {
+        return userService.getMyQuestion(request)
+    }
+
+    @GetMapping("/set")
+    fun getMyQuestionSet(@Valid @ModelAttribute request: GetMyQuestionRequest): QuestionSetListResponse {
+
+        return userService.getMyQuestionSet(request)
+    }
 
 }

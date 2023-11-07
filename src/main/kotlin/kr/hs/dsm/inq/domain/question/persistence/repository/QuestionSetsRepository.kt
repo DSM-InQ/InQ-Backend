@@ -37,6 +37,8 @@ interface CustomQuestionSetsRepository {
     ): QuestionSetDetailDto?
 
     fun queryQuestionSetDtoByProblemIdIn(user: User, problemIds: List<Long>): PageResponse<QuestionSetDto>
+
+    fun queryQuestionSetDtoByWriterId(page: Long, user: User): PageResponse<QuestionSetDto>
 }
 
 @Repository
@@ -100,7 +102,7 @@ class CustomQuestionSetsRepositoryImpl(
         )
     }
 
-    private fun <T> JPAQuery<T>.getQuestionSetDto(user: User): MutableList<QuestionSetDto> {
+    private fun <T> JPAQuery<T>.getQuestionSetDto(user: User): List<QuestionSetDto> {
         val author = QUser("writer")
         return leftJoin(questionTags).on(questionTags.problems.eq(questionSets.problem))
             .leftJoin(tags).on(tags.id.eq(questionTags.id.tagId))
@@ -165,5 +167,17 @@ class CustomQuestionSetsRepositoryImpl(
                         )
                     )
             )
+    }
+
+    override fun queryQuestionSetDtoByWriterId(page: Long, user: User): PageResponse<QuestionSetDto> {
+        val questionSets = queryFactory
+            .selectFrom(questionSets)
+            .where(questionSets.author.eq(user))
+            .getQuestionSetDto(user)
+
+        return PageUtil.toPageResponse(
+            page = page,
+            list = questionSets
+        )
     }
 }

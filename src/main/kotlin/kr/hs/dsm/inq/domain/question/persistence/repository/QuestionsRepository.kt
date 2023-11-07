@@ -208,7 +208,7 @@ class CustomQuestionRepositoryImpl(
                             /* question = */ questions.question,
                             /* category = */ questions.category,
                             /* tagList = */ GroupBy.list(tags),
-                            /* isFavorite = */ questions.isNull, // favorite.isNotNull
+                            /* isFavorite = */ questions.isNull,
                             /* exemplaryAnswer = */ answers.answer,
                             /* createdAt = */ questions.createdAt,
                         )

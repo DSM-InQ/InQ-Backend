@@ -2,6 +2,7 @@ package kr.hs.dsm.inq.domain.user.presentation
 
 import javax.validation.Valid
 import kr.hs.dsm.inq.common.dto.TokenResponse
+import kr.hs.dsm.inq.domain.question.presentation.dto.QuestionSetListResponse
 import kr.hs.dsm.inq.domain.question.presentation.dto.UserQuestionResponse
 import kr.hs.dsm.inq.domain.user.presentation.dto.*
 import kr.hs.dsm.inq.domain.user.service.UserService
@@ -37,8 +38,13 @@ class UserController(
     fun queryUserAttendance(): UserAttendanceResponse =
         userService.queryUserAttendance()
 
-    @GetMapping("/question/{page}")
-    fun getMyQuestion(@PathVariable("page") page: Long): List<UserQuestionResponse> {
+    @GetMapping("/question/{paging}")
+    fun getMyQuestion(@PathVariable("paging") page: Long): List<UserQuestionResponse> {
         return userService.getMyQuestion(page)
+    }
+
+    @GetMapping("/set/{paging}")
+    fun getMyQuestionSet(@PathVariable("paging") page: Long): QuestionSetListResponse {
+        return userService.getMyQuestionSet(page)
     }
 }

@@ -1,9 +1,13 @@
 package kr.hs.dsm.inq.domain.user.service
 
 import kr.hs.dsm.inq.common.dto.TokenResponse
+import kr.hs.dsm.inq.common.util.PageResponse
 import kr.hs.dsm.inq.common.util.SecurityUtil
 import kr.hs.dsm.inq.domain.question.persistence.dto.QuestionDetailDto
+import kr.hs.dsm.inq.domain.question.persistence.dto.QuestionSetDto
+import kr.hs.dsm.inq.domain.question.persistence.repository.QuestionSetsRepository
 import kr.hs.dsm.inq.domain.question.persistence.repository.QuestionsRepository
+import kr.hs.dsm.inq.domain.question.presentation.dto.QuestionSetListResponse
 import kr.hs.dsm.inq.domain.question.presentation.dto.UserQuestionResponse
 import kr.hs.dsm.inq.domain.user.exception.AttendanceNotFound
 import kr.hs.dsm.inq.domain.user.exception.PasswordMismatchException
@@ -25,7 +29,8 @@ class UserService(
     private val passwordEncoder: PasswordEncoder,
     private val jwtGenerator: JwtGenerator,
     private val attendanceRepository: AttendanceRepository,
-    private val questionsRepository: QuestionsRepository
+    private val questionsRepository: QuestionsRepository,
+    private val questionSetsRepository: QuestionSetsRepository
 ) {
 
     fun signIn(request: UserSignInRequest): TokenResponse {
@@ -116,6 +121,13 @@ class UserService(
                 exemplaryAnswer = it.exemplaryAnswer
             )
         }
+    }
 
+    fun getMyQuestionSet(page: Long): QuestionSetListResponse {
+        val user = SecurityUtil.getCurrentUser()
+
+        val userQuestionSets = questionSetsRepository.queryQuestionSetDtoByWriterId(page, user)
+
+        return QuestionSetListResponse.of(userQuestionSets)
     }
 }

@@ -126,7 +126,7 @@ class UserService(
     fun getMyQuestionSet(request: GetMyQuestionRequest): QuestionSetListResponse {
         val user = SecurityUtil.getCurrentUser()
 
-        val userQuestionSets = questionSetsRepository.queryQuestionSetDtoByWriterId(request.page, user)
+        val userQuestionSets = questionSetsRepository.queryQuestionSetDtoByWriter(request.page, user)
 
         return QuestionSetListResponse.of(userQuestionSets)
     }

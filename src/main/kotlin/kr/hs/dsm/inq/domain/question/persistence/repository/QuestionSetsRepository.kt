@@ -38,7 +38,7 @@ interface CustomQuestionSetsRepository {
 
     fun queryQuestionSetDtoByProblemIdIn(user: User, problemIds: List<Long>): PageResponse<QuestionSetDto>
 
-    fun queryQuestionSetDtoByWriterId(page: Int, user: User): PageResponse<QuestionSetDto>
+    fun queryQuestionSetDtoByWriter(page: Int, user: User): PageResponse<QuestionSetDto>
 }
 
 @Repository
@@ -169,7 +169,7 @@ class CustomQuestionSetsRepositoryImpl(
             )
     }
 
-    override fun queryQuestionSetDtoByWriterId(page: Int, user: User): PageResponse<QuestionSetDto> {
+    override fun queryQuestionSetDtoByWriter(page: Int, user: User): PageResponse<QuestionSetDto> {
         val questionSets = queryFactory
             .selectFrom(questionSets)
             .where(questionSets.author.eq(user))

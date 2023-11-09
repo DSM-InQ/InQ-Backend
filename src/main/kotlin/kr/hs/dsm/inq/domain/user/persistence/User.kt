@@ -45,4 +45,8 @@ data class User(
         this.job = job
         this.jobDuration = jobDuration
     }
+
+    fun addCoin() {
+        coin += 10
+    }
 }

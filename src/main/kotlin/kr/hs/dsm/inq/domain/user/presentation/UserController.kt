@@ -55,4 +55,10 @@ class UserController(
         return userService.getMyQuestionSet(request)
     }
 
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/check")
+    fun userAttendanceCheck() {
+        userService.userAttendanceCheck()
+    }
+
 }

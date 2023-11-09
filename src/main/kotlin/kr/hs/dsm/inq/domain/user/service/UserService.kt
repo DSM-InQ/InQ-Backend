@@ -1,11 +1,9 @@
 package kr.hs.dsm.inq.domain.user.service
 
 import kr.hs.dsm.inq.common.dto.TokenResponse
-import kr.hs.dsm.inq.common.util.PageResponse
 import kr.hs.dsm.inq.common.util.SecurityUtil
 import kr.hs.dsm.inq.domain.question.persistence.repository.AnswersRepository
 import kr.hs.dsm.inq.domain.question.persistence.dto.QuestionDetailDto
-import kr.hs.dsm.inq.domain.question.persistence.dto.QuestionSetDto
 import kr.hs.dsm.inq.domain.question.persistence.repository.QuestionSetsRepository
 import kr.hs.dsm.inq.domain.question.persistence.repository.QuestionsRepository
 import kr.hs.dsm.inq.domain.question.presentation.dto.QuestionSetListResponse
@@ -14,6 +12,7 @@ import kr.hs.dsm.inq.domain.user.exception.AttendanceNotFound
 import kr.hs.dsm.inq.domain.user.exception.PasswordMismatchException
 import kr.hs.dsm.inq.domain.user.exception.UserAlreadyExist
 import kr.hs.dsm.inq.domain.user.exception.UserNotFound
+import kr.hs.dsm.inq.domain.user.persistence.Attendance
 import kr.hs.dsm.inq.domain.user.persistence.User
 import kr.hs.dsm.inq.domain.user.persistence.repository.AttendanceRepository
 import kr.hs.dsm.inq.domain.user.presentation.dto.*
@@ -23,6 +22,8 @@ import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import javax.transaction.Transactional
 import kr.hs.dsm.inq.domain.user.persistence.repository.UserRepository
+import java.time.DayOfWeek
+import java.time.LocalDate
 
 @Service
 class UserService(
@@ -106,12 +107,17 @@ class UserService(
 
         val questionList = answersRepository.querySolvedQuestionDtoByUserId(user.id, request.page)
         val questionSetList = answersRepository.querySolvedQuestionSetDtoByUserId(user.id, request.page)
-        val questionSetDetailsList = questionSetList.list.flatMap { answersRepository.queryQuestionDtoByQuestionSetId(user.id, it.questionSetId) }
+        val questionSetDetailsList = questionSetList.list.flatMap {
+            answersRepository.queryQuestionDtoByQuestionSetId(
+                user.id,
+                it.questionSetId
+            )
+        }
 
         return QuestionUserAnsweredResponse.of(questionList, questionSetList, questionSetDetailsList)
     }
 
-  fun getMyQuestion(request: GetMyQuestionRequest): List<UserQuestionResponse> {
+    fun getMyQuestion(request: GetMyQuestionRequest): List<UserQuestionResponse> {
         val user = SecurityUtil.getCurrentUser()
 
         val usersQuestions = questionsRepository.queryQuestionDtoByWriterId(request.page, user)
@@ -141,5 +147,23 @@ class UserService(
         val userQuestionSets = questionSetsRepository.queryQuestionSetDtoByWriter(request.page, user)
 
         return QuestionSetListResponse.of(userQuestionSets)
+    }
+
+    @Transactional
+    fun userAttendanceCheck() {
+        val user = SecurityUtil.getCurrentUser()
+
+        val today = LocalDate.now().dayOfWeek
+
+        val attendance = attendanceRepository.findByUserId(user.id)
+            ?: attendanceRepository.save(Attendance(user = user))
+
+        if (today == DayOfWeek.MONDAY)
+            attendance.initializeAttendance()
+
+        attendance.attendanceCheck(today)
+
+        user.addCoin()
+        userRepository.save(user)
     }
 }

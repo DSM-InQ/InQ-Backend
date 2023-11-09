@@ -1,5 +1,8 @@
 package kr.hs.dsm.inq.domain.user.persistence
 
+import java.time.DayOfWeek
+import java.time.DayOfWeek.*
+import java.time.LocalDate
 import javax.persistence.*
 
 @Table(name = "tbl_attendance")
@@ -8,7 +11,7 @@ class Attendance (
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long,
+    val id: Long = 0L,
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", columnDefinition = "BIGINT", nullable = false)
@@ -27,4 +30,26 @@ class Attendance (
     var saturday: Boolean = false,
 
     var sunday: Boolean = false,
-)
+) {
+    fun attendanceCheck(today: DayOfWeek) {
+        when (today) {
+            MONDAY -> monday = true
+            TUESDAY -> tuesday = true
+            WEDNESDAY -> wednesday = true
+            THURSDAY -> thursday = true
+            FRIDAY -> friday = true
+            SATURDAY -> saturday = true
+            SUNDAY -> sunday = true
+        }
+    }
+
+    fun initializeAttendance() {
+        monday = false
+        tuesday = false
+        wednesday = false
+        thursday = false
+        friday = false
+        saturday = false
+        sunday = false
+    }
+}

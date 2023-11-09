@@ -24,12 +24,10 @@ class ExceptionFilter(
         try {
             filterChain.doFilter(request, response)
         } catch (e: CustomException) {
-            e.printStackTrace()
             errorToJson(e.errorProperty, response)
         } catch (e: Exception) {
             when (e.cause) {
                 is CustomException -> {
-                    e.printStackTrace()
                     errorToJson((e.cause as CustomException).errorProperty, response)
                 }
                 else -> {

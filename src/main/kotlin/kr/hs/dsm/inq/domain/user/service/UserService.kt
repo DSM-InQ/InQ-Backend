@@ -52,7 +52,7 @@ class UserService(
             throw UserAlreadyExist
         }
 
-        val user = userRepository.save(
+        userRepository.save(
             User(
                 username = request.username,
                 job = request.job,
@@ -60,12 +60,6 @@ class UserService(
                 accountId = request.accountId,
                 password = passwordEncoder.encode(request.password),
                 joinDate = LocalDateTime.now()
-            )
-        )
-
-        attendanceRepository.save(
-            Attendance(
-                user = user
             )
         )
     }
@@ -162,7 +156,7 @@ class UserService(
         val today = LocalDate.now().dayOfWeek
 
         val attendance = attendanceRepository.findByUserId(user.id)
-            ?: throw AttendanceNotFound
+            ?: attendanceRepository.save(Attendance(user = user))
 
         if (today == DayOfWeek.MONDAY)
             attendance.initializeAttendance()

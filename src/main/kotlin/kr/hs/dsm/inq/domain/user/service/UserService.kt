@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import javax.transaction.Transactional
 import kr.hs.dsm.inq.domain.user.persistence.repository.UserRepository
+import java.time.DayOfWeek
 import java.time.LocalDate
 
 @Service
@@ -158,12 +159,12 @@ class UserService(
     fun userAttendanceCheck() {
         val user = SecurityUtil.getCurrentUser()
 
-        val today = LocalDate.now().dayOfWeek.toString().lowercase()
+        val today = LocalDate.now().dayOfWeek
 
         val attendance = attendanceRepository.findByUserId(user.id)
             ?: throw AttendanceNotFound
 
-        if (today == "monday")
+        if (today == DayOfWeek.MONDAY)
             attendance.initializeAttendance()
 
         attendance.attendanceCheck(today)

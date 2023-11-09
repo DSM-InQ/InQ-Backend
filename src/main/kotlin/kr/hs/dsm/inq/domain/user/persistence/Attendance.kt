@@ -1,5 +1,7 @@
 package kr.hs.dsm.inq.domain.user.persistence
 
+import java.time.DayOfWeek
+import java.time.DayOfWeek.*
 import java.time.LocalDate
 import javax.persistence.*
 
@@ -29,15 +31,15 @@ class Attendance (
 
     var sunday: Boolean = false,
 ) {
-    fun attendanceCheck(today: String) {
+    fun attendanceCheck(today: DayOfWeek) {
         when (today) {
-            "monday" -> monday = true
-            "tuesday" -> tuesday = true
-            "wednesday" -> wednesday = true
-            "thursday" -> thursday = true
-            "friday" -> friday = true
-            "saturday" -> saturday = true
-            "sunday" -> sunday = true
+            MONDAY -> monday = true
+            TUESDAY -> tuesday = true
+            WEDNESDAY -> wednesday = true
+            THURSDAY -> thursday = true
+            FRIDAY -> friday = true
+            SATURDAY -> saturday = true
+            SUNDAY -> sunday = true
         }
     }
 

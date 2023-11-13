@@ -52,7 +52,7 @@ class UserService(
             throw UserAlreadyExist
         }
 
-        userRepository.save(
+        val user = userRepository.save(
             User(
                 username = request.username,
                 job = request.job,
@@ -60,6 +60,12 @@ class UserService(
                 accountId = request.accountId,
                 password = passwordEncoder.encode(request.password),
                 joinDate = LocalDateTime.now()
+            )
+        )
+
+        attendanceRepository.save(
+            Attendance(
+                user = user
             )
         )
     }

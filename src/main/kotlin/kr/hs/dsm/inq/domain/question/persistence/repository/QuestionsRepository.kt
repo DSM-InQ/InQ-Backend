@@ -118,7 +118,7 @@ class CustomQuestionRepositoryImpl(
         return innerJoin(questionTags).on(questionTags.problems.eq(questions.problem))
             .innerJoin(tags).on(tags.id.eq(questionTags.id.tagId))
             .innerJoin(writer).on(writer.id.eq(questions.author.id))
-//            .rightJoin(favorite).on(favorite.questions.id.eq(questions.id))
+            .rightJoin(favorite).on(favorite.problem.id.eq(questions.problem.id))
 //            .rightJoin(answers).on(answers.writer.eq(user).and(answers.questions.eq(questions)))
             .transform(
                 GroupBy.groupBy(questions)
@@ -132,7 +132,7 @@ class CustomQuestionRepositoryImpl(
                             /* jobDuration = */ writer.jobDuration,
                             /* tagList = */ GroupBy.list(tags),
                             /* isAnswered = */ questions.isNull, // answers.isNotNull,
-                            /* isFavorite = */ questions.isNull, // favorite.isNotNull
+                            /* isFavorite = */ favorite.isNotNull,
                             /* createdAt = */ questions.createdAt
                         )
                     )
@@ -195,6 +195,7 @@ class CustomQuestionRepositoryImpl(
 
         return@run innerJoin(questionTags).on(questionTags.problems.eq(questions.problem))
             .innerJoin(tags).on(tags.id.eq(questionTags.id.tagId))
+            .rightJoin(favorite).on(favorite.id.problemId.eq(questions.problem.id))
             .innerJoin(answers).on(answers.questions.id.eq(questions.id))
             .rightJoin(writer).on(writer.id.eq(user.id))
             .transform(
@@ -209,7 +210,7 @@ class CustomQuestionRepositoryImpl(
                             /* question = */ questions.question,
                             /* category = */ questions.category,
                             /* tagList = */ GroupBy.list(tags),
-                            /* isFavorite = */ questions.isNull,
+                            /* isFavorite = */ favorite.isNotNull,
                             /* exemplaryAnswer = */ answers.answer,
                             /* createdAt = */ questions.createdAt,
                         )

@@ -8,6 +8,7 @@ import kr.hs.dsm.inq.common.util.PageUtil
 import kr.hs.dsm.inq.domain.question.persistence.Category
 import kr.hs.dsm.inq.domain.question.persistence.QAnswers.answers
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionSets
+import kr.hs.dsm.inq.domain.question.persistence.QQuestionSets.questionSets
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionTags.questionTags
 import kr.hs.dsm.inq.domain.question.persistence.QQuestions.questions
 import kr.hs.dsm.inq.domain.question.persistence.QTags.tags
@@ -79,7 +80,7 @@ class CustomQuestionRepositoryImpl(
 
     override fun queryQuestionDtoByProblemIdIn(user: User, problemIds: List<Long>): PageResponse<QuestionDto> {
         val questionList = queryFactory
-            .selectFrom(QQuestionSets.questionSets)
+            .selectFrom(questions)
             .where(
                 questions.problem.id.`in`(problemIds)
             )

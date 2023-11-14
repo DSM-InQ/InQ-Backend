@@ -7,6 +7,7 @@ import kr.hs.dsm.inq.common.util.PageResponse
 import kr.hs.dsm.inq.common.util.PageUtil
 import kr.hs.dsm.inq.domain.question.persistence.Category
 import kr.hs.dsm.inq.domain.question.persistence.QAnswers.answers
+import kr.hs.dsm.inq.domain.question.persistence.QFavorite.favorite
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionSets
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionSets.questionSets
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionTags.questionTags
@@ -155,7 +156,7 @@ class CustomQuestionRepositoryImpl(
 
         return@run rightJoin(questionTags).on(questionTags.problems.eq(questions.problem))
             .rightJoin(tags).on(tags.id.eq(questionTags.id.tagId))
-//            .rightJoin(favorite).on(favorite.questions.id.eq(questions.id))
+            .rightJoin(favorite).on(favorite.id.problemId.eq(questions.problem.id))
 //            .rightJoin(answers).on(answers.writer.eq(user).and(answers.questions.eq(questions)))
             .rightJoin(author).on(author.eq(questions.author))
             .transform(
@@ -170,7 +171,7 @@ class CustomQuestionRepositoryImpl(
                             /* question = */ questions.question,
                             /* category = */ questions.category,
                             /* tagList = */ GroupBy.list(tags),
-                            /* isFavorite = */ questions.isNull,
+                            /* isFavorite = */ favorite.isNotNull,
                             /* createdAt = */ questions.createdAt
                         )
                     )

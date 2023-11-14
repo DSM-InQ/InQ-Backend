@@ -49,7 +49,9 @@ data class QuestionUserAnsweredResponse(
         ) =
             QuestionUserAnsweredResponse(
                 hasNext = questionPageResponse.hasNext && questionSetPageResponse.hasNext,
-                solvedQuestionList = questionPageResponse.list.map { QuestionAnswered.of(it) } + questionSetPageResponse.list.map {
+                solvedQuestionList = questionPageResponse.list.map {
+                    QuestionAnswered.of(it)
+                } + questionSetPageResponse.list.map {
                     QuestionSetAnswered.of(
                         it,
                         questionSetDetailsList
@@ -67,7 +69,10 @@ data class QuestionAnswered(
     val tags: List<String>?,
     val solvedAt: LocalDateTime,
     val answer: String,
-    val isAnswered: Boolean
+    val isAnswered: Boolean,
+    val username: String,
+    val job: String,
+    val jobDuration: Int
 ) : SolvedQuestion() {
     companion object {
         fun of(dto: QuestionUserSolvedDto) = dto.run {
@@ -79,7 +84,10 @@ data class QuestionAnswered(
                 tags = tagList.map { it.tag },
                 solvedAt = solvedAt,
                 answer = answer,
-                isAnswered = isAnswered
+                isAnswered = isAnswered,
+                username = username,
+                job = job,
+                jobDuration = jobDuration
             )
         }
 
@@ -92,7 +100,10 @@ data class QuestionAnswered(
                 tags = tagList.map { it.tag },
                 solvedAt = solvedAt,
                 answer = answer,
-                isAnswered = isAnswered
+                isAnswered = isAnswered,
+                username = username,
+                job = job,
+                jobDuration = jobDuration
             )
         }
     }

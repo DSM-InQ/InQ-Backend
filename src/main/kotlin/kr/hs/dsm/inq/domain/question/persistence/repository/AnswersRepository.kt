@@ -138,7 +138,6 @@ class CustomAnswerRepositoryImpl(
             .innerJoin(questionTags).on(questionTags.problems.eq(questions.problem))
             .innerJoin(tags).on(tags.id.eq(questionTags.id.tagId))
             .innerJoin(writer).on(writer.id.eq(questions.author.id))
-            .innerJoin(questionSolvingHistory).on(questionSolvingHistory.problem.id.eq(questions.problem.id))
             .innerJoin(answers).on(answers.questions.id.eq(questions.id))
             .transform(
                 groupBy(questions)
@@ -154,7 +153,7 @@ class CustomAnswerRepositoryImpl(
                             writer.jobDuration,
                             list(tags),
                             questions.isNull,
-                            questionSolvingHistory.solvedAt,
+                            answers.createdAt,
                             answers.answer,
                             questions.isNotNull
                         )

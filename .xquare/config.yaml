@@ -1,5 +1,6 @@
 config:
   name: inq
-  prefix: "/inq"
   service_type: be
   port: 8080
+  domain:
+    prod: inq.xquare.app

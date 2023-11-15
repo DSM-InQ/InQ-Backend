@@ -166,6 +166,9 @@ class QuestionService(
         val user = SecurityUtil.getCurrentUser()
         val questionSetList = questionSetsRepository.queryQuestionSetDtoOrderByLike(
             user = user,
+            category = null,
+            keyword = "",
+            tags = listOf(),
             page = 1L
         )
         return QuestionSetListResponse.of(questionSetList)

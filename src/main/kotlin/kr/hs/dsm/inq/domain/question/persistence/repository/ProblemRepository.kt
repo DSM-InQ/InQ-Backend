@@ -32,7 +32,7 @@ class CustomProblemRepositoryImpl(
     override fun queryFavoriteProblem(userId: Long): List<Problem> {
         return queryFactory
             .selectFrom(problem)
-            .innerJoin(favorite).on(favorite.user.id.eq(userId))
+            .innerJoin(favorite).on(problem.id.eq(favorite.problem.id).and(favorite.user.id.eq(userId)))
             .where(problem.type.eq(ProblemType.QUESTION))
             .fetch()
     }
@@ -40,7 +40,7 @@ class CustomProblemRepositoryImpl(
     override fun queryFavoriteProblemSet(userId: Long): List<Problem> {
         return queryFactory
             .selectFrom(problem)
-            .innerJoin(favorite).on(favorite.user.id.eq(userId))
+            .innerJoin(favorite).on(problem.id.eq(favorite.problem.id).and(favorite.user.id.eq(userId)))
             .where(problem.type.eq(ProblemType.SET))
             .fetch()
     }

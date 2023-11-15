@@ -109,8 +109,8 @@ class UserService(
         val questionSetList = answersRepository.querySolvedQuestionSetDtoByUserId(user.id, request.page)
         val questionSetDetailsList = questionSetList.list.flatMap {
             answersRepository.queryQuestionDtoByQuestionSetId(
-                user.id,
-                it.questionSetId
+                userId = user.id,
+                questionSetId = it.questionSetId
             )
         }
 
@@ -152,7 +152,6 @@ class UserService(
     @Transactional
     fun userAttendanceCheck() {
         val user = SecurityUtil.getCurrentUser()
-
         val today = LocalDate.now().dayOfWeek
 
         val attendance = attendanceRepository.findByUserId(user.id)

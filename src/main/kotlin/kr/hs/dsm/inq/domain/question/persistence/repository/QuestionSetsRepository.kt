@@ -156,6 +156,7 @@ class CustomQuestionSetsRepositoryImpl(
                             /* name = */ questionSets.name,
                             /* createdAt = */ questionSets.createdAt,
                             /* description = */ questionSets.description,
+                            /* writerId = */ author.id,
                             /* username = */ author.username,
                             /* job = */ author.job,
                             /* jobDuration = */ author.jobDuration,

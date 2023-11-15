@@ -26,7 +26,8 @@ class CommentService(
             Comments(
                 comment = request.comment,
                 writer = user,
-                post = questionSets.post
+                post = questionSets.post,
+                isPrivate = request.isPrivate
             )
         )
     }
@@ -41,7 +42,8 @@ class CommentService(
             Comments(
                 comment = request.comment,
                 writer = user,
-                post = answer.post
+                post = answer.post,
+                isPrivate = request.isPrivate
             )
         )
     }

@@ -11,6 +11,7 @@ class QuestionSetDetailDto @QueryProjection constructor(
     val name: String,
     val createdAt: LocalDateTime,
     val description: String,
+    val writerId: Long,
     val username: String,
     val job: String,
     val jobDuration: Int,

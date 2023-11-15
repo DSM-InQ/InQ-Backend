@@ -67,7 +67,9 @@ data class GetQuestionSetsRequest(
 data class CreateCommentRequest(
     @field:NotBlank
     @field:Size(max = 1000)
-    val comment: String
+    val comment: String,
+
+    val isPrivate: Boolean
 )
 
 data class GetQuestionSetRankRequest(

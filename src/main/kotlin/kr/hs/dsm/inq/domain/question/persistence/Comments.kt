@@ -33,6 +33,9 @@ class Comments(
     @JoinColumn(name = "post_id", columnDefinition = "BIGINT", nullable = false)
     var post: Post,
 
+    @Column(columnDefinition = "BIT(1)", nullable = false)
+    val isPrivate: Boolean,
+
     @Column(nullable = false, updatable = false, columnDefinition = "DATETIME(6)")
     val createdAt: LocalDateTime = LocalDateTime.now()
 

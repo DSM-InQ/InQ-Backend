@@ -215,7 +215,8 @@ class QuestionService(
                 dislikeCount = post.dislikeCount,
                 isDisliked = like?.isLiked == false,
                 commentList = comments
-            )
+            ),
+            user = user
         )
     }
 
@@ -439,7 +440,11 @@ class QuestionService(
         val setQuestionList = setQuestionRepository.findAllBySetId(questionSetDetail.questionSetId)
         val questionList = questionsRepository.findByIdIn(setQuestionList.map { it.question.id })
 
-        return GetQuestionSetDetailResponse.of(questionSetDetail, questionList)
+        return GetQuestionSetDetailResponse.of(
+            questionSetDetail = questionSetDetail,
+            questionList = questionList,
+            user = user
+        )
     }
 
     fun answerQuestionSet(questionSetId: Long){
@@ -551,11 +556,12 @@ class QuestionService(
     }
 
     fun othersAnswer(questionId: Long, request: GetOthersAnswerRequest): OthersAnswerResponse {
-        SecurityUtil.getCurrentUser()
-
+        val user = SecurityUtil.getCurrentUser()
         val answerList = answersRepository
             .queryAnswerByQuestionIdOrderByLikeCount(request.page, questionId)
-
-        return OthersAnswerResponse.of(answerList)
+        return OthersAnswerResponse.of(
+            pageResponse = answerList,
+            user = user
+        )
     }
 }

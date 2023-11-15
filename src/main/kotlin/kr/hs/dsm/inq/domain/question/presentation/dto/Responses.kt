@@ -5,6 +5,8 @@ import kr.hs.dsm.inq.common.util.PageUtil
 import kr.hs.dsm.inq.domain.question.persistence.*
 import kr.hs.dsm.inq.domain.question.persistence.dto.*
 import java.time.LocalDateTime
+import java.util.UUID
+import kr.hs.dsm.inq.domain.user.persistence.User
 
 data class CreateQuestionResponses(
     val questionId: Long
@@ -101,7 +103,7 @@ data class QuestionDetailResponse(
     val createdAt: LocalDateTime
 ) {
     companion object {
-        fun of(questionDetail: QuestionDetailDto, answer: AnswersDto) = questionDetail.run {
+        fun of(questionDetail: QuestionDetailDto, answer: AnswersDto, user: User) = questionDetail.run {
             QuestionDetailResponse(
                 questionId = questionId,
                 authorId = authorId,
@@ -112,7 +114,7 @@ data class QuestionDetailResponse(
                 category = category,
                 tags = tagList.map { it.tag },
                 isFavorite = isFavorite,
-                exemplaryAnswer = AnswerResponse.of(answer),
+                exemplaryAnswer = AnswerResponse.of(answer, user),
                 createdAt = createdAt
             )
         }
@@ -166,7 +168,7 @@ data class AnswerResponse(
     val comments: List<CommentResponse>
 ) {
     companion object {
-        fun of(answers: AnswersDto) = answers.run {
+        fun of(answers: AnswersDto, user: User) = answers.run {
             AnswerResponse(
                 id = answers.id,
                 username = username,
@@ -177,7 +179,10 @@ data class AnswerResponse(
                 isLiked = isLiked,
                 dislikeCount = dislikeCount,
                 isDisliked = isDisliked,
-                comments = commentList.map { CommentResponse.of(it) }
+                comments = commentList.distinct().map { CommentResponse.of(
+                    comments = it,
+                    isOwner = answers.writerId == user.id || it.writer.id == user.id
+                ) }
             )
         }
     }
@@ -187,15 +192,19 @@ data class CommentResponse(
     val username: String,
     val job: String,
     val jobDuration: Int,
-    val comment: String
+    val comment: String,
+    val isPrivate: Boolean,
+    val isAccessible: Boolean
 ) {
     companion object {
-        fun of(comments: Comments) = comments.run {
+        fun of(comments: Comments, isOwner: Boolean) = comments.run {
             CommentResponse(
                 username = writer.username,
                 job = writer.job,
                 jobDuration = writer.jobDuration,
-                comment = comment
+                comment = comment,
+                isPrivate = isPrivate,
+                isAccessible = !isPrivate || isOwner
             )
         }
     }
@@ -322,7 +331,7 @@ data class GetQuestionSetDetailResponse(
     val comments: List<CommentResponse>
 ) {
     companion object {
-        fun of(questionSetDetail: QuestionSetDetailDto, questionList: List<Questions>) = questionSetDetail.run {
+        fun of(questionSetDetail: QuestionSetDetailDto, questionList: List<Questions>, user: User) = questionSetDetail.run {
             GetQuestionSetDetailResponse(
                 questionSetId = questionSetId,
                 name = name,
@@ -347,7 +356,10 @@ data class GetQuestionSetDetailResponse(
                 isDisliked = isDisliked,
                 isFavorite = isFavorite,
                 tags = tagList.map { it.tag },
-                comments = commentList.map { CommentResponse.of(it) }
+                comments = commentList.distinct().map { CommentResponse.of(
+                    comments = it,
+                    isOwner = writerId == user.id || it.writer.id == user.id
+                ) }
             )
         }
     }
@@ -370,10 +382,10 @@ data class OthersAnswerResponse(
     val answerList: List<AnswerResponse>
 ) {
     companion object {
-        fun of(pageResponse: PageResponse<AnswersDto>) = pageResponse.run {
+        fun of(pageResponse: PageResponse<AnswersDto>, user: User) = pageResponse.run {
             OthersAnswerResponse(
                 hasNext = hasNext,
-                answerList = list.map { AnswerResponse.of(it) }
+                answerList = list.map { AnswerResponse.of(answers = it, user = user) }
             )
         }
     }

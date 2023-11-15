@@ -16,6 +16,7 @@ class QuestionSetDto @QueryProjection constructor(
     val jobDuration : Int,
     tagList : List<Tags>?,
     val isAnswered : Boolean,
+    val isFavorite: Boolean,
     val likeCount : Int,
     val viewCount : Int,
 ) {

@@ -7,10 +7,12 @@ import kr.hs.dsm.inq.common.util.PageResponse
 import kr.hs.dsm.inq.common.util.PageUtil
 import kr.hs.dsm.inq.domain.question.persistence.*
 import kr.hs.dsm.inq.domain.question.persistence.QComments.comments
+import kr.hs.dsm.inq.domain.question.persistence.QFavorite.favorite
 import kr.hs.dsm.inq.domain.question.persistence.QPost.post
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionSets.questionSets
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionSolvingHistory.questionSolvingHistory
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionTags.questionTags
+import kr.hs.dsm.inq.domain.question.persistence.QQuestions.questions
 import kr.hs.dsm.inq.domain.question.persistence.QTags.tags
 import kr.hs.dsm.inq.domain.question.persistence.dto.*
 import kr.hs.dsm.inq.domain.user.persistence.QUser
@@ -110,7 +112,7 @@ class CustomQuestionSetsRepositoryImpl(
                 .on(questionSolvingHistory.user.id.eq(user.id)).on(questionSolvingHistory.problem.eq(questionSets.problem))
             .innerJoin(author).on(author.id.eq(questionSets.author.id))
             .innerJoin(post).on(post.id.eq(questionSets.post.id))
-//            .rightJoin(favorite).on(favorite.questions.id.eq(questions.id))
+            .rightJoin(favorite).on(favorite.problem.eq(questions.problem))
 //            .rightJoin(answers).on(answers.writer.eq(user).and(answers.questions.eq(questions)))
             .transform(
                 GroupBy.groupBy(questionSets.id)
@@ -125,6 +127,7 @@ class CustomQuestionSetsRepositoryImpl(
                             /* jobDuration = */ author.jobDuration,
                             /* tagList = */ GroupBy.list(tags),
                             /* isAnswered = */ questionSolvingHistory.isNotNull,
+                            /* isFavorite = */ favorite.isNotNull,
                             /* likeCount = */ post.likeCount,
                             /* viewCount = */ questionSets.viewCount,
                         )

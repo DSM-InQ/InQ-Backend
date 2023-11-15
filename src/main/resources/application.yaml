@@ -8,6 +8,7 @@ spring:
     password: ${MYSQL_PASSWORD:inqdbpassword}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
       ddl-auto: update
     properties:
@@ -17,7 +18,6 @@ spring:
     show-sql: true
   jackson:
     property-naming-strategy: SNAKE_CASE
-  database-platform: org.hibernate.dialect.MySQL8Dialect
 
   servlet:
     multipart:

@@ -161,6 +161,7 @@ class UserService(
             attendance.initializeAttendance()
 
         attendance.attendanceCheck(today)
+        attendanceRepository.save(attendance)
 
         user.addCoin()
         userRepository.save(user)

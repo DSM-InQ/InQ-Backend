@@ -467,7 +467,6 @@ class QuestionService(
         val user = SecurityUtil.getCurrentUser()
 
         val question = questionsRepository.findByIdOrNull(questionId)?: throw QuestionNotFoundException
-
         val post = postRepository.save(Post())
 
         answersRepository.save(

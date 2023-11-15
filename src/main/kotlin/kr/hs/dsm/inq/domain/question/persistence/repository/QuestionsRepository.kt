@@ -157,7 +157,7 @@ class CustomQuestionRepositoryImpl(
 
         return@run leftJoin(questionTags).on(questionTags.problems.eq(questions.problem))
             .leftJoin(tags).on(tags.id.eq(questionTags.id.tagId))
-            .leftJoin(favorite).on(favorite.problem.id.eq(questions.problem.id))
+            .leftJoin(favorite).on(favorite.problem.id.eq(questionSets.problem.id).and(favorite.user.id.eq(user.id)))
             .leftJoin(answers).on(answers.writer.eq(user).and(answers.questions.eq(questions)))
             .innerJoin(author).on(author.eq(questions.author))
             .transform(
@@ -198,6 +198,7 @@ class CustomQuestionRepositoryImpl(
             .leftJoin(tags).on(tags.id.eq(questionTags.id.tagId))
             .leftJoin(answers).on(answers.questions.id.eq(questions.id))
             .innerJoin(writer).on(writer.id.eq(user.id))
+            .leftJoin(favorite).on(favorite.problem.id.eq(questionSets.problem.id).and(favorite.user.id.eq(user.id)))
             .transform(
                 GroupBy.groupBy(questions)
                     .list(

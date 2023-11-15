@@ -1,0 +1,5 @@
+config:
+  name: inq
+  prefix: "/inq"
+  service_type: be
+  port: 8080

@@ -61,8 +61,8 @@ class CustomAnswerRepositoryImpl(
     private fun <T> JPAQuery<T>.getAnswerDetailDto(): MutableList<AnswersDto> {
         val like = QLike("likes")
         val dislike = QLike("dislikes")
-        return rightJoin(user).on(user.id.eq(answers.writer.id))
-            .rightJoin(post).on(post.id.eq(answers.post.id))
+        return innerJoin(user).on(user.id.eq(answers.writer.id))
+            .innerJoin(post).on(post.id.eq(answers.post.id))
             .leftJoin(like).on(like.post.id.eq(post.id).and(like.isLiked.isTrue))
             .leftJoin(dislike).on(dislike.post.id.eq(post.id).and(dislike.isLiked.isFalse))
             .leftJoin(comments).on(comments.post.eq(answers.post))

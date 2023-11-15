@@ -7,6 +7,7 @@ import kr.hs.dsm.inq.common.util.PageResponse
 import kr.hs.dsm.inq.common.util.PageUtil
 import kr.hs.dsm.inq.domain.question.persistence.Category
 import kr.hs.dsm.inq.domain.question.persistence.QAnswers.answers
+import kr.hs.dsm.inq.domain.question.persistence.QFavorite
 import kr.hs.dsm.inq.domain.question.persistence.QFavorite.favorite
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionSets
 import kr.hs.dsm.inq.domain.question.persistence.QQuestionSets.questionSets
@@ -115,11 +116,11 @@ class CustomQuestionRepositoryImpl(
 
     private fun <T> JPAQuery<T>.getQuestionDto(user: User): MutableList<QuestionDto> {
         val writer = QUser("writer")
-        return innerJoin(questionTags).on(questionTags.problems.eq(questions.problem))
-            .innerJoin(tags).on(tags.id.eq(questionTags.id.tagId))
+        return leftJoin(questionTags).on(questionTags.problems.eq(questions.problem))
+            .leftJoin(tags).on(tags.id.eq(questionTags.id.tagId))
             .innerJoin(writer).on(writer.id.eq(questions.author.id))
-            .rightJoin(favorite).on(favorite.problem.id.eq(questions.problem.id))
-//            .rightJoin(answers).on(answers.writer.eq(user).and(answers.questions.eq(questions)))
+            .leftJoin(favorite).on(favorite.problem.id.eq(questions.problem.id).and(favorite.user.id.eq(user.id)))
+            .leftJoin(answers).on(answers.writer.id.eq(user.id).and(answers.questions.id.eq(questions.id)))
             .transform(
                 GroupBy.groupBy(questions)
                     .list(
@@ -131,7 +132,7 @@ class CustomQuestionRepositoryImpl(
                             /* job = */ writer.job,
                             /* jobDuration = */ writer.jobDuration,
                             /* tagList = */ GroupBy.list(tags),
-                            /* isAnswered = */ questions.isNull, // answers.isNotNull,
+                            /* isAnswered = */ answers.isNotNull,
                             /* isFavorite = */ favorite.isNotNull,
                             /* createdAt = */ questions.createdAt
                         )
@@ -154,11 +155,11 @@ class CustomQuestionRepositoryImpl(
 
         val author = QUser("writer")
 
-        return@run rightJoin(questionTags).on(questionTags.problems.eq(questions.problem))
-            .rightJoin(tags).on(tags.id.eq(questionTags.id.tagId))
-            .rightJoin(favorite).on(favorite.id.problemId.eq(questions.problem.id))
-//            .rightJoin(answers).on(answers.writer.eq(user).and(answers.questions.eq(questions)))
-            .rightJoin(author).on(author.eq(questions.author))
+        return@run leftJoin(questionTags).on(questionTags.problems.eq(questions.problem))
+            .leftJoin(tags).on(tags.id.eq(questionTags.id.tagId))
+            .leftJoin(favorite).on(favorite.problem.id.eq(questions.problem.id))
+            .leftJoin(answers).on(answers.writer.eq(user).and(answers.questions.eq(questions)))
+            .innerJoin(author).on(author.eq(questions.author))
             .transform(
                 GroupBy.groupBy(questions)
                     .list(
@@ -193,11 +194,10 @@ class CustomQuestionRepositoryImpl(
     fun <T> JPAQuery<T>.getUserQuestionListDto(user: User): List<UserQuestionDto> = run {
         val writer = QUser("writer")
 
-        return@run innerJoin(questionTags).on(questionTags.problems.eq(questions.problem))
-            .innerJoin(tags).on(tags.id.eq(questionTags.id.tagId))
-            .rightJoin(favorite).on(favorite.id.problemId.eq(questions.problem.id))
-            .innerJoin(answers).on(answers.questions.id.eq(questions.id))
-            .rightJoin(writer).on(writer.id.eq(user.id))
+        return@run leftJoin(questionTags).on(questionTags.problems.eq(questions.problem))
+            .leftJoin(tags).on(tags.id.eq(questionTags.id.tagId))
+            .leftJoin(answers).on(answers.questions.id.eq(questions.id))
+            .innerJoin(writer).on(writer.id.eq(user.id))
             .transform(
                 GroupBy.groupBy(questions)
                     .list(

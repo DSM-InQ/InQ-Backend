@@ -6,6 +6,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory
 import kr.hs.dsm.inq.common.util.PageResponse
 import kr.hs.dsm.inq.common.util.PageUtil
 import kr.hs.dsm.inq.domain.question.persistence.*
+import kr.hs.dsm.inq.domain.question.persistence.QAnswers.answers
 import kr.hs.dsm.inq.domain.question.persistence.QComments.comments
 import kr.hs.dsm.inq.domain.question.persistence.QFavorite.favorite
 import kr.hs.dsm.inq.domain.question.persistence.QPost.post
@@ -112,8 +113,7 @@ class CustomQuestionSetsRepositoryImpl(
                 .on(questionSolvingHistory.user.id.eq(user.id)).on(questionSolvingHistory.problem.eq(questionSets.problem))
             .innerJoin(author).on(author.id.eq(questionSets.author.id))
             .innerJoin(post).on(post.id.eq(questionSets.post.id))
-            .rightJoin(favorite).on(favorite.problem.eq(questions.problem))
-//            .rightJoin(answers).on(answers.writer.eq(user).and(answers.questions.eq(questions)))
+            .leftJoin(favorite).on(favorite.problem.id.eq(questionSets.problem.id).and(favorite.user.id.eq(user.id)))
             .transform(
                 GroupBy.groupBy(questionSets.id)
                     .list(

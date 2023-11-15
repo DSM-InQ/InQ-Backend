@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://${DB_HOST}:${DB_PORT:3306}/${DB_NAME:inq}?useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true&tinyInt1isBit=false&rewriteBatchedStatements=true
+    url: jdbc:mysql://mysql.xquare.app:${DB_PORT:3306}/${DB_NAME:prod_inq}?useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true&tinyInt1isBit=false&rewriteBatchedStatements=true
     username: ${MYSQL_USERNAME:root}
     password: ${MYSQL_PASSWORD:inqdbpassword}
     driver-class-name: com.mysql.cj.jdbc.Driver

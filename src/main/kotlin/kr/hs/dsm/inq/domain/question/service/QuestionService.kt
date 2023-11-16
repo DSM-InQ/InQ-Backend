@@ -176,14 +176,14 @@ class QuestionService(
 
     fun getFavoriteQuestion(): QuestionListResponse {
         val user = SecurityUtil.getCurrentUser()
-        val problems = problemRepository.queryFavoriteProblemSet(user.id)
+        val problems = problemRepository.queryFavoriteProblem(user.id)
         val questionList = questionsRepository.queryQuestionDtoByProblemIdIn(user, problems.map { it.id })
         return QuestionListResponse.of(questionList)
     }
 
     fun getFavoriteQuestionSet(): QuestionSetListResponse {
         val user = SecurityUtil.getCurrentUser()
-        val problems = problemRepository.queryFavoriteProblem(user.id)
+        val problems = problemRepository.queryFavoriteProblemSet(user.id)
         val questionSetList = questionSetsRepository.queryQuestionSetDtoByProblemIdIn(
             user = user,
             problemIds = problems.map { it.id }

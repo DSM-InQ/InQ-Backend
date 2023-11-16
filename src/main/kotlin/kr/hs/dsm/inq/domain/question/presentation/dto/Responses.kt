@@ -328,7 +328,8 @@ data class GetQuestionSetDetailResponse(
     val isDisliked: Boolean,
     val isFavorite: Boolean,
     val tags: List<String>,
-    val comments: List<CommentResponse>
+    val comments: List<CommentResponse>,
+    val questionIdList: List<Long>
 ) {
     companion object {
         fun of(questionSetDetail: QuestionSetDetailDto, questionList: List<Questions>, user: User) = questionSetDetail.run {
@@ -359,7 +360,8 @@ data class GetQuestionSetDetailResponse(
                 comments = commentList.distinct().map { CommentResponse.of(
                     comments = it,
                     isOwner = writerId == user.id || it.writer.id == user.id
-                ) }
+                ) },
+                questionIdList = questionList.map{questions -> questions.id }
             )
         }
     }

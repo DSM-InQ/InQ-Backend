@@ -495,6 +495,10 @@ class QuestionService(
             Difficulty(questions = questions)
         )
 
+        difficultyRepository.save(
+            difficulty.also { difficulty.addCount(difficultyLevel)}
+        )
+
         return DifficultyResponse(
             veryEasy = difficulty.getPercentage(DifficultyLevel.VERY_EASY),
             easy = difficulty.getPercentage(DifficultyLevel.EASY),

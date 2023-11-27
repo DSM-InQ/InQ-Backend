@@ -62,7 +62,7 @@ class CustomQuestionRepositoryImpl(
                 questions.question.contains(keyword)
                     .and(category?.let { questions.category.eq(it)})
             )
-            .orderBy(questions.likeCount.asc())
+            .orderBy(questions.likeCount.desc())
             .getQuestionDto(user)
 
         return PageUtil.toPageResponse(

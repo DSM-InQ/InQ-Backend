@@ -61,7 +61,7 @@ class CustomQuestionSetsRepositoryImpl(
                 questionSets.name.contains(keyword ?: "")
                     .and(category?.let { questionSets.category.eq(it)})
             )
-            .orderBy(questionSets.post.likeCount.asc())
+            .orderBy(questionSets.post.likeCount.desc())
             .getQuestionSetDto(user)
 
         return PageUtil.toPageResponse(

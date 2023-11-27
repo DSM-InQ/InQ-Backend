@@ -40,10 +40,9 @@ class Difficulty(
     var veryHardCount: Int = 0,
 ) {
 
-    var total = veryEasyCount + easyCount + normalCount + hardCount + veryHardCount
-
+    private fun getTotal() = veryEasyCount + easyCount + normalCount + hardCount + veryHardCount
     fun getPercentage(difficultyLevel: DifficultyLevel): Int {
-        return getCount(difficultyLevel) * 100 / total
+        return getCount(difficultyLevel) * 100 / getTotal()
     }
 
     private fun getCount(difficultyLevel: DifficultyLevel): Int {
@@ -62,7 +61,7 @@ class Difficulty(
             DifficultyLevel.EASY -> easyCount++
             DifficultyLevel.NORMAL -> normalCount++
             DifficultyLevel.HARD -> hardCount++
-            DifficultyLevel.VERY_HARD -> veryHardCount
+            DifficultyLevel.VERY_HARD -> veryHardCount++
         }
     }
 }

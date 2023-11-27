@@ -74,7 +74,7 @@ class CustomAnswerRepositoryImpl(
             .where(questionSolvingHistory.user.id.eq(userId))
             .innerJoin(problem).on(problem.id.eq(questionSolvingHistory.problem.id))
             .innerJoin(questions).on(questions.problem.id.eq(problem.id))
-            .innerJoin(answers).on(answers.questions.id.eq(questions.id))
+            .innerJoin(answers).on(answers.questions.id.eq(questions.id).and(answers.writer.id.eq(userId)))
             .innerJoin(questionTags).on(questionTags.problems.eq(questions.problem))
             .innerJoin(tags).on(tags.id.eq(questionTags.id.tagId))
             .innerJoin(writer).on(writer.id.eq(questions.author.id))
@@ -138,7 +138,7 @@ class CustomAnswerRepositoryImpl(
             .innerJoin(questionTags).on(questionTags.problems.eq(questions.problem))
             .innerJoin(tags).on(tags.id.eq(questionTags.id.tagId))
             .innerJoin(writer).on(writer.id.eq(questions.author.id))
-            .innerJoin(answers).on(answers.questions.id.eq(questions.id))
+            .innerJoin(answers).on(answers.questions.id.eq(questions.id).and(answers.writer.id.eq(userId)))
             .transform(
                 groupBy(questions)
                     .list(

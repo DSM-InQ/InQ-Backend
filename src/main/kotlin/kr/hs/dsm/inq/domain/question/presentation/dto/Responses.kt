@@ -118,8 +118,6 @@ data class QuestionDetailResponse(
                 createdAt = createdAt
             )
         }
-
-
     }
 }
 
@@ -165,6 +163,7 @@ data class AnswerResponse(
     val isLiked: Boolean,
     val dislikeCount: Int,
     val isDisliked: Boolean,
+    val isMine: Boolean,
     val comments: List<CommentResponse>
 ) {
     companion object {
@@ -179,6 +178,7 @@ data class AnswerResponse(
                 isLiked = isLiked,
                 dislikeCount = dislikeCount,
                 isDisliked = isDisliked,
+                isMine = answers.writerId == user.id,
                 comments = commentList.distinct().map { CommentResponse.of(
                     comments = it,
                     isOwner = answers.writerId == user.id || it.writer.id == user.id

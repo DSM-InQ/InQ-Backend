@@ -7,6 +7,7 @@ import kr.hs.dsm.inq.domain.question.persistence.dto.*
 import java.time.LocalDateTime
 import java.util.UUID
 import kr.hs.dsm.inq.domain.user.persistence.User
+import kr.hs.dsm.inq.domain.user.persistence.dto.UserQuestionDto
 
 data class CreateQuestionResponses(
     val questionId: Long
@@ -148,6 +149,36 @@ data class UserQuestionResponse(
                 isFavorite = isFavorite,
                 exemplaryAnswer = exemplaryAnswer,
                 createdAt = createdAt
+            )
+        }
+
+        fun of(questionDetail: UserQuestionDto) = questionDetail.run {
+            UserQuestionResponse(
+                questionId = questionId,
+                authorId = authorId,
+                username = username,
+                job = job,
+                jobDuration = jobDuration,
+                question = question,
+                category = category,
+                tags = tagList.map { it.tag },
+                isFavorite = isFavorite,
+                exemplaryAnswer = exemplaryAnswer,
+                createdAt = createdAt
+            )
+        }
+    }
+}
+
+data class UserQuestionListResponse(
+    val hasNext: Boolean,
+    val questionList: List<UserQuestionResponse>,
+) {
+    companion object {
+        fun of(pageResponse: PageResponse<UserQuestionDto>) = pageResponse.run {
+            UserQuestionListResponse(
+                hasNext = hasNext,
+                questionList = list.map { UserQuestionResponse.of(it) }
             )
         }
     }

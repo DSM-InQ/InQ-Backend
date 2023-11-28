@@ -3,6 +3,7 @@ package kr.hs.dsm.inq.domain.user.presentation
 import javax.validation.Valid
 import kr.hs.dsm.inq.common.dto.TokenResponse
 import kr.hs.dsm.inq.domain.question.presentation.dto.QuestionSetListResponse
+import kr.hs.dsm.inq.domain.question.presentation.dto.UserQuestionListResponse
 import kr.hs.dsm.inq.domain.question.presentation.dto.UserQuestionResponse
 import kr.hs.dsm.inq.domain.user.presentation.dto.*
 import kr.hs.dsm.inq.domain.user.service.UserService
@@ -45,7 +46,7 @@ class UserController(
 
 
     @GetMapping("/question")
-    fun getMyQuestion(@Valid @ModelAttribute request: GetMyQuestionRequest): List<UserQuestionResponse> {
+    fun getMyQuestion(@Valid @ModelAttribute request: GetMyQuestionRequest): UserQuestionListResponse {
         return userService.getMyQuestion(request)
     }
 

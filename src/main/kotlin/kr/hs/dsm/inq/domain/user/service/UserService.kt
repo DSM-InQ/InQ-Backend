@@ -7,6 +7,7 @@ import kr.hs.dsm.inq.domain.question.persistence.dto.QuestionDetailDto
 import kr.hs.dsm.inq.domain.question.persistence.repository.QuestionSetsRepository
 import kr.hs.dsm.inq.domain.question.persistence.repository.QuestionsRepository
 import kr.hs.dsm.inq.domain.question.presentation.dto.QuestionSetListResponse
+import kr.hs.dsm.inq.domain.question.presentation.dto.UserQuestionListResponse
 import kr.hs.dsm.inq.domain.question.presentation.dto.UserQuestionResponse
 import kr.hs.dsm.inq.domain.user.exception.AttendanceNotFound
 import kr.hs.dsm.inq.domain.user.exception.PasswordMismatchException
@@ -117,28 +118,12 @@ class UserService(
         return QuestionUserAnsweredResponse.of(questionList, questionSetList, questionSetDetailsList)
     }
 
-    fun getMyQuestion(request: GetMyQuestionRequest): List<UserQuestionResponse> {
+    fun getMyQuestion(request: GetMyQuestionRequest): UserQuestionListResponse {
         val user = SecurityUtil.getCurrentUser()
 
         val usersQuestions = questionsRepository.queryQuestionDtoByWriterId(request.page, user)
 
-        return usersQuestions.list.map {
-            UserQuestionResponse.of(
-                questionDetail = QuestionDetailDto(
-                    questionId = it.questionId,
-                    authorId = it.authorId,
-                    username = it.username,
-                    job = it.job,
-                    jobDuration = it.jobDuration,
-                    question = it.question,
-                    category = it.category,
-                    tagList = it.tagList,
-                    isFavorite = it.isFavorite,
-                    createdAt = it.createdAt
-                ),
-                exemplaryAnswer = it.exemplaryAnswer
-            )
-        }
+        return UserQuestionListResponse.of(usersQuestions)
     }
 
     fun getMyQuestionSet(request: GetMyQuestionRequest): QuestionSetListResponse {

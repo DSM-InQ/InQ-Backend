@@ -25,6 +25,8 @@ import javax.transaction.Transactional
 import kr.hs.dsm.inq.domain.user.persistence.repository.UserRepository
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 @Service
 class UserService(
@@ -137,7 +139,8 @@ class UserService(
     @Transactional
     fun userAttendanceCheck() {
         val user = SecurityUtil.getCurrentUser()
-        val today = LocalDate.now().dayOfWeek
+
+        val today = ZonedDateTime.now(ZoneId.of("Asia/seoul")).toLocalDate().dayOfWeek
 
         val attendance = attendanceRepository.findByUserId(user.id)
             ?: attendanceRepository.save(Attendance(user = user))

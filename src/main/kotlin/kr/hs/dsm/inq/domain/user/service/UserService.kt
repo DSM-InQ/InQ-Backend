@@ -140,7 +140,7 @@ class UserService(
     fun userAttendanceCheck() {
         val user = SecurityUtil.getCurrentUser()
 
-        val today = ZonedDateTime.now(ZoneId.of("Asia/seoul")).toLocalDate().dayOfWeek
+        val today = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDate().dayOfWeek
 
         val attendance = attendanceRepository.findByUserId(user.id)
             ?: attendanceRepository.save(Attendance(user = user))

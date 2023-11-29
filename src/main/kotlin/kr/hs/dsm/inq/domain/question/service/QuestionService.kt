@@ -164,13 +164,12 @@ class QuestionService(
 
     fun getPopularQuestionSet(): QuestionSetListResponse {
         val user = SecurityUtil.getCurrentUser()
+
         val questionSetList = questionSetsRepository.queryQuestionSetDtoOrderByLike(
             user = user,
-            category = null,
-            keyword = "",
-            tags = listOf(),
-            page = 1L
+            page = 0
         )
+        
         return QuestionSetListResponse.of(questionSetList)
     }
 
